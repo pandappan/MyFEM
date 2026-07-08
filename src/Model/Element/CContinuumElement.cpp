@@ -165,8 +165,8 @@ std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned 
     const DOFIndex* dofs = GetActiveDOFs();
     unsigned int ndofs = GetNumActiveDOFsPerNode();
     int index = 0;
-    for (int i = 0; i < NEN_; i++) {
-        for (int j = 0; j < ndofs; j++) {
+    for (unsigned int i = 0; i < NEN_; i++) {
+        for (unsigned int j = 0; j < ndofs; j++) {
             ue[index++] = nodes_[i]->Displacement[dofs[j]];
         }
     }

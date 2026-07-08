@@ -58,7 +58,7 @@ void Assembler::AssembleStiffnessMatrix(Model &model) {
 void Assembler::AssembleForce(Model &model) {
     std::fill(model.force.begin(), model.force.end(), 0.0);
     for (auto& node : model.nodes) {
-        for (int d = 0; d < CNode::NDF; d++) {
+        for (unsigned int d = 0; d < CNode::NDF; d++) {
             unsigned int eq = node.eqn[d];
             if (eq) {
                 model.force[eq - 1] += node.GetForce(d);

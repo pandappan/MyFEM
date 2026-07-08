@@ -31,7 +31,7 @@ public:
 public:
 	CMaterial() : nset(0), E(0.0), nu(0.0), rho(0.0) {}
 //! Virtual deconstructor
-    virtual ~CMaterial() = default;;
+    virtual ~CMaterial() = default;
 
 //!	Read material data from stream Input
 	virtual bool Read(std::ifstream& Input) = 0;
