@@ -1,0 +1,46 @@
+name: CI
+
+# 触发条件
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build & Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # 一个 job 失败不影响其他
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        # 想跨平台的话，扩展成：
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      # -------- 1. 拉代码 --------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -------- 2. 装 CMake 和编译器 --------
+      # ubuntu-latest 默认已经有 gcc 和 cmake，不用额外装
+      - name: Show tool versions
+        run: |
+          cmake --version
+          g++ --version
+
+      # -------- 3. Configure --------
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      # -------- 4. Build --------
+      - name: Build
+        run: cmake --build build --parallel
+
+      # -------- 5. Test --------
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure --parallel
