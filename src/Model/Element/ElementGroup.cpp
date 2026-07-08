@@ -73,3 +73,11 @@ bool CElementGroup::Read(std::ifstream& Input, std::vector<CNode>& nodelist)
     }
     return true;
 }
+
+void CElementGroup::AddMaterialForTesting(std::unique_ptr<CMaterial> mat) {
+    materials_.push_back(std::move(mat));
+}
+
+void CElementGroup::AddElementForTesting(std::unique_ptr<CElement> elem) {
+    elements_.push_back(std::move(elem));
+}

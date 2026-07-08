@@ -43,4 +43,8 @@ public:
     unsigned int GetNUME() const {return elements_.size();}
     unsigned int GetNUMAT() const {return materials_.size();}
     ElementTypes GetElementType() {return type_;}
+    // 测试入口
+    void SetTypeForTesting(ElementTypes t) { type_ = t; }
+    void AddMaterialForTesting(std::unique_ptr<CMaterial> mat);
+    void AddElementForTesting(std::unique_ptr<CElement> elem);
 };
