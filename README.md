@@ -1,7 +1,10 @@
 # MyFEM
-[]
+[![CI](https://github.com/pandappan/MyFEM/actions/workflows/ci.yml/badge.svg)](https://github.com/pandappan/MyFEM/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![C++](https://img.shields.io/badge/C%2B%2B-11-blue.svg)]()
+[![Platform](https://img.shields.io/badge/platform-linux-lightgrey.svg)]()
 ## 简介
-这是一个完备的C++面向对象线弹性有限元程序
+这是一个完备的C++面向对象线弹性有限元教学级程序
 ## 主要特性
 - 现代C++11 面向对象架构
 - 支持多种连续介质单元，Bar3D, Q4, H8
