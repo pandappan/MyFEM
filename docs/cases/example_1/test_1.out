@@ -1,0 +1,55 @@
+Title: Test T1: Single 3D Bar under axial tension
+        (21:35:12 on July 7, 2026, Tuesday)
+
+C O N T R O L   I N F O R M A T I O N
+
+  DIMENSION = 3
+  NUMNP     = 2
+  NUMEG     = 1
+
+     1     1     1     1     0     0     0
+     2     0     1     1     1     0     0
+
+ EQUATION NUMBERS
+
+   NODE   Degrees of freedom
+     N     X    Y    Z
+        1            0     0     0
+        2            1     0     0
+
+ E L E M E N T   G R O U P   D A T A
+
+
+ E L E M E N T   D E F I N I T I O N
+
+   ELEMENT TYPE  = 2
+   NUME          = 1
+   NUMMAT        = 1
+
+ M A T E R I A L   D E F I N I T I O N
+    1     0  1000     1
+
+ E L E M E N T   I N F O R M A T I O N
+    1     1     2     1
+
+ N O D A L   F O R C E S
+
+  NODE              FX                FY                FZ
+     1             0     0     0
+     2           100     0     0
+
+
+TOTAL SYSTEM DATA
+  NEQ = 1
+  NWK = 1
+  MK  = 1
+ D I S P L A C E M E N T S
+
+  NODE      X-DISPLACEMENT    Y-DISPLACEMENT    Z-DISPLACEMENT
+     1             0     0     0
+     2           0.1     0     0
+
+ STRESSES FOR ELEMENT GROUP 0
+
+               0             100             100
+

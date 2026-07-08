@@ -1,0 +1,158 @@
+/*****************************************************************************/
+/*  STAP++ : A C++ FEM code sharing the same input data file with STAP90     */
+/*     Computational Dynamics Laboratory                                     */
+/*     School of Aerospace Engineering, Tsinghua University                  */
+/*                                                                           */
+/*     Release 1.11, November 22, 2017                                       */
+/*                                                                           */
+/*     http://www.comdyn.cn/                                                 */
+/*****************************************************************************/
+
+#pragma once
+#include <cassert>
+#include <iomanip>
+#include <fstream>
+#include <vector>
+#include "../Core/Types.h"
+
+class Writer;
+//!	Node class
+class CNode
+{
+public:
+
+//!	Maximum number of degrees of freedom per node
+/*!	For 3D bar and solid elements, NDF = 3. For 3D beam or shell elements, NDF = 6 or 6 */
+	const static unsigned int NDF = 3;
+
+//!	Node numer
+	unsigned int NodeNumber;
+
+//!	x, y and z coordinates of the node
+	double XYZ[3];
+
+//!	Boundary code of each degree of freedom of the node
+/*!		0: The corresponding degree of freedom is active (defined in the global system) */
+/*!		1: The corresponding degree of freedom in nonactive (not defined) */
+/*!	corresponding to each degree of freedom of the node */
+	unsigned int bcode[NDF]; // 节点自由度约束代码 0自由 1固定约束
+	unsigned int eqn[NDF];   // 节点全局方程号
+//! 节点位移值
+	double Displacement[NDF];
+//! 节点力
+	double NodeForce[NDF];
+
+//!	Constructor
+	CNode(double X = 0.0, double Y = 0.0, double Z = 0.0);
+
+//!	Read nodal point data from stream Input
+	bool Read(std::ifstream& Input, unsigned int dimension);
+
+//! 累加方式设置节点力
+	inline void AddForce(unsigned int dof, double value) {
+		NodeForce[dof] += value;
+	}
+//! 输出对应自由度的节点力
+    inline double GetForce(unsigned int dof) const {
+		return NodeForce[dof];
+	}
+//!	Output nodal point data to stream
+	template <class Stream>
+	void Write(Stream& output, unsigned int dimension) const;
+
+//!	Output equation numbers of nodal point to stream OutputFile
+	template <class Stream>
+	void WriteEquationNo(Stream& output, unsigned int dimension) const;
+
+//!	Write nodal displacement
+	template <class Stream>
+	void WriteNodalDisplacement(Stream& output, unsigned int dimension) const;
+
+//! Write node force
+	template <class Stream>
+	void WriteNodeForces(Stream& output, unsigned int dimension) const;
+
+//! 将节点约束代码转换为全局方程号
+	void GenerateNodeEquation(unsigned int& NEQ);
+
+//! 将求解得到位移回代，更新节点自由度值
+	void UpdataNodeDisplacement(const std::vector<double>& displacement);
+};
+
+//	Output nodal point data to stream
+template <class Stream>
+void CNode::Write(Stream& output, unsigned int dimension) const
+{
+	assert(dimension == 2 || dimension == 3);
+	if (dimension == 2) {
+		output << std::setw(6) << NodeNumber
+		<< std::setw(6) << bcode[UX] << std::setw(6) << bcode[UY]
+		<< std::setw(6) << XYZ[0] << std::setw(6) << XYZ[1]<< std::endl;
+	} else {
+		output << std::setw(6) << NodeNumber
+		<< std::setw(6) << bcode[UX] << std::setw(6) << bcode[UY] << std::setw(6) << bcode[UZ]
+	    << std::setw(6) << XYZ[0] << std::setw(6) << XYZ[1] << std::setw(6) << XYZ[2] << std::endl;
+	}
+}
+
+//	Output equation numbers of nodal point to stream
+template <class Stream>
+void CNode::WriteEquationNo(Stream& output, unsigned int dimension) const
+{
+	assert(dimension == 2 || dimension == 3);
+	output << std::setw(9) << NodeNumber << "       ";
+    if (dimension == 2) {
+	    output << std::setw(6) << eqn[UX] << std::setw(6) << eqn[UY];
+    } else {
+    	output << std::setw(6) << eqn[UX] << std::setw(6) << eqn[UY] << std::setw(6) << eqn[UZ];
+    }
+	output << std::endl;
+}
+
+//	Write nodal displacement
+template <class Stream>
+void CNode::WriteNodalDisplacement(Stream& output, unsigned int dimension) const
+{
+	assert(dimension == 2 || dimension == 3);
+	output << std::setw(6) << NodeNumber << "        ";
+    if (dimension == 2) { // 2D问题输出前三个自由度
+		if (bcode[UX] == 0) { // 自由则直接输出位移
+			output << std::setw(5) << Displacement[UX];
+		} else { // 固定约束则输出0.0
+			output << std::setw(6) << 0.0;
+		}
+    	if (bcode[UY] == 0) {
+    		output << std::setw(6) << Displacement[UY];
+    	} else {
+    		output << std::setw(6) << 0.0;
+    	}
+    } else { // 3D问题输出6个自由度
+    	for (unsigned int j = 0; j < NDF; j++)
+    	{
+    		if (bcode[j] == 0) // 自由则直接输出位移
+    		{
+    			output << std::setw(6) << Displacement[j];
+    		}
+    		else // 固定约束则输出0.0
+    		{
+    			output << std::setw(6) << 0.0;
+    		}
+    	}
+    }
+	output << std::endl;
+}
+
+template <class Stream>
+void CNode::WriteNodeForces(Stream &output, unsigned int dimension) const
+{
+	assert(dimension == 2 || dimension == 3);
+	output << std::setw(6) << NodeNumber << "        ";
+	if (dimension == 2) {
+		output << std::setw(6) << NodeForce[UX] << std::setw(6) << NodeForce[UY];
+	} else {
+		output << std::setw(6) << NodeForce[UX]
+			   << std::setw(6) << NodeForce[UY]
+			   << std::setw(6) << NodeForce[UZ];
+	}
+	output << std::endl;
+}

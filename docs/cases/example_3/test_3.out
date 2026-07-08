@@ -1,0 +1,66 @@
+Title: Test T3: Single Q4 element, plane stress, uniaxial tension
+        (10:0:10 on July 8, 2026, Wednesday)
+
+C O N T R O L   I N F O R M A T I O N
+
+  DIMENSION = 2
+  NUMNP     = 4
+  NUMEG     = 1
+
+     1     1     1     0     0
+     2     0     1     1     0
+     3     0     0     1     1
+     4     1     0     0     1
+
+ EQUATION NUMBERS
+
+   NODE   Degrees of freedom
+     N     X    Y
+        1            0     0
+        2            1     0
+        3            2     3
+        4            0     4
+
+ E L E M E N T   G R O U P   D A T A
+
+
+ E L E M E N T   D E F I N I T I O N
+
+   ELEMENT TYPE  = 3
+   NUME          = 1
+   NUMMAT        = 1
+
+ M A T E R I A L   D E F I N I T I O N
+    1     0     1     0     1
+
+ E L E M E N T   I N F O R M A T I O N
+    1     0     1     2     3     4     1
+
+ N O D A L   F O R C E S
+
+  NODE              FX                FY
+     1             0     0
+     2            50     0
+     3            50     0
+     4             0     0
+
+
+TOTAL SYSTEM DATA
+  NEQ = 4
+  NWK = 10
+  MK  = 4
+ D I S P L A C E M E N T S
+
+  NODE      X-DISPLACEMENT    Y-DISPLACEMENT
+     1             0     0
+     2          100     0
+     3          100-9.4739e-15
+     4             09.4739e-15
+
+ STRESSES FOR ELEMENT GROUP 0
+
+     0     1   1005.46976e-151.55064e-15
+     0     2   100-5.46976e-151.22088e-14
+     0     3   100-5.46976e-156.73902e-15
+     0     4   1005.46976e-15-3.91912e-15
+

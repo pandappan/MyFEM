@@ -1,0 +1,185 @@
+//
+// Created by Administrator on 2026/6/10.
+//
+
+#include <cmath>
+#include <stdexcept>
+#include "../Node.h"
+#include "CContinuumElement.h"
+#include "../Material/Material.h"
+
+// 计算雅可比矩阵
+// jac_ij = (ax/axi)^T = x_iI o (aN_I/axi)_jI
+void CContinuumElement::ComputeJacobian(const DenseMatrix<double>& dN_dxi,
+    const DenseMatrix<double> &nodeCoords, DenseMatrix<double> &jacobian) const {
+    jacobian.Resize(NDim_, NDim_);
+    jacobian.SetZero();
+    for (unsigned int i = 0; i < NDim_; i++)
+        for (unsigned int j = 0; j < NDim_; j++)
+            for (unsigned int I = 0; I < NEN_; I++)
+                jacobian(i, j) += nodeCoords(i, I) * dN_dxi(j, I);
+}
+
+// 计算雅可比矩阵的逆以及行列式
+double CContinuumElement::ComputeInverseJacobian(const DenseMatrix<double> &jacobian,
+    DenseMatrix<double> &invJacobian) const {
+    double detJ = jacobian.Determinant();
+    if (std::abs(detJ) < 1e-12) {
+        throw std::runtime_error("Jacobian determinant is zero or near zero");
+    }
+    invJacobian = jacobian.Inverse();
+    return detJ;
+}
+
+// 计算形函数的全局导数
+void CContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_dxi,
+                              const DenseMatrix<double>& invJacobian,
+                              DenseMatrix<double>& dN_dx) const {
+    dN_dx.SetZero();
+    for (unsigned int i = 0; i < NDim_; i++) {
+        for (unsigned int j = 0; j < NDim_; j++) {
+            for (unsigned int k = 0; k < NEN_; k++) {
+                dN_dx(i, k) += invJacobian(i,j) * dN_dxi(j,k);
+            }
+        }
+    }
+}
+
+// 预先计算积分点处所有信息
+void CContinuumElement::ComputeIntegrationPointData(
+    const std::vector<double>& xi,
+    double weight,
+    const DenseMatrix<double>& nodeCoords,
+    IntegrationPointData& ipData) {
+    // 计算形函数值
+    ComputeShapeFunctions(xi, ipData.N);
+    // 计算形函数局部导数
+    DenseMatrix<double> dN_dxi(NDim_, NEN_);
+    ComputeShapeDerivatives(xi, dN_dxi);
+    // 计算雅可比矩阵
+    DenseMatrix<double> jacobian(NDim_, NDim_);
+    ComputeJacobian(dN_dxi, nodeCoords, jacobian);
+    // 计算雅可比逆矩阵和行列式
+    DenseMatrix<double> invJacobian(NDim_, NDim_);
+    double detJ = ComputeInverseJacobian(jacobian, invJacobian);
+    // 计算形函数全局导数
+    ComputeGlobalDerivatives(dN_dxi, invJacobian, ipData.dN_dx);
+    // 计算 detJ * weight
+    ipData.detJ_times_weight = detJ * weight;
+}
+
+void CContinuumElement::ComputeBMatrix(unsigned int ip,
+    DenseMatrix<double>& B) const {
+    // 引用语法
+    const auto& dN_dx = integrationPoints_[ip].dN_dx;
+    if (NDim_ == 2) {
+        for (unsigned int i = 0; i < NEN_; i++) {
+            double dNdx = dN_dx(0,i);
+            double dNdy = dN_dx(1, i);
+            B(0, 2*i    ) = dNdx;
+            B(1, 2*i + 1) = dNdy;
+            B(2, 2*i    ) = dNdy;
+            B(2, 2*i + 1) = dNdx;
+        }
+    } else if (NDim_ == 3) {
+        for (unsigned int i = 0; i < NEN_; i++) {
+            double dNdx = dN_dx(0, i);
+            double dNdy = dN_dx(1, i);
+            double dNdz = dN_dx(2, i);
+            B(0, 3*i    ) = dNdx;
+            B(1, 3*i + 1) = dNdy;
+            B(2, 3*i + 2) = dNdz;
+            B(3, 3*i    ) = dNdy;  B(3, 3*i + 1) = dNdx;
+            B(4, 3*i + 1) = dNdz;  B(4, 3*i + 2) = dNdy;
+            B(5, 3*i    ) = dNdz;  B(5, 3*i + 2) = dNdx;
+        }
+    }
+}
+
+// 初始化积分点处的信息
+void CContinuumElement::InitializeIntegrationPoints() {
+    if (integrationPointsCached_) {
+        return;
+    }
+    // 积分点个数
+    unsigned int nGp = GetNumIntegrationPoints();
+    // 获取积分点位置以及权重
+    GaussData Gauss = GetIntegrationPoint();
+    // 调整积分点容器大小
+    integrationPoints_.resize(nGp);
+    // 为每个积分点初始化数据结构
+    for (unsigned int i = 0; i < nGp; i++) {
+        integrationPoints_[i].N.resize(NEN_);
+        integrationPoints_[i].dN_dx.Resize(NDim_,NEN_);
+        integrationPoints_[i].detJ_times_weight = 0.0;
+    }
+    // 单元的节点坐标数组
+    DenseMatrix<double> nodeCoords = GetNodeCoordinates();
+    // 计算积分点处的形函数信息
+    for (unsigned int i = 0; i < nGp; i++) {
+        // 提取积分点处的坐标
+        std::vector<double> xi(NDim_);
+        for (unsigned int j = 0; j < NDim_; j++) {
+            xi[j] = Gauss.GaussPoints(i, j);
+        }
+        // 计算该积分点的所有信息
+        ComputeIntegrationPointData(xi, Gauss.GaussWeights[i],
+                                    nodeCoords, integrationPoints_[i]);
+    }
+    volume_ = 0.0;
+    for (unsigned int i = 0; i < nGp; i++) {
+        volume_ += integrationPoints_[i].detJ_times_weight;
+    }
+    CMaterial* mat = GetElementMaterial();
+    double thk = mat->GetThickness();
+    volume_ *= thk;
+    integrationPointsCached_ = true;
+}
+
+void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) {
+    if (!integrationPointsCached_) InitializeIntegrationPoints();
+    Ke.SetZero();
+
+    CMaterial* mat = GetElementMaterial();
+    unsigned int nStress = mat->GetNumStressComponents();
+    DenseMatrix<double> D(nStress, nStress);
+    mat->ComputeElasticMatrix(D);
+    double thk = mat->GetThickness();
+    DenseMatrix<double> B(nStress, ND_);
+    for (unsigned int ip = 0; ip < GetNumIntegrationPoints(); ++ip) {
+        ComputeBMatrix(ip, B);
+        double dv = integrationPoints_[ip].detJ_times_weight * thk;
+        DenseMatrix<double> DB   = D.DotMat(B);              // (nS, ND_)
+        DenseMatrix<double> BtDB = B.Transpose().DotMat(DB); // (ND_, ND_)
+        for (unsigned int i = 0; i < ND_; ++i)
+            for (unsigned int j = 0; j < ND_; ++j)
+                Ke(i, j) += BtDB(i, j) * dv;
+    }
+}
+
+std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned int ip) const {
+    unsigned int ns = GetElementMaterial()->GetNumStressComponents();
+    DenseMatrix<double> B(ns, ND_);
+    ComputeBMatrix(ip, B);
+    std::vector<double> ue(ND_, 0.0);
+    const DOFIndex* dofs = GetActiveDOFs();
+    unsigned int ndofs = GetNumActiveDOFsPerNode();
+    int index = 0;
+    for (int i = 0; i < NEN_; i++) {
+        for (int j = 0; j < ndofs; j++) {
+            ue[index++] = nodes_[i]->Displacement[dofs[j]];
+        }
+    }
+    std::vector<double> strain(ns, 0.0);
+    strain = B.DotVec(ue);
+    return strain;
+}
+
+std::vector<double> CContinuumElement::ComputeStressAtIntegrationPoint(unsigned int ip) const {
+    unsigned int ns = GetElementMaterial()->GetNumStressComponents();
+    std::vector<double> strain(ns, 0.0);
+    strain = ComputeStrainAtIntegrationPoint(ip);
+    std::vector<double> stress(ns, 0.0);
+    GetElementMaterial()->ComputeStress(strain, stress);
+    return stress;
+}
