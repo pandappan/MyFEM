@@ -21,7 +21,7 @@ using namespace std;
 void CLDLTSolver::LDLT()
 {
 	unsigned int N = K.dim();
-    unsigned int* ColumnHeights = K.GetColumnHeights();   // Column Hights
+    const std::vector<unsigned int>& ColumnHeights = K.GetColumnHeights();   // Column Hights
 
 	for (unsigned int j = 2; j <= N; j++)      // Loop for column 2:n (Numbering starting from 1)
 	{
@@ -62,7 +62,7 @@ void CLDLTSolver::LDLT()
 void CLDLTSolver::BackSubstitution(std::vector<double>& Force)
 {
 	unsigned int N = K.dim();
-    unsigned int* ColumnHeights = K.GetColumnHeights();   // Column Hights
+    const std::vector<unsigned int>& ColumnHeights = K.GetColumnHeights();   // Column Hights
 
 //	Reduce right-hand-side load vector (LV = R)
 	for (unsigned int i = 2; i <= N; i++)	// Loop for i=2:N (Numering starting from 1)

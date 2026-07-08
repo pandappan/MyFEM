@@ -13,10 +13,13 @@ add_executable(MyFEM_tests
         test_dense_matrix.cpp
         test_Q4.cpp
         test_Bar3D.cpp
+        test_skyline_matrix.cpp
+        test_solver.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::Core
         MyFEM::Model
+        MyFEM::Analysis
         GTest::gtest_main
 )
 # 自动发现测试

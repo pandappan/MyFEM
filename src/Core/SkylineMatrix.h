@@ -24,7 +24,7 @@ class CSkylineMatrix
     
 private:
 //! Store the stiffness matrkix in skyline storage
-    T_* data_;
+    std::vector<T_> data_;
     
 //! Dimension of the stiffness matrix
     unsigned int NEQ_;
@@ -36,10 +36,10 @@ private:
     unsigned int NWK_;
 
 //! Column hights
-    unsigned int* ColumnHeights_;
+    std::vector<unsigned int> ColumnHeights_;
     
 //! Diagonal address of all columns in data_
-    unsigned int* DiagonalAddress_;
+    std::vector<unsigned int> DiagonalAddress_;
     
 public:
 
@@ -48,11 +48,12 @@ public:
     inline CSkylineMatrix(unsigned int N);
     
 //! destructor
-    inline ~CSkylineMatrix();
+    ~CSkylineMatrix() = default;
 
 //! operator (i,j) where i and j numbering from 1
 //! For the sake of efficiency, the index bounds are not checked
     inline T_& operator()(unsigned int i, unsigned int j);
+    inline const T_& operator()(unsigned int i, unsigned int j) const;
     
 //! Allocate storage for the skyline matrix
     inline void Allocate();
@@ -71,13 +72,13 @@ public:
     void Assembly(DenseMatrix<T_>& Matrix, const std::vector<unsigned int> &lm);
 
 //! Return pointer to the ColumnHeights_
-    inline unsigned int* GetColumnHeights();
+    inline std::vector<unsigned int>& GetColumnHeights();
 
 //! Return the maximum half bandwidth
     inline unsigned int GetMaximumHalfBandwidth() const;
 
 //! Return pointer to the DiagonalAddress_
-    inline unsigned int* GetDiagonalAddress();
+    inline std::vector<unsigned int>& GetDiagonalAddress();
 
 //! Return the dimension of the stiffness matrix
     inline unsigned int dim() const;
@@ -94,10 +95,6 @@ inline CSkylineMatrix<T_>::CSkylineMatrix()
     NEQ_ = 0;
     MK_  = 0;
     NWK_ = 0;
-
-    data_ = nullptr;
-    ColumnHeights_ = nullptr;
-    DiagonalAddress_ = nullptr;
 }
 
 template <class T_>
@@ -107,24 +104,13 @@ inline CSkylineMatrix<T_>::CSkylineMatrix(unsigned int N)
     MK_  = 0;
     NWK_ = 0;
 
-    data_ = nullptr;
-
-    ColumnHeights_ = new unsigned int [NEQ_];
+    ColumnHeights_.reserve(NEQ_);
     for (unsigned int i = 0; i < NEQ_; i++)
         ColumnHeights_[i] = 0;
 
-    DiagonalAddress_ = new unsigned int [NEQ_ + 1];
+    DiagonalAddress_.reserve(NEQ_ + 1);
     for (unsigned int i = 0; i < NEQ_ + 1; i++)
         DiagonalAddress_[i] = 0;
-}
-
-//! destructor function
-template <class T_>
-inline CSkylineMatrix<T_>::~CSkylineMatrix<T_>()
-{
-    delete[] ColumnHeights_;
-    delete[] DiagonalAddress_;
-    delete[] data_;
 }
 
 //! operator function (i,j) where i and j numbering from 1
@@ -137,20 +123,28 @@ inline T_& CSkylineMatrix<T_>::operator()(unsigned int i, unsigned int j)
         return data_[DiagonalAddress_[i - 1] + (i - j) - 1];
 }
 
+template <class T_>
+inline const T_& CSkylineMatrix<T_>::operator()(unsigned int i, unsigned int j) const {
+    if (j >= i)
+        return data_[DiagonalAddress_[j - 1] + (j - i) - 1];
+    else
+        return data_[DiagonalAddress_[i - 1] + (i - j) - 1];
+}
+
 //! Allocate storage for the matrix
 template <class T_>
 inline void CSkylineMatrix<T_>::Allocate()
 {
     NWK_ = DiagonalAddress_[NEQ_] - DiagonalAddress_[0];
 
-    data_ = new T_[NWK_];
+    data_.assign(NWK_, 0.0);
     for (unsigned int i = 0; i < NWK_; i++)
         data_[i] = T_(0);
 }
 
-//! Return pointer to the ColumnHeights_
+// 列高数组的引用
 template <class T_>
-inline unsigned int* CSkylineMatrix<T_>::GetColumnHeights()
+inline std::vector<unsigned int>& CSkylineMatrix<T_>::GetColumnHeights()
 {
     return ColumnHeights_;
 }
@@ -164,7 +158,7 @@ inline unsigned int CSkylineMatrix<T_>::GetMaximumHalfBandwidth() const
 
 //! Return pointer to the DiagonalAddress_
 template <class T_>
-inline unsigned int* CSkylineMatrix<T_>::GetDiagonalAddress()
+inline std::vector<unsigned int>& CSkylineMatrix<T_>::GetDiagonalAddress()
 {
     return DiagonalAddress_;
 }
