@@ -21,6 +21,7 @@ DenseMatrix<double> CElement::GetNodeCoordinates() const {
     return nodeCoords;
 }
 
+// 根据单元-节点连接关系，形成单元的定位数组，用于形成总体刚度矩阵
 void CElement::GenerateLocationMatrix()
 {
     const DOFIndex* activeDOFs  = GetActiveDOFs();
@@ -38,7 +39,8 @@ void CElement::AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int
     nodes_.assign(NEN_, nullptr);
     LocationMatrix_.assign(ND_, 0);
 }
-void CElement::SetUpForTesting(std::vector<CNode*>& NodeList, CMaterial* Material_) {
+
+void CElement::SetupForTesting(std::vector<CNode*>& NodeList, CMaterial* Material_) {
     nodes_ = std::move(NodeList);
     ElementMaterial_ = Material_;
 }

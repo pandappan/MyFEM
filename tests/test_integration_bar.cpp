@@ -59,7 +59,7 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     // 单元
     auto elem = std::unique_ptr<CBar3D>(new CBar3D());
     std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1]};
-    elem->SetUpForTesting(
+    elem->SetupForTesting(
         nodes,
         &group.GetMaterial(0)
     );

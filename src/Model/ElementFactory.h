@@ -1,7 +1,7 @@
-//
-// Created by Administrator on 2026/7/5.
-//
-
+/**
+ *单元工厂
+ *根据不同的单元类型，形成对应的单元指针类型
+ **/
 #pragma once
 #include <memory>
 #include "../Core/Types.h"

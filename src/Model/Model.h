@@ -19,17 +19,17 @@ struct ConcentratedLoad {
 
 class Model {
 public:
-    // 输入数据
+    // 模型网格，载荷数据
     std::string title;
     unsigned int dimension = 3;
     unsigned int modex = 0;
     std::vector<CNode> nodes;
     std::vector<CElementGroup> groups;
     std::vector<ConcentratedLoad> loads;
-    // 分析阶段
+    // 整体刚度矩阵，右端项
     unsigned int neq = 0;
     std::unique_ptr<CSkylineMatrix<double>> K;
-    std::vector<double> force;
+    std::vector<double> force; // 求解前为外载荷，求解后存储节点位移
     // 查询函数
     unsigned int GetNumNodes() const {return nodes.size();}
     unsigned int GetNumGroups() const {return groups.size();}

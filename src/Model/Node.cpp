@@ -25,21 +25,21 @@ CNode::CNode(double X, double Y, double Z)
     bcode[UY] = 0;
     bcode[UZ] = 0;
 
-	eqn[UX] = 0;	// 节点全局方程号，默认不进入方程中，后续编号时会确定
+	eqn[UX] = 0;	// 节点全局方程号，默认不进入方程中，后续编号时会确定具体方程号
 	eqn[UY] = 0;
 	eqn[UZ] = 0;
 
-	Displacement[UX] = 0.0;	// 节点自由度值，默认全部为0，后续施加指定位移约束或者求解结果回代会填充值
+	Displacement[UX] = 0.0;	// 节点位移值，默认全部为0，施加指定位移约束或者求解结果回代会填充值
 	Displacement[UY] = 0.0;
 	Displacement[UZ] = 0.0;
 
-	NodeForce[UX] = 0.0;
+	NodeForce[UX] = 0.0; // 节点力，点载荷，面载，线载荷经过转换形成节点力
 	NodeForce[UY] = 0.0;
 	NodeForce[UZ] = 0.0;
 
 };
 
-//	Read element data from stream Input
+//	从输入流中读入节点约束信息以及节点坐标
 bool CNode::Read(std::ifstream& Input, unsigned int dimension)
 {
 	assert(dimension == 2 || dimension == 3);
@@ -57,7 +57,8 @@ bool CNode::Read(std::ifstream& Input, unsigned int dimension)
 	return true;
 }
 
-// 将节点约束代码转化为全局方程号，并且返回全局前最大方程号
+// 将节点约束代码转化为全局方程号，并且返回当前全局最大方程号的引用
+// 自由自由度bcode=0形成方程号，而约束自由度bcode!=0不形成方程号
 void CNode::GenerateNodeEquation(unsigned int &NEQ) {
 	for (unsigned int i = 0; i < NDF; i++) {
 		if (bcode[i] == 0) {
@@ -69,6 +70,7 @@ void CNode::GenerateNodeEquation(unsigned int &NEQ) {
 	}
 }
 
+// 将总的位移根据自由度关系写入节点中，便于后续输出和形成约束力
 void CNode::UpdataNodeDisplacement(const std::vector<double> &displacement) {
 	for (unsigned int i = 0; i < NDF; i++) {
 		if (bcode[i] == 0) { // 只对自由度自由度更新节点自由度值

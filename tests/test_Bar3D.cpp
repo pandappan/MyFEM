@@ -33,7 +33,7 @@ protected:
         // 单元
         elem_.reset(new CBar3D());
         std::vector<CNode*> nodePtrs = {&nodes_[0], &nodes_[1]};
-        elem_->SetUpForTesting(nodePtrs, mat_.get());
+        elem_->SetupForTesting(nodePtrs, mat_.get());
     }
 };
 constexpr double Bar3DAxialFixture::E_;

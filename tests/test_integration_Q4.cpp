@@ -61,7 +61,7 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
 
     auto elem = std::unique_ptr<CQ4>(new CQ4());
     std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1], &model.nodes[2], &model.nodes[3]};
-    elem->SetUpForTesting(
+    elem->SetupForTesting(
         nodes,
         &group.GetMaterial(0)
     );

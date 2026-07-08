@@ -31,7 +31,7 @@ protected:
 
         elem_.reset(new CQ4);
         std::vector<CNode*> nodesPtrs = {&nodes_[0], &nodes_[1], &nodes_[2], &nodes_[3]};
-        elem_->SetUpForTesting(nodesPtrs, material_.get());
+        elem_->SetupForTesting(nodesPtrs, material_.get());
         elem_->InitializeIntegrationPoints();
     }
 };

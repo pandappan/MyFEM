@@ -70,7 +70,7 @@ public:
     // 获取单元所有节点的坐标
     DenseMatrix<double> GetNodeCoordinates() const;
     // 测试使用
-    void SetUpForTesting(std::vector<CNode*>& NodeList, CMaterial* Material_);
+    void SetupForTesting(std::vector<CNode*>& NodeList, CMaterial* Material_);
 protected:
     void AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int nd);
 };

@@ -45,7 +45,7 @@ void CContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_d
     }
 }
 
-// 预先计算积分点处所有信息
+// 预先计算一个积分点处所有信息，在所有积分点处循环调用，进而形成积分点处的所有信息
 void CContinuumElement::ComputeIntegrationPointData(
     const std::vector<double>& xi,
     double weight,
@@ -96,7 +96,9 @@ void CContinuumElement::ComputeBMatrix(unsigned int ip,
     }
 }
 
-// 初始化积分点处的信息
+// 循环调用ComputeIntegrationPointData形成单元所有积分点处的信息，
+// 包括形函数，全局导数，雅可比行列*权重，体积
+// 初始一次性形成，后续计算刚度矩阵，体力，约束力时直接使用
 void CContinuumElement::InitializeIntegrationPoints() {
     if (integrationPointsCached_) {
         return;
@@ -135,6 +137,7 @@ void CContinuumElement::InitializeIntegrationPoints() {
     volume_ *= thk;
     integrationPointsCached_ = true;
 }
+
 
 void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) {
     if (!integrationPointsCached_) InitializeIntegrationPoints();
