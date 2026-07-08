@@ -16,6 +16,7 @@ add_executable(MyFEM_tests
         test_skyline_matrix.cpp
         test_solver.cpp
         test_integration_bar.cpp
+        test_integration_Q4.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::Core
