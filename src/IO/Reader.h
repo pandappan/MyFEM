@@ -16,6 +16,7 @@ private:
     bool ReadNodes(std::ifstream& Input, Model& model);
     bool ReadGroups(std::ifstream& input, Model& model);
     bool ReadLoads(std::ifstream& Input, Model& model);
+    bool ReadPreDisp(std::ifstream& input, Model& model);
 };
 
 

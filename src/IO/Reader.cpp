@@ -18,6 +18,7 @@ bool Reader::Read(const std::string& filename, Model& model) {
     if (!ReadNodes(input, model)) {return false;}
     if (!ReadGroups(input, model)) {return false;}
     if (!ReadLoads(input, model)) {return false;}
+    if (!ReadPreDisp(input, model)) {return false;}
     return true;
 }
 
@@ -27,6 +28,12 @@ bool Reader::ReadHeader(std::ifstream& input, Model& model) {
     model.title = title;
     unsigned int numnp, numgp;
     input >> model.dimension >> numnp >> numgp >> model.modex;
+    if (numnp == 0) {
+        std::cerr << "Error input node numbers" << std::endl;
+    }
+    if (numgp == 0) {
+        std::cerr << "Error input group numbers" << std::endl;
+    }
     model.nodes.resize(numnp);
     model.groups.resize(numgp);
     return true;
@@ -56,13 +63,37 @@ bool Reader::ReadGroups(std::ifstream &input, Model &model) {
 bool Reader::ReadLoads(std::ifstream &input, Model &model) {
     unsigned int NL;
     input >> NL;
-    model.loads.reserve(NL);
+    model.cloads.reserve(NL);
     for (unsigned int i = 0; i < NL; i++) {
         ConcentratedLoad load{};
         input >> load.node >> load.dof >> load.value;
-        model.loads.push_back(load);
+        model.cloads.push_back(load);
         if (load.node >= 1 && load.node <= model.nodes.size()) {
             model.nodes[load.node - 1].AddForce((load.dof-1), load.value);
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Reader::ReadPreDisp(std::ifstream &input, Model &model) {
+    unsigned int NP;
+    // 向后兼容
+    if (!(input >> NP)) return true;
+    model.predisplacements.reserve(NP);
+    for (unsigned int i = 0; i < NP; i++) {
+        PreDisplacement pd{};
+        input >> pd.node >> pd.dof >> pd.value;
+        model.predisplacements.push_back(pd);
+        if (pd.node >= 1 && pd.node <= model.nodes.size()) {
+            if (!model.nodes[pd.node - 1].SetPreDisp(pd.dof-1, pd.value)) {
+                std::cerr << "Error while setting PreDisplacement for node " << pd.node
+                << ", dof" << pd.dof-1
+                << ", origin node constrain input is "<< model.nodes[pd.node - 1].bcode[pd.dof-1]
+                << std::endl;
+                return false;
+            }
         } else {
             return false;
         }

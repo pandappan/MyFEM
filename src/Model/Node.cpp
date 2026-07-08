@@ -78,3 +78,12 @@ void CNode::UpdataNodeDisplacement(const std::vector<double> &displacement) {
 		}
 	}
 }
+
+// 对节点的预定义位移自由度设置值
+bool CNode::SetPreDisp(unsigned int dof, double value) {
+	// 判定本自由度约束情况是否为预定义位移
+	if (bcode[dof] != 2) return false;
+	// 设置值
+	Displacement[dof] = value;
+	return true;
+}

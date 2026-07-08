@@ -31,14 +31,15 @@ public:
 //!	x, y and z coordinates of the node
 	double XYZ[3];
 
-//!	Boundary code of each degree of freedom of the node
-/*!		0: The corresponding degree of freedom is active (defined in the global system) */
-/*!		1: The corresponding degree of freedom in nonactive (not defined) */
-/*!	corresponding to each degree of freedom of the node */
-	unsigned int bcode[NDF]; // 节点自由度约束代码 0自由 1固定约束
+//! 节点自由度约束代码其中， 0自由 1固定约束, 2指定位移约束（默认位移为0）
+//! 只有自由自由度才形成方程号，其余为0
+//! 初始默认全部采用固定约束，读入节点约束代码后设置实际约束情况
+	unsigned int bcode[NDF];
 	unsigned int eqn[NDF];   // 节点全局方程号
+
 //! 节点位移值
 	double Displacement[NDF];
+
 //! 节点力
 	double NodeForce[NDF];
 
@@ -56,6 +57,9 @@ public:
     inline double GetForce(unsigned int dof) const {
 		return NodeForce[dof];
 	}
+//! 设置指定位移约束
+	bool SetPreDisp(unsigned int dof, double value);
+
 //!	Output nodal point data to stream
 	template <class Stream>
 	void Write(Stream& output, unsigned int dimension) const;

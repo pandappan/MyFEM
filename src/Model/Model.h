@@ -17,6 +17,12 @@ struct ConcentratedLoad {
     double value;
 };
 
+struct PreDisplacement {
+    unsigned int node;
+    unsigned int dof;
+    double value;
+};
+
 class Model {
 public:
     // 模型网格，载荷数据
@@ -25,7 +31,8 @@ public:
     unsigned int modex = 0;
     std::vector<CNode> nodes;
     std::vector<CElementGroup> groups;
-    std::vector<ConcentratedLoad> loads;
+    std::vector<ConcentratedLoad> cloads;
+    std::vector<PreDisplacement> predisplacements;
     // 整体刚度矩阵，右端项
     unsigned int neq = 0;
     std::unique_ptr<CSkylineMatrix<double>> K;
