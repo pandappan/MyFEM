@@ -11,9 +11,12 @@ FetchContent_MakeAvailable(googletest)
 # 测试文件
 add_executable(MyFEM_tests
         test_dense_matrix.cpp
+        test_Q4.cpp
+        test_Bar3D.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::Core
+        MyFEM::Model
         GTest::gtest_main
 )
 # 自动发现测试

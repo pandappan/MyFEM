@@ -1,6 +1,7 @@
 //
 // Created by Administrator on 2026/6/11.
 //
+#include <iostream>
 #include "Element.h"
 #include "../Node.h"
 #include "../../Core/Types.h"
@@ -36,4 +37,8 @@ void CElement::AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int
     ND_ = nd;
     nodes_.assign(NEN_, nullptr);
     LocationMatrix_.assign(ND_, 0);
+}
+void CElement::SetUpForTesting(std::vector<CNode*>& NodeList, CMaterial* Material_) {
+    nodes_ = std::move(NodeList);
+    ElementMaterial_ = Material_;
 }
