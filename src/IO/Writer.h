@@ -26,6 +26,7 @@ public:
     void OutputElementInfo(const Model& model);
     void OutputNodeForce(const Model& model);
     void OutputNodalDisplacement(const Model& model);
+    void OutputNodalBCForce(const Model& model);
     void OutputElementStress(const Model& model);
     void OutputTotalSystemData(const Model& model);
     // 操作符重载

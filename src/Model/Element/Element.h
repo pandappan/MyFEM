@@ -37,7 +37,7 @@ public:
     virtual void Write(std::ostream& output) const = 0;
     virtual void WriteElementStress(std::ostream& output) const = 0;
     // 计算单元刚度矩阵
-    virtual void ElementStiffness(DenseMatrix<double>& K) = 0;
+    virtual void ElementStiffness(DenseMatrix<double>& Ke) = 0;
     // 节点自由度数目
     virtual unsigned int GetNumActiveDOFsPerNode() const = 0;
     // 节点自由度编号
@@ -49,7 +49,6 @@ public:
     virtual void GetVisualizationNodes(DenseMatrix<double>& coords) const = 0;
     // 返回节点位移场
     virtual void GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const = 0;
-
     // 生成单元定位数组
     void GenerateLocationMatrix();
     // 单元编号
@@ -69,8 +68,16 @@ public:
     double GetVolume() const {return volume_;};
     // 获取单元所有节点的坐标
     DenseMatrix<double> GetNodeCoordinates() const;
+    // 获取单元从属节点的位移以及约束状态
+    void GetElementNodesDisp(std::vector<double>& nodesDisp, std::vector<int>& nodesBcode) const;
+    // 获取单元从属节点的外载荷
+    void GetElementNodesForce(std::vector<double>& nodesForce);
+    // 单元层面回代求解反力，写入节点
+    void CalculateBCForce();
+    // 单元右端修正项目
+    void ElementRight(const DenseMatrix<double>& Ke, std::vector<double> &right);
     // 测试使用
-    void SetupForTesting(std::vector<CNode*>& NodeList, CMaterial* Material_);
+    void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
 protected:
     void AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int nd);
 };

@@ -82,16 +82,36 @@ bool VtuExporter::ExportVtk(const std::string &fileName, const Model &model) {
         for (std::size_t e = 0; e < group.GetNUME(); ++e)
             out << " " << vtkType;
     }
-    out << "\n        </DataArray>\n      </Cells>\n";
-    // 节点位移（PointData）
-    out << "      <PointData Vectors=\"Displacement\">\n"
-        << "        <DataArray type=\"Float64\" Name=\"Displacement\" "
-        << "NumberOfComponents=\"3\" format=\"ascii\">\n";
+    out << "      <PointData>\n";
+
+    // Displacement
+    out << "        <DataArray type=\"Float64\" Name=\"Displacement\" "
+           "NumberOfComponents=\"3\" format=\"ascii\">\n";
     for (const auto& n : model.nodes)
         out << "          " << n.Displacement[0] << " "
                             << n.Displacement[1] << " "
                             << n.Displacement[2] << "\n";
-    out << "        </DataArray>\n      </PointData>\n";
+    out << "        </DataArray>\n";
+
+    // NodeForce
+    out << "        <DataArray type=\"Float64\" Name=\"NodeForce\" "
+           "NumberOfComponents=\"3\" format=\"ascii\">\n";
+    for (const auto& n : model.nodes)
+        out << "          " << n.NodeForce[0] << " "
+                            << n.NodeForce[1] << " "
+                            << n.NodeForce[2] << "\n";
+    out << "        </DataArray>\n";
+
+    // NodeBCForce
+    out << "        <DataArray type=\"Float64\" Name=\"NodeBCForce\" "
+           "NumberOfComponents=\"3\" format=\"ascii\">\n";
+    for (const auto& n : model.nodes)
+        out << "          " << n.NodeBCForce[0] << " "
+                            << n.NodeBCForce[1] << " "
+                            << n.NodeBCForce[2] << "\n";
+    out << "        </DataArray>\n";
+
+    out << "      </PointData>\n";
     out << "    </Piece>\n  </UnstructuredGrid>\n</VTKFile>\n";
     return true;
 }

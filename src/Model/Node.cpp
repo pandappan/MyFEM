@@ -37,6 +37,10 @@ CNode::CNode(double X, double Y, double Z)
 	NodeForce[UY] = 0.0;
 	NodeForce[UZ] = 0.0;
 
+	NodeBCForce[UX] = 0.0; // 节点约束力
+	NodeBCForce[UY] = 0.0;
+	NodeBCForce[UZ] = 0.0;
+
 };
 
 //	从输入流中读入节点约束信息以及节点坐标

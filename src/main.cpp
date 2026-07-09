@@ -34,22 +34,24 @@ int main(int argc, char* argv[]) {
     writer.OutputElementInfo(model);
     Assembler::CalculateLocationMatrix(model);
     writer.OutputNodeForce(model);
-    Assembler::AllocateStiffnessMatrix(model);
+    Assembler::AllocateLinearSystem(model);
     writer.OutputTotalSystemData(model);
     if (model.modex == 0) {
         std::cout << "Data check model. Exit! \n";
         return 0;
     }
-    // 装配+求解
-    Assembler::AssembleStiffnessMatrix(model);
+    // 先装配外载荷，再装配刚度矩阵和右端修正项
     Assembler::AssembleForce(model);
+    Assembler::AssembleStiffnessAndConstraintCorrection(model);
     CLDLTSolver solver(*model.K);
     solver.LDLT();
     solver.BackSubstitution(model.force);
     Assembler::WriteDisplacementToNodes(model);
+    Assembler::CalculateNodalBCForce(model);
     // 输出结果
     writer.OutputNodalDisplacement(model);
     writer.OutputElementStress(model);
+    writer.OutputNodalBCForce(model);
     // 可视化导出结果
     VtuExporter exporter;
     exporter.ExportVtk(vtkFile,model);

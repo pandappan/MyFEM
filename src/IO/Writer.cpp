@@ -113,6 +113,19 @@ void Writer::OutputNodalDisplacement(const Model& model) {
     *this << "\n";
 }
 
+void Writer::OutputNodalBCForce(const Model &model) {
+    *this << "BCForce\n\n";
+    if (model.dimension == 2) {
+        *this << " NODE    X-BCForce    Y-BCForce\n";
+    } else {
+        *this << " NODE    X-BCForce    Y-BCForce    Z-BCForce\n";
+    }
+        Tee([&](std::ostream& os) {
+        for (auto& n : model.nodes) n.WriteNodeBCForces(os, model.dimension);
+    });
+    *this << "\n";
+}
+
 void Writer::OutputElementStress(const Model& model) {
     unsigned int i = 0;
     for (const auto& group : model.groups) {

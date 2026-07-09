@@ -72,9 +72,9 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     ASSERT_EQ(model.neq, 1u) << "Only 1 free DOF expected";
 
     Assembler::CalculateLocationMatrix(model);
-    Assembler::AllocateStiffnessMatrix(model);
-    Assembler::AssembleStiffnessMatrix(model);
+    Assembler::AllocateLinearSystem(model);
     Assembler::AssembleForce(model);
+    Assembler::AssembleStiffnessAndConstraintCorrection(model);
 
     // 验证：Force 向量应该有 F
     ASSERT_EQ(model.force.size(), 1u);

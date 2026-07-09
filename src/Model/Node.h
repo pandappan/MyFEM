@@ -40,8 +40,11 @@ public:
 //! 节点位移值
 	double Displacement[NDF];
 
-//! 节点力
+//! 节点外载荷，点载，面载荷，体载贡献
 	double NodeForce[NDF];
+
+//! 节点约束力，边界条件贡献
+	double NodeBCForce[NDF];
 
 //!	Constructor
 	CNode(double X = 0.0, double Y = 0.0, double Z = 0.0);
@@ -57,6 +60,12 @@ public:
     inline double GetForce(unsigned int dof) const {
 		return NodeForce[dof];
 	}
+
+//! 累加方式设置节点约束力
+	inline void AddBcForce(unsigned int dof, double value) {
+		NodeBCForce[dof] += value;
+	}
+
 //! 设置指定位移约束
 	bool SetPreDisp(unsigned int dof, double value);
 
@@ -75,6 +84,10 @@ public:
 //! Write node force
 	template <class Stream>
 	void WriteNodeForces(Stream& output, unsigned int dimension) const;
+
+//! Write node BCforce
+	template <class Stream>
+	void WriteNodeBCForces(Stream& output, unsigned int dimension) const;
 
 //! 将节点约束代码转换为全局方程号
 	void GenerateNodeEquation(unsigned int& NEQ);
@@ -119,7 +132,7 @@ void CNode::WriteNodalDisplacement(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	output << std::setw(6) << NodeNumber << "        ";
-    if (dimension == 2) { // 2D问题输出前三个自由度
+    if (dimension == 2) { // 2D问题输出前2个自由度
 		if (bcode[UX] == 0) { // 自由则直接输出位移
 			output << std::setw(5) << Displacement[UX];
 		} else { // 固定约束则输出0.0
@@ -157,6 +170,21 @@ void CNode::WriteNodeForces(Stream &output, unsigned int dimension) const
 		output << std::setw(6) << NodeForce[UX]
 			   << std::setw(6) << NodeForce[UY]
 			   << std::setw(6) << NodeForce[UZ];
+	}
+	output << std::endl;
+}
+
+template <class Stream>
+void CNode::WriteNodeBCForces(Stream &output, unsigned int dimension) const
+{
+	assert(dimension == 2 || dimension == 3);
+	output << std::setw(6) << NodeNumber << "        ";
+	if (dimension == 2) {
+		output << std::setw(6) << NodeBCForce[UX] << std::setw(6) << NodeBCForce[UY];
+	} else {
+		output << std::setw(6) << NodeBCForce[UX]
+			   << std::setw(6) << NodeBCForce[UY]
+			   << std::setw(6) << NodeBCForce[UZ];
 	}
 	output << std::endl;
 }

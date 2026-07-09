@@ -73,9 +73,9 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     // Pipeline
     Assembler::CalculateEquationNumber(model);
     Assembler::CalculateLocationMatrix(model);
-    Assembler::AllocateStiffnessMatrix(model);
-    Assembler::AssembleStiffnessMatrix(model);
+    Assembler::AllocateLinearSystem(model);
     Assembler::AssembleForce(model);
+    Assembler::AssembleStiffnessAndConstraintCorrection(model);
 
     CLDLTSolver solver(*model.K);
     solver.LDLT();
