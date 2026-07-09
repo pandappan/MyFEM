@@ -84,6 +84,7 @@ void CQ4::ComputeShapeDerivatives(const std::vector<double>& xi,
     dN_dxi(1,3) =   0.25 * (1.0 - xi[0]);
 }
 
+// faceID: 0基
 bool CQ4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
     // 面局部节点
     std::vector<int> nodesLocalID = GetFaceNodesLocalID(faceID);
@@ -111,6 +112,7 @@ bool CQ4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double val
     return true;
 }
 
+// FaceID: 0基
 std::vector<int> CQ4::GetFaceNodesLocalID(unsigned int faceID) {
     std::vector<int> nodesLocalID(2);
     switch (faceID) {

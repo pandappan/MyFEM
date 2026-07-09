@@ -9,8 +9,10 @@ public:
     static void CalculateEquationNumber(Model& model);
     static void CalculateLocationMatrix(Model& model);
     static void AllocateLinearSystem(Model& model);
-    static void AssembleStiffnessAndConstraintCorrection(Model& model);
+    static void BuildGlobalElementIndex(Model& model);
+    static void ConvertSLoadsToCLoads(Model& model);
     static void AssembleForce(Model& model);
+    static void AssembleStiffnessAndConstraintCorrection(Model& model);
     static void WriteDisplacementToNodes(Model& model);
     static void CalculateNodalBCForce(Model& model);
 };

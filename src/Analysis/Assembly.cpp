@@ -42,6 +42,46 @@ void Assembler::AllocateLinearSystem(Model &model) {
     model.K->Allocate();
 }
 
+// 构建单元的全局映射表，用于面载荷寻找所属单元
+void Assembler::BuildGlobalElementIndex(Model &model) {
+    unsigned int totalElements = 0;
+    for (auto& group : model.groups) {
+        totalElements += group.GetNUME();
+    }
+    model.globalElementList.reserve(totalElements);
+    for (auto& group : model.groups) {
+        unsigned int nume = group.GetNUME();
+        for (unsigned int e = 0; e < nume; e++) {
+            model.globalElementList.push_back(&group.GetElement(e));
+        }
+    }
+}
+
+// 面载荷转化为等效节点力，存入节点中
+void Assembler::ConvertSLoadsToCLoads(Model &model) {
+    // 循环所有面载荷，逐步转化为等效节点载荷，并存入节点中
+    for (auto& sload: model.sloads) {
+        unsigned int elemID_0based = sload.elemID - 1;
+        unsigned int faceID_0based = sload.faceID - 1; // 转化为0基
+        unsigned int dof_0based = sload.dof -1; // 转化为0基
+        CElement* elem = model.globalElementList[elemID_0based];
+        elem->CalculateSurfaceLoad(faceID_0based, dof_0based, sload.value);
+    }
+}
+
+// 装配节点上的所有力，包括点载荷，面载的等效点载，体载的等效点载
+void Assembler::AssembleForce(Model &model) {
+    std::fill(model.force.begin(), model.force.end(), 0.0);
+    for (auto& node : model.nodes) {
+        for (unsigned int d = 0; d < CNode::NDF; d++) {
+            unsigned int eq = node.eqn[d];
+            if (eq) {
+                model.force[eq - 1] += node.GetForce(d);
+            }
+        }
+    }
+}
+
 // 循环装配单元刚度矩阵和指定位移约束的造成的右端修正项
 void Assembler::AssembleStiffnessAndConstraintCorrection(Model &model) {
     for (auto& group : model.groups) {
@@ -61,18 +101,6 @@ void Assembler::AssembleStiffnessAndConstraintCorrection(Model &model) {
                 if (lm[i] != 0) {
                     model.force[lm[i]-1] -= right[i];
                 }
-            }
-        }
-    }
-}
-
-void Assembler::AssembleForce(Model &model) {
-    std::fill(model.force.begin(), model.force.end(), 0.0);
-    for (auto& node : model.nodes) {
-        for (unsigned int d = 0; d < CNode::NDF; d++) {
-            unsigned int eq = node.eqn[d];
-            if (eq) {
-                model.force[eq - 1] += node.GetForce(d);
             }
         }
     }

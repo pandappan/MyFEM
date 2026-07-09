@@ -102,6 +102,7 @@ bool Reader::ReadPreDisp(std::ifstream &input, Model &model) {
     return true;
 }
 
+// 读取，存储是1基，后续传入函数中是0基
 bool Reader::ReadSLoads(std::ifstream &input, Model &model) {
     unsigned int NS;
     if (!(input >> NS)) return true;

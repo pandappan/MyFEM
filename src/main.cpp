@@ -40,6 +40,9 @@ int main(int argc, char* argv[]) {
         std::cout << "Data check model. Exit! \n";
         return 0;
     }
+    // 构建单元全局映射表，转化面载荷至节点载荷
+    Assembler::BuildGlobalElementIndex(model);
+    Assembler::ConvertSLoadsToCLoads(model);
     // 先装配外载荷，再装配刚度矩阵和右端修正项
     Assembler::AssembleForce(model);
     Assembler::AssembleStiffnessAndConstraintCorrection(model);
