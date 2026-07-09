@@ -135,6 +135,24 @@ double CBar3D::ElementStress() const
 	return stress;
 }
 
+void CBar3D::CalculateBodyForce(const double *bodyForce) {
+	// 单元长度
+	double dx = nodes_[1]->XYZ[0] - nodes_[0]->XYZ[0];
+	double dy = nodes_[1]->XYZ[1] - nodes_[0]->XYZ[1];
+	double dz = nodes_[1]->XYZ[2] - nodes_[0]->XYZ[2];
+	double l2 = dx * dx + dy * dy + dz * dz;
+	double len = sqrt(l2);
+	// 单元截面参数
+	CBarMaterial* mat = static_cast<CBarMaterial*>(ElementMaterial_);
+	// 将体积转化为等效节点力，依次写入节点力中
+	double factor = 0.5 * len * mat->Area * mat->rho;
+	for (unsigned int d = 0; d < NDim_; d++) {
+		double eqforce = bodyForce[d] * factor;
+		nodes_[0]->AddForce(d,eqforce);
+		nodes_[1]->AddForce(d,eqforce);
+	}
+}
+
 void CBar3D::GetVisualizationNodes(DenseMatrix<double>& coords) const {
 	coords.Resize(3, NEN_);
 	for (unsigned int i = 0; i < NEN_; i++)

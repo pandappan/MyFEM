@@ -11,13 +11,15 @@ class Model;
 class Reader {
 public:
     bool Read(const std::string& filename, Model& model);
+    static bool TryConsumeKeyword(std::ifstream& input, const std::string& keyword);
 private:
-    bool ReadHeader(std::ifstream& Input, Model& model);
-    bool ReadNodes(std::ifstream& Input, Model& model);
+    bool ReadHeader(std::ifstream& input, Model& model);
+    bool ReadNodes(std::ifstream& input, Model& model);
     bool ReadGroups(std::ifstream& input, Model& model);
-    bool ReadLoads(std::ifstream& Input, Model& model);
+    bool ReadLoads(std::ifstream& input, Model& model);
     bool ReadPreDisp(std::ifstream& input, Model& model);
     bool ReadSLoads(std::ifstream& input, Model& model);
+    bool ReadBodyForce(std::ifstream& input, Model& model);
 };
 
 

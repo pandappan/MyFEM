@@ -117,13 +117,17 @@ void CElement::ElementRight(const DenseMatrix<double>& Ke, std::vector<double> &
     }
 }
 
-
 bool CElement::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
     if (elementType_ == ElementTypes::Bar3D) {
         std::cerr << "Bar3D do not have surface load" << std::endl;
         return false;
     }
     return true;
+}
+
+// 空实现
+void CElement::CalculateBodyForce(const double* bodyForce) {
+    return;
 }
 
 void CElement::SetElementType(ElementTypes elementType) {

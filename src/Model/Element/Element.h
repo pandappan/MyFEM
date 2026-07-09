@@ -81,6 +81,8 @@ public:
     virtual bool CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value);
     // 设置单元的类型
     void SetElementType(ElementTypes elementType);
+    // 将体载荷转化为点载荷，并存入节点中
+    virtual void CalculateBodyForce(const double* bodyForce);
     // 测试使用
     void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
 protected:

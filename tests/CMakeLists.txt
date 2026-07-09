@@ -21,6 +21,7 @@ add_executable(MyFEM_tests
         test_prescridedisp_bar.cpp
         test_surface_load.cpp
         test_integration_surfaceload.cpp
+        test_bodyforce.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::IO

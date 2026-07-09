@@ -69,6 +69,23 @@ void Assembler::ConvertSLoadsToCLoads(Model &model) {
     }
 }
 
+// 所有单元体载荷转化为等效节点力，存入节点中
+void Assembler::ConvertBLoadsToCLoads(Model &model) {
+    // 体力加速度为0，直接退出，避免后续浪费计算量
+    const double* b = model.bodyForce;
+    double totalForce = 0.0;
+    totalForce = b[0] * b[0] + b[1] * b[1] + b[2] * b[2];
+    if (totalForce < 1.0e-12) return;
+    // 正常转换体力
+    for (auto& group : model.groups) {
+        unsigned int nume = group.GetNUME();
+        for (unsigned int e = 0; e < nume; e++) {
+            CElement& element = group.GetElement(e);
+            element.CalculateBodyForce(b);
+        }
+    }
+}
+
 // 装配节点上的所有力，包括点载荷，面载的等效点载，体载的等效点载
 void Assembler::AssembleForce(Model &model) {
     std::fill(model.force.begin(), model.force.end(), 0.0);

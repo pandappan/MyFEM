@@ -35,6 +35,8 @@ public:
     void ElementStiffness(DenseMatrix<double>& Ke) override;
     // 计算所有积分点的形函数信息
     void InitializeIntegrationPoints();
+    //! 将体载转化为点载
+    void CalculateBodyForce(const double *bodyForce) override;
     // 计算积分点处的应变
     std::vector<double> ComputeStrainAtIntegrationPoint(unsigned int ip) const;
     // 计算单元在积分点处的应力

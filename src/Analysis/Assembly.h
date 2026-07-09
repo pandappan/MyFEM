@@ -11,6 +11,7 @@ public:
     static void AllocateLinearSystem(Model& model);
     static void BuildGlobalElementIndex(Model& model);
     static void ConvertSLoadsToCLoads(Model& model);
+    static void ConvertBLoadsToCLoads(Model& model);
     static void AssembleForce(Model& model);
     static void AssembleStiffnessAndConstraintCorrection(Model& model);
     static void WriteDisplacementToNodes(Model& model);

@@ -160,6 +160,30 @@ void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) {
     }
 }
 
+// 体载转化为点载荷并写入节点中
+void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
+    // 单元的基本材料参数
+    CMaterial* mat = GetElementMaterial();
+    double rho = mat->rho;
+    if (std::abs(rho) < 1.0e-12) return;
+    double thk = mat->GetThickness();
+    // 积分点缓存变量
+    if (!integrationPointsCached_) InitializeIntegrationPoints();
+    for (unsigned int i = 0; i < NEN_; i++) {
+        // 累加计算系数
+        double factor = 0.0;
+        for (unsigned int ip = 0; ip < GetNumIntegrationPoints(); ip++) {
+            double dv = integrationPoints_[ip].detJ_times_weight * thk;
+            factor += integrationPoints_[ip].N[i] * rho * dv;
+        }
+        // 计算等效节点力，并存入节点
+        for (unsigned int d = 0; d < NDim_; d++) {
+            double eqforce = factor * bodyForce[d];
+            nodes_[i]->AddForce(d,eqforce);
+        }
+    }
+}
+
 std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned int ip) const {
     unsigned int ns = GetElementMaterial()->GetNumStressComponents();
     DenseMatrix<double> B(ns, ND_);

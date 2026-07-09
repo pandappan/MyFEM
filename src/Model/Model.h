@@ -42,6 +42,7 @@ public:
     std::vector<PreDisplacement> predisplacements;
     std::vector<SurfaceLoad> sloads;
     std::vector<CElement*> globalElementList;
+    double bodyForce[3] = {0.0, 0.0, 0.0};
     // 整体刚度矩阵，右端项
     unsigned int neq = 0;
     std::unique_ptr<CSkylineMatrix<double>> K;

@@ -19,7 +19,22 @@ bool Reader::Read(const std::string& filename, Model& model) {
     if (!ReadGroups(input, model)) {return false;}
     if (!ReadLoads(input, model)) {return false;}
     if (!ReadPreDisp(input, model)) {return false;}
+    if (!ReadBodyForce(input, model)) {return false;}
     return true;
+}
+
+bool Reader::TryConsumeKeyword(std::ifstream& in, const std::string& keyword) {
+    std::streampos pos = in.tellg();
+    std::string token;
+    if (!(in >> token)) {
+        in.clear();
+        in.seekg(pos);
+        return false;
+    }
+    if (token == keyword) return true;
+    // 不匹配，回退
+    in.seekg(pos);
+    return false;
 }
 
 bool Reader::ReadHeader(std::ifstream& input, Model& model) {
@@ -30,9 +45,11 @@ bool Reader::ReadHeader(std::ifstream& input, Model& model) {
     input >> model.dimension >> numnp >> numgp >> model.modex;
     if (numnp == 0) {
         std::cerr << "Error input node numbers" << std::endl;
+        return false;
     }
     if (numgp == 0) {
         std::cerr << "Error input group numbers" << std::endl;
+        return false;
     }
     model.nodes.resize(numnp);
     model.groups.resize(numgp);
@@ -61,6 +78,7 @@ bool Reader::ReadGroups(std::ifstream &input, Model &model) {
 }
 
 bool Reader::ReadLoads(std::ifstream &input, Model &model) {
+    TryConsumeKeyword(input, "*CLOAD");
     unsigned int NL;
     input >> NL;
     model.cloads.reserve(NL);
@@ -79,6 +97,7 @@ bool Reader::ReadLoads(std::ifstream &input, Model &model) {
 }
 
 bool Reader::ReadPreDisp(std::ifstream &input, Model &model) {
+    TryConsumeKeyword(input, "*PREDISPLACEMENT");
     unsigned int NP;
     // 向后兼容
     if (!(input >> NP)) return true;
@@ -104,6 +123,7 @@ bool Reader::ReadPreDisp(std::ifstream &input, Model &model) {
 
 // 读取，存储是1基，后续传入函数中是0基
 bool Reader::ReadSLoads(std::ifstream &input, Model &model) {
+    TryConsumeKeyword(input, "*SLOAD");
     unsigned int NS;
     if (!(input >> NS)) return true;
     model.sloads.reserve(NS);
@@ -111,6 +131,18 @@ bool Reader::ReadSLoads(std::ifstream &input, Model &model) {
         SurfaceLoad sload{};
         input >> sload.elemID >> sload.dof >> sload.value;
         model.sloads.push_back(sload);
+    }
+    return true;
+}
+
+// 读取体力
+bool Reader::ReadBodyForce(std::ifstream &input, Model &model) {
+    if (!TryConsumeKeyword(input, "*BODYFORCE")) {
+        return true;
+    }
+    input >> model.bodyForce[0] >> model.bodyForce[1] >> model.bodyForce[2];
+    if (!input.good()) {
+        return false;
     }
     return true;
 }

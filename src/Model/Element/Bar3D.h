@@ -32,6 +32,7 @@ public:
 	double ElementStress() const;
 	unsigned int GetNumActiveDOFsPerNode() const override {return NumActiveDOFsPerNode;};
 	const DOFIndex* GetActiveDOFs() const override {return ActiveDOFs;};
+	void CalculateBodyForce(const double* bodyForce) override;
 //! 输出单元类型
 	std::string ElementTypeName() const override {return "CBar3D";};
 //! 返回节点初始坐标
