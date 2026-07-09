@@ -47,4 +47,8 @@ public:
     //! 形函数的局部导数
     void ComputeShapeDerivatives(const std::vector<double>& xi,
                             DenseMatrix<double>& dN_dxi) const override;
+    //! 面载转化为点载
+    bool CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) override;
+    //! 获取局部节点编号
+    std::vector<int> GetFaceNodesLocalID(unsigned int faceID);
 };

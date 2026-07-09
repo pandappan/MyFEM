@@ -17,6 +17,7 @@ class DenseMatrix;
 class CElement
 {
 protected:
+    ElementTypes elementType_;
     unsigned int ElementNumber_;
     unsigned int NDim_; // 单元坐标维度
     unsigned int NEN_; // 单元节点数目
@@ -76,6 +77,10 @@ public:
     void CalculateBCForce();
     // 单元右端修正项目
     void ElementRight(const DenseMatrix<double>& Ke, std::vector<double> &right);
+    // 将面载荷转化为节点载荷，并存入节点中
+    virtual bool CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value);
+    // 设置单元的类型
+    void SetElementType(ElementTypes elementType);
     // 测试使用
     void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
 protected:

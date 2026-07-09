@@ -84,6 +84,46 @@ void CQ4::ComputeShapeDerivatives(const std::vector<double>& xi,
     dN_dxi(1,3) =   0.25 * (1.0 - xi[0]);
 }
 
+bool CQ4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
+    // 面局部节点
+    std::vector<int> nodesLocalID = GetFaceNodesLocalID(faceID);
+    double x1 = nodes_[nodesLocalID[0]]->XYZ[0];
+    double y1 = nodes_[nodesLocalID[0]]->XYZ[1];
+    double x2 = nodes_[nodesLocalID[1]]->XYZ[0];
+    double y2 = nodes_[nodesLocalID[1]]->XYZ[1];
+    double len = std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    // 积分方案
+    std::vector<double> xi(2);
+    xi[0] = -0.57735027;
+    xi[1] = 0.57735027;
+    double weight = 1.0;
+    DenseMatrix<double> N(2,2); // (ng, np)
+    N(0,0) = (1.0 - xi[0]) * 0.5;
+    N(0,1) = (1.0 + xi[0]) * 0.5;
+    N(1,0) = (1.0 - xi[1]) * 0.5;
+    N(1,1) = (1.0 + xi[1]) * 0.5;
+    // 面力等效节点力
+    for (unsigned int i = 0; i < 2; i++) {
+        double eqforce = 0.5 * len * value * (N(0, i) +N(1,i)) * weight;
+        // 等效节点力写入节点中
+        nodes_[nodesLocalID[i]]->AddForce(dof, eqforce);
+    }
+    return true;
+}
+
+std::vector<int> CQ4::GetFaceNodesLocalID(unsigned int faceID) {
+    std::vector<int> nodesLocalID(2);
+    switch (faceID) {
+        case 0: nodesLocalID={0,1}; break;
+        case 1: nodesLocalID={1,2}; break;
+        case 2: nodesLocalID={2,3}; break;
+        case 3: nodesLocalID={3,1}; break;
+        default:
+            throw std::out_of_range("CQ4::GetFaceNodesLocalID invalid faceID");
+    }
+    return nodesLocalID;
+}
+
 void CQ4::GetVisualizationNodes(DenseMatrix<double>& coords) const {
     coords.Resize(2,NEN_);
     for (unsigned int i = 0; i < NEN_; i++) {

@@ -23,6 +23,13 @@ struct PreDisplacement {
     double value;
 };
 
+struct SurfaceLoad {
+    unsigned int elemID;
+    unsigned int faceID;
+    unsigned int dof;
+    double value;
+};
+
 class Model {
 public:
     // 模型网格，载荷数据
@@ -33,6 +40,7 @@ public:
     std::vector<CElementGroup> groups;
     std::vector<ConcentratedLoad> cloads;
     std::vector<PreDisplacement> predisplacements;
+    std::vector<SurfaceLoad> sloads;
     // 整体刚度矩阵，右端项
     unsigned int neq = 0;
     std::unique_ptr<CSkylineMatrix<double>> K;

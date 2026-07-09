@@ -117,6 +117,19 @@ void CElement::ElementRight(const DenseMatrix<double>& Ke, std::vector<double> &
     }
 }
 
+
+bool CElement::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
+    if (elementType_ == ElementTypes::Bar3D) {
+        std::cerr << "Bar3D do not have surface load" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+void CElement::SetElementType(ElementTypes elementType) {
+    elementType_ = elementType;
+}
+
 void CElement::SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_) {
     nodes_ = std::move(NodeList);
     ElementMaterial_ = Material_;

@@ -68,6 +68,7 @@ bool Reader::ReadLoads(std::ifstream &input, Model &model) {
         ConcentratedLoad load{};
         input >> load.node >> load.dof >> load.value;
         model.cloads.push_back(load);
+        // 点载荷直接加入节点中
         if (load.node >= 1 && load.node <= model.nodes.size()) {
             model.nodes[load.node - 1].AddForce((load.dof-1), load.value);
         } else {
@@ -97,6 +98,18 @@ bool Reader::ReadPreDisp(std::ifstream &input, Model &model) {
         } else {
             return false;
         }
+    }
+    return true;
+}
+
+bool Reader::ReadSLoads(std::ifstream &input, Model &model) {
+    unsigned int NS;
+    if (!(input >> NS)) return true;
+    model.sloads.reserve(NS);
+    for (unsigned int i = 0; i < NS; i++) {
+        SurfaceLoad sload{};
+        input >> sload.elemID >> sload.dof >> sload.value;
+        model.sloads.push_back(sload);
     }
     return true;
 }
