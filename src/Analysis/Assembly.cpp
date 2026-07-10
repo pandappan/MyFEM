@@ -1,11 +1,12 @@
 //
 // Created by Administrator on 2026/7/6.
 //
-
+#include "iostream"
 #include "Assembly.h"
 #include "../Model/Element/Element.h"
 #include "../Model/Model.h"
 #include "../Core/DenseMatrix.h"
+#include "Element/CContinuumElement.h"
 
 void Assembler::CalculateEquationNumber(Model& model) {
     model.neq = 0;
@@ -135,6 +136,56 @@ void Assembler::CalculateNodalBCForce(Model &model) {
         for (unsigned int e = 0; e < nume; e++) {
             CElement& element = group.GetElement(e);
             element.CalculateBCForce();
+        }
+    }
+}
+
+void Assembler::CalculateNodalStress(Model& model) {
+    // 应力分量数目
+    unsigned int nComp = 0;
+    for (auto& g : model.groups) {
+        if (g.GetNUME() > 0) {
+            nComp = g.GetElement(0).GetElementMaterial()->GetNumStressComponents();
+            break;
+        }
+    }
+    if (nComp == 0) return;
+    // 初始化节点的应力容器
+    for (auto& node : model.nodes) {
+        node.stress.assign(nComp, 0.0);
+        node.stressWieghts = 0.0;
+    }
+    // 遍历所有单元，外推+加权累加到节点
+    for (auto& group : model.groups) {
+        unsigned int nume = group.GetNUME();
+        for (unsigned int e = 0; e < nume; e++) {
+            CElement& element = group.GetElement(e);
+            // 只有连续介质单元才需要外推
+            auto* continuum = dynamic_cast<CContinuumElement*>(&element);
+            if (!continuum) continue;
+            // 面积权重
+            double weight = continuum->GetVolume();
+            if (weight <= 0.0) continue;
+            // 外推
+            std::vector<std::vector<double>> nodalStress;
+            continuum->ExtrapolatStressToNodes(nodalStress);
+            // 累加到全局节点
+            const auto& elemNodes = continuum->GetNodes();
+            for (unsigned int n = 0; n < elemNodes.size(); n++) {
+                CNode* node = elemNodes[n];
+                // 应力*权重
+                for (unsigned int c = 0; c < nComp; c++) {
+                    node->stress[c] += weight * nodalStress[n][c];
+                }
+                // 节点累计权重
+                node->stressWieghts += weight;
+            }
+        }
+    }
+    // 累计加权应力/总权重得到节点平均应力
+    for (auto& node: model.nodes) {
+        for (unsigned int c = 0; c < nComp; c++) {
+            node.stress[c] /= node.stressWieghts;
         }
     }
 }

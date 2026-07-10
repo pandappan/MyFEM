@@ -16,5 +16,6 @@ public:
     static void AssembleStiffnessAndConstraintCorrection(Model& model);
     static void WriteDisplacementToNodes(Model& model);
     static void CalculateNodalBCForce(Model& model);
+    static void CalculateNodalStress(Model& model);
 };
 

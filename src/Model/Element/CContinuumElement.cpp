@@ -39,7 +39,7 @@ void CContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_d
     for (unsigned int i = 0; i < NDim_; i++) {
         for (unsigned int j = 0; j < NDim_; j++) {
             for (unsigned int k = 0; k < NEN_; k++) {
-                dN_dx(i, k) += invJacobian(i,j) * dN_dxi(j,k);
+                dN_dx(i, k) +=  dN_dxi(j,k) * invJacobian(j,i);
             }
         }
     }
@@ -209,4 +209,41 @@ std::vector<double> CContinuumElement::ComputeStressAtIntegrationPoint(unsigned 
     std::vector<double> stress(ns, 0.0);
     GetElementMaterial()->ComputeStress(strain, stress);
     return stress;
+}
+
+// (NEN_ x nGp)，默认简单平均
+DenseMatrix<double> CContinuumElement::GetExprapolationMatrix() const {
+    const unsigned int nGp = GetNumIntegrationPoints();
+    DenseMatrix<double> E(NEN_, nGp);
+    for (unsigned int i = 0; i < NEN_; i++) {
+        for (unsigned int j = 0; j < nGp; j++) {
+            E(i,j) = 1.0 / nGp;
+        }
+    }
+    return E;
+}
+
+void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> > &nodalStress) const {
+    // 积分点个数，应力分量数目
+    const unsigned int nGp = GetNumIntegrationPoints();
+    const unsigned int nComp = ElementMaterial_->GetNumStressComponents();
+    // 所有积分点处的应力
+    std::vector<std::vector<double>> gpStress(nGp);
+    for (unsigned int i = 0; i < nGp; i++) {
+        gpStress[i] = ComputeStressAtIntegrationPoint(i);
+    }
+    // 外推矩阵
+    DenseMatrix<double> E = GetExprapolationMatrix();
+    // 初始化输出
+    nodalStress.assign(NEN_, std::vector<double>(nComp, 0.0));
+    // 逐节点，逐分量外推应力
+    for (unsigned int n = 0; n < NEN_; n++) {
+        for (unsigned int c = 0; c < nComp; c++) {
+            double stress = 0.0;
+            for (unsigned int gp = 0; gp < nGp; gp++) {
+                stress += E(n,gp) * gpStress[gp][c];
+            }
+            nodalStress[n][c] = stress;
+        }
+    }
 }

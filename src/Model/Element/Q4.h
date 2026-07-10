@@ -50,5 +50,7 @@ public:
     //! 面载转化为点载
     bool CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) override;
     //! 获取局部节点编号
-    std::vector<int> GetFaceNodesLocalID(unsigned int faceID);
+    std::vector<int> GetFaceNodesLocalID(unsigned int faceID) const;
+    //! 单元外推矩阵
+    DenseMatrix<double> GetExprapolationMatrix() const override;
 };

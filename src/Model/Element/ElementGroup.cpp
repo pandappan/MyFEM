@@ -69,6 +69,7 @@ bool CElementGroup::Read(std::ifstream& Input, std::vector<CNode>& nodelist)
             return false;
         }
         element->SetElementType(type_);
+        element->SetElementNumber(N);
         if (!element->Read(Input, *this, nodelist)) return false;
         elements_.push_back(std::move(element));
     }

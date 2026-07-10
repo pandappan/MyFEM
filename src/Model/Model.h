@@ -24,10 +24,10 @@ struct PreDisplacement {
 };
 
 struct SurfaceLoad {
-    unsigned int elemID;
-    unsigned int faceID;
-    unsigned int dof;
-    double value;
+    unsigned int elemID;  ///< 1-based element ID
+    unsigned int faceID;  ///< 1-based face ID
+    unsigned int dof;     ///< 1-based DOF (1=X, 2=Y, 3=Z)
+    double       value;   ///< Distributed load per unit length/area
 };
 
 class Model {

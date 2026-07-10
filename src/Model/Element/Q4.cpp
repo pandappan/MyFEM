@@ -113,13 +113,18 @@ bool CQ4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double val
 }
 
 // FaceID: 0基
-std::vector<int> CQ4::GetFaceNodesLocalID(unsigned int faceID) {
+std::vector<int> CQ4::GetFaceNodesLocalID(unsigned int faceID) const {
+    // Q4 face convention (0-based, CCW):
+    //   face 0: N1(0) -> N2(1)  (bottom)
+    //   face 1: N2(1) -> N3(2)  (right)
+    //   face 2: N3(2) -> N4(3)  (top)
+    //   face 3: N4(3) -> N1(0)  (left, closing edge)
     std::vector<int> nodesLocalID(2);
     switch (faceID) {
         case 0: nodesLocalID={0,1}; break;
         case 1: nodesLocalID={1,2}; break;
         case 2: nodesLocalID={2,3}; break;
-        case 3: nodesLocalID={3,1}; break;
+        case 3: nodesLocalID={3,0}; break;
         default:
             throw std::out_of_range("CQ4::GetFaceNodesLocalID invalid faceID");
     }
@@ -141,4 +146,18 @@ void CQ4::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const
         deformeCoords(0,i) = nodes_[i]->XYZ[0] + nodes_[i]->Displacement[0];
         deformeCoords(1,i) = nodes_[i]->XYZ[1] + nodes_[i]->Displacement[1];
     }
+}
+
+//! 单元外推矩阵
+DenseMatrix<double> CQ4::GetExprapolationMatrix() const {
+    DenseMatrix<double> E(4,4);
+    const double sqrt3 = 1.7320508075688772;
+    const double a = 1.0 + sqrt3 / 2.0;      // ≈ 1.866
+    const double b = -0.5;                   // = -0.5
+    const double c = 1.0 - sqrt3 / 2.0;      // ≈ 0.134
+    E(0, 0) = a;  E(0, 1) = b;  E(0, 2) = c;  E(0, 3) = b;
+    E(1, 0) = b;  E(1, 1) = a;  E(1, 2) = b;  E(1, 3) = c;
+    E(2, 0) = c;  E(2, 1) = b;  E(2, 2) = a;  E(2, 3) = b;
+    E(3, 0) = b;  E(3, 1) = c;  E(3, 2) = b;  E(3, 3) = a;
+    return E;
 }

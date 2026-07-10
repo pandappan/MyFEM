@@ -19,6 +19,7 @@ bool Reader::Read(const std::string& filename, Model& model) {
     if (!ReadGroups(input, model)) {return false;}
     if (!ReadLoads(input, model)) {return false;}
     if (!ReadPreDisp(input, model)) {return false;}
+    if (!ReadSLoads(input, model)) {return false;}
     if (!ReadBodyForce(input, model)) {return false;}
     return true;
 }
@@ -129,8 +130,12 @@ bool Reader::ReadSLoads(std::ifstream &input, Model &model) {
     model.sloads.reserve(NS);
     for (unsigned int i = 0; i < NS; i++) {
         SurfaceLoad sload{};
-        input >> sload.elemID >> sload.dof >> sload.value;
+        input >> sload.elemID >> sload.faceID >> sload.dof >> sload.value;
         model.sloads.push_back(sload);
+        if (!input.good()) {
+            std::cerr << "Error input surface loads" << std::endl;
+            return false;
+        }
     }
     return true;
 }

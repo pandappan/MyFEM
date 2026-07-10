@@ -9,7 +9,8 @@
 
 // 获取单元所有节点的坐标
 // x_iI
-CElement::CElement():ElementNumber_(0), NDim_(0), NEN_(0), ND_(0), ElementMaterial_(nullptr), volume_((0.0)){}
+CElement::CElement():elementType_(ElementTypes::UNDEFINED),ElementNumber_(0),
+NDim_(0), NEN_(0), ND_(0), ElementMaterial_(nullptr), volume_((0.0)){}
 
 DenseMatrix<double> CElement::GetNodeCoordinates() const {
     DenseMatrix<double> nodeCoords(NDim_, NEN_);

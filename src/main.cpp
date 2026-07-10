@@ -9,6 +9,7 @@
 #include "Analysis/Assembly.h"
 #include "Analysis/Solver.h"
 #include <iostream>
+#include "Element/Q4.h"
 
 int main(int argc, char* argv[]) {
     // 输入和输出文件名，不加尾缀
@@ -49,8 +50,10 @@ int main(int argc, char* argv[]) {
     CLDLTSolver solver(*model.K);
     solver.LDLT();
     solver.BackSubstitution(model.force);
+    // 求解结果处理
     Assembler::WriteDisplacementToNodes(model);
     Assembler::CalculateNodalBCForce(model);
+    Assembler::CalculateNodalStress(model);
     // 输出结果
     writer.OutputNodalDisplacement(model);
     writer.OutputElementStress(model);

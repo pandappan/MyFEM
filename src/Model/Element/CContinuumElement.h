@@ -29,14 +29,18 @@ protected:
     };
     std::vector<IntegrationPointData> integrationPoints_;
     bool integrationPointsCached_ = false;
+    // 单元的外推矩阵，如果没有特殊外推矩阵，则取各节点取积分平均值
+    virtual DenseMatrix<double> GetExprapolationMatrix() const;
 public:
     //========通用逻辑========
     // 单元刚度矩阵
     void ElementStiffness(DenseMatrix<double>& Ke) override;
     // 计算所有积分点的形函数信息
     void InitializeIntegrationPoints();
-    //! 将体载转化为点载
+    // 将体载转化为点载
     void CalculateBodyForce(const double *bodyForce) override;
+    // 将所有积分点的应力外推至节点应力
+    virtual void ExtrapolatStressToNodes(std::vector<std::vector<double>>& nodalStress) const;
     // 计算积分点处的应变
     std::vector<double> ComputeStrainAtIntegrationPoint(unsigned int ip) const;
     // 计算单元在积分点处的应力

@@ -22,6 +22,9 @@ add_executable(MyFEM_tests
         test_surface_load.cpp
         test_integration_surfaceload.cpp
         test_bodyforce.cpp
+        test_stress_smoothing.cpp
+        test_face_mapping.cpp
+        test_q4_distorted.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::IO

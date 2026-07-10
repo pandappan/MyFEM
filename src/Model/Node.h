@@ -46,6 +46,11 @@ public:
 //! 节点约束力，边界条件贡献
 	double NodeBCForce[NDF];
 
+//! 抹平后的节点应力
+	std::vector<double> stress;
+//! 抹平时的累计权重
+	double stressWieghts = 0.0;
+
 //!	Constructor
 	CNode(double X = 0.0, double Y = 0.0, double Z = 0.0);
 
