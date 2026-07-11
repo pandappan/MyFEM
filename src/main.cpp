@@ -2,14 +2,13 @@
 // Created by Administrator on 2026/7/6.
 //
 
-#include "Model/Model.h"
-#include "IO/Reader.h"
-#include "IO/Writer.h"
-#include "IO/VtuExporter.h"
+#include <iostream>
 #include "Analysis/Assembly.h"
 #include "Analysis/Solver.h"
-#include <iostream>
-#include "Element/Q4.h"
+#include "IO/Reader.h"
+#include "IO/VtuExporter.h"
+#include "IO/Writer.h"
+#include "Model/Model.h"
 
 int main(int argc, char* argv[]) {
     // 输入和输出文件名，不加尾缀
@@ -20,6 +19,7 @@ int main(int argc, char* argv[]) {
     std::string inFile  = argv[1];
     std::string outFile = inFile + ".out";
     std::string vtkFile = inFile + ".vtu";
+    std::string vtkGsFile = inFile + ".gs.vtu";
     inFile = inFile + ".dat";
     // 模型信息
     Model model;
@@ -60,6 +60,7 @@ int main(int argc, char* argv[]) {
     writer.OutputNodalBCForce(model);
     // 可视化导出结果
     VtuExporter exporter;
-    exporter.ExportVtk(vtkFile,model);
+    exporter.ExportMesh(vtkFile,model);
+    exporter.ExportGaussPoints(vtkGsFile,model);
     return 0;
 }

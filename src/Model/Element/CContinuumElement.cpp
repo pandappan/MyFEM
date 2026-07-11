@@ -247,3 +247,30 @@ void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> 
         }
     }
 }
+
+// 返回单元所有积分点处的位置
+DenseMatrix<double> CContinuumElement::GetIntegrationPointPositions() const {
+    const unsigned int nGp = GetNumIntegrationPoints();
+    DenseMatrix<double> pos(NDim_, nGp);
+    pos.SetZero();
+    for (unsigned int ip = 0; ip < nGp; ip++) {
+        const auto& N = integrationPoints_[ip].N;
+        for (unsigned int d = 0; d < NDim_; d++) {
+            for (unsigned int n = 0; n < NEN_; n++) {
+                pos(d,ip) += N[n] * nodes_[n]->XYZ[d];
+            }
+        }
+    }
+    return pos;
+}
+
+// 返回所有积分点处的应力
+std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses() const {
+    const unsigned int nGp = GetNumIntegrationPoints();
+    const unsigned int nComp = ElementMaterial_->GetNumStressComponents();
+    std::vector<std::vector<double>> stress(nGp, std::vector<double>(nComp, 0.0));
+    for (unsigned int i = 0; i < nGp; i++) {
+        stress[i] = ComputeStressAtIntegrationPoint(i);
+    }
+    return stress;
+}

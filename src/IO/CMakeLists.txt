@@ -1,7 +1,8 @@
 add_library(MyFEM_io STATIC
-Reader.cpp
-Writer.cpp
-        VtuExporter.cpp)
+        Reader.cpp
+        Writer.cpp
+        VtuExporter.cpp
+        VtuWriter.cpp)
 add_library(MyFEM::IO ALIAS MyFEM_io)
 target_include_directories(MyFEM_io PUBLIC
 ${CMAKE_CURRENT_SOURCE_DIR})

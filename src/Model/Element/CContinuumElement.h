@@ -59,6 +59,8 @@ public:
         std::vector<double>& N) const = 0;
     virtual void ComputeShapeDerivatives(const std::vector<double>& xi,
         DenseMatrix<double>& dN_dxi) const = 0;
+    DenseMatrix<double> GetIntegrationPointPositions() const;
+    std::vector<std::vector<double>> GetIntegrationPointStresses() const;
 
 private:
     //========私有辅助========
