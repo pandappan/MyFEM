@@ -140,15 +140,23 @@ void Assembler::CalculateNodalBCForce(Model &model) {
     }
 }
 
+// 外推积分点应力，并进行面积加权平均。杆单元不需要外推到节点应力，只有连续介质单元需要处理
 void Assembler::CalculateNodalStress(Model& model) {
-    // 应力分量数目
+    // 应力分量数目+判定单元类型
     unsigned int nComp = 0;
     for (auto& g : model.groups) {
-        if (g.GetNUME() > 0) {
-            nComp = g.GetElement(0).GetElementMaterial()->GetNumStressComponents();
-            break;
+        for (unsigned int e = 0; e < g.GetNUME(); e++) {
+            if (g.GetNUME() > 0) {
+                const auto* c = dynamic_cast<const CContinuumElement*>(&g.GetElement(e));
+                if (c) {
+                    nComp = c->GetElementMaterial()->GetNumStressComponents();
+                    break;
+                }
+            }
         }
+        if (nComp > 0) break;
     }
+    // 桁架单元，跳过外推
     if (nComp == 0) return;
     // 初始化节点的应力容器
     for (auto& node : model.nodes) {

@@ -183,6 +183,43 @@ bool VtuExporter::ExportMesh(const std::string& fileName, const Model& model) {
     }
 
     w.EndPointData();
+
+    // 输出单元平均miss应力
+    w.BeginCellData();
+    // 单元编号
+    {
+        std::vector<unsigned int> ids;
+        for (const auto& group : model.groups) {
+            for (unsigned int e = 0; e < group.GetNUME(); ++e) {
+                const auto& elem = group.GetElement(e);
+                ids.push_back(elem.GetElementNumber());
+            }
+        }
+        w.WriteIntField("ElementID", ids);
+    }
+    // 单元类型
+    {
+        std::vector<unsigned int> types;
+        for (const auto& group : model.groups) {
+            unsigned int eType = static_cast<unsigned int>(group.GetElementType());
+            for (unsigned int e = 0; e < group.GetNUME(); ++e) {
+                const auto& elem = group.GetElement(e);
+                types.push_back(eType);
+            }
+        }
+        w.WriteIntField("ElementType", types);
+    }
+    // 输出单元平均miss应力, Bar单元为单元内力，连续介质单元为平均miss应力
+    {
+        std::vector<double> s;
+        for (const auto& g : model.groups)
+            for (unsigned int e = 0; e < g.GetNUME(); ++e)
+                s.push_back(g.GetElement(e).GetRepresentativeStress());
+        w.WriteScalarField("ElementStress", s);
+    }
+    w.EndCellData();
+
+
     w.EndPiece();
 
     return true;
@@ -195,8 +232,8 @@ bool VtuExporter::ExportGaussPoints(const std::string& fileName,
 
     // ---- 收集所有 GP ----
     std::vector<double> xyz;
-    std::vector<int>    elemIDs;
-    std::vector<int>    gpIDs;
+    std::vector<unsigned int>    elemIDs;
+    std::vector<unsigned int>    gpIDs;
     std::vector<std::vector<double>> stresses;   // 每个 GP 一条应力
     unsigned int nComp = 0;
 

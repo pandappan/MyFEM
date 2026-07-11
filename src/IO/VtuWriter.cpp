@@ -100,7 +100,7 @@ void VtuWriter::WriteVectorField(const std::string& name,
 }
 
 void VtuWriter::WriteIntField(const std::string& name,
-                              const std::vector<int>& data) {
+                              const std::vector<unsigned int>& data) {
     out_ << "        <DataArray type=\"Int32\" Name=\"" << name
          << "\" format=\"ascii\">\n";
     for (int v : data) out_ << "          " << v << "\n";

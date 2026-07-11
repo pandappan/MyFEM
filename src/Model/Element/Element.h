@@ -83,6 +83,8 @@ public:
     void SetElementType(ElementTypes elementType);
     // 将体载荷转化为点载荷，并存入节点中
     virtual void CalculateBodyForce(const double* bodyForce);
+    // 单元平均应力
+    virtual double GetRepresentativeStress() const {return 0.0;};
     // 测试使用
     void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
 protected:

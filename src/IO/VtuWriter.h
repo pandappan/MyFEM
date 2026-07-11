@@ -31,5 +31,5 @@ public:
     void WriteVectorField(const std::string& name,
         const std::vector<double>& data,
         unsigned int numComponents);
-    void WriteIntField(const std::string &name, const std::vector<int> &data);
+    void WriteIntField(const std::string &name, const std::vector<unsigned int> &data);
 };

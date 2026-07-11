@@ -264,7 +264,7 @@ DenseMatrix<double> CContinuumElement::GetIntegrationPointPositions() const {
     return pos;
 }
 
-// 返回所有积分点处的应力
+// 返回所有积分点处的应力(nGp,nComp)
 std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses() const {
     const unsigned int nGp = GetNumIntegrationPoints();
     const unsigned int nComp = ElementMaterial_->GetNumStressComponents();
@@ -273,4 +273,30 @@ std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses
         stress[i] = ComputeStressAtIntegrationPoint(i);
     }
     return stress;
+}
+
+double CContinuumElement::GetRepresentativeStress() const {
+    // 将所有积分点的miss应力平均
+    unsigned int nGp = GetNumIntegrationPoints();
+    unsigned int nComp = ElementMaterial_->GetNumStressComponents();
+    std::vector<std::vector<double>> stress = GetIntegrationPointStresses();
+    double miss = 0.0;
+    for (const auto& ipStress: stress) {
+        double temp = 0.0;
+        if (nComp == 3) {
+            double sxx = ipStress[0];
+            double syy = ipStress[1];
+            double sxy = ipStress[2];
+            temp = std::sqrt(sxx*sxx + syy*syy - sxx*syy + 3.0 * sxy*sxy);
+
+        } else if (nComp == 6) {
+            double sxx=ipStress[0], syy=ipStress[1], szz=ipStress[2];
+            double sxy=ipStress[3], syz=ipStress[4], sxz=ipStress[5];
+            double d1 = sxx-syy, d2 = syy-szz, d3 = szz-sxx;
+            temp = std::sqrt(0.5*(d1*d1+d2*d2+d3*d3)
+                             + 3.0*(sxy*sxy+syz*syz+sxz*sxz));
+        }
+        miss += temp;
+    }
+    return miss / nGp;
 }

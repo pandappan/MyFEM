@@ -39,4 +39,6 @@ public:
 	virtual void GetVisualizationNodes(DenseMatrix<double>& coords) const;
 //! 返回节点变形坐标
 	virtual void GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const;
+//! 杆单元应力
+	virtual double GetRepresentativeStress() const override;
 };

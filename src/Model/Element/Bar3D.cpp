@@ -166,3 +166,7 @@ void CBar3D::GetVisualizationDeformeNodes(DenseMatrix<double>& coords) const {
 		for (unsigned int d = 0; d < 3; d++)
 			coords(d, i) = nodes_[i]->XYZ[d] + nodes_[i]->Displacement[d];
 }
+
+double CBar3D::GetRepresentativeStress() const {
+	return ElementStress();
+}

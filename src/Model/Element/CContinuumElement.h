@@ -45,6 +45,8 @@ public:
     std::vector<double> ComputeStrainAtIntegrationPoint(unsigned int ip) const;
     // 计算单元在积分点处的应力
     std::vector<double> ComputeStressAtIntegrationPoint(unsigned int ip) const;
+    // 单元平均的miss应力
+    double GetRepresentativeStress() const override;
 
     //========查询函数========
     // 获取单元积分点的数目
