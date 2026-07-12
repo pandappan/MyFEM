@@ -8,6 +8,7 @@ add_library(MyFEM_model STATIC
         Element/CContinuumElement.cpp
         Element/Bar3D.cpp
         Element/Q4.cpp
+        Element/H8.cpp
 
         Material/Material.cpp
         Material/BarMaterial.cpp

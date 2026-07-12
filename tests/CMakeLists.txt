@@ -25,6 +25,8 @@ add_executable(MyFEM_tests
         test_stress_smoothing.cpp
         test_face_mapping.cpp
         test_q4_distorted.cpp
+        test_h8.cpp
+        test_integration_H8.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::IO

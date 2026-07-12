@@ -203,7 +203,6 @@ bool VtuExporter::ExportMesh(const std::string& fileName, const Model& model) {
         for (const auto& group : model.groups) {
             unsigned int eType = static_cast<unsigned int>(group.GetElementType());
             for (unsigned int e = 0; e < group.GetNUME(); ++e) {
-                const auto& elem = group.GetElement(e);
                 types.push_back(eType);
             }
         }

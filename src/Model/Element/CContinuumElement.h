@@ -39,8 +39,6 @@ public:
     void InitializeIntegrationPoints();
     // 将体载转化为点载
     void CalculateBodyForce(const double *bodyForce) override;
-    // 将所有积分点的应力外推至节点应力
-    virtual void ExtrapolatStressToNodes(std::vector<std::vector<double>>& nodalStress) const;
     // 计算积分点处的应变
     std::vector<double> ComputeStrainAtIntegrationPoint(unsigned int ip) const;
     // 计算单元在积分点处的应力
@@ -63,6 +61,8 @@ public:
         DenseMatrix<double>& dN_dxi) const = 0;
     DenseMatrix<double> GetIntegrationPointPositions() const;
     std::vector<std::vector<double>> GetIntegrationPointStresses() const;
+    // 将所有积分点的应力外推至节点应力
+    virtual void ExtrapolatStressToNodes(std::vector<std::vector<double>>& nodalStress) const;
 
 private:
     //========私有辅助========
