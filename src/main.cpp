@@ -9,6 +9,7 @@
 #include "IO/VtuExporter.h"
 #include "IO/Writer.h"
 #include "Model/Model.h"
+#include "Element/CContinuumElement.h"
 
 int main(int argc, char* argv[]) {
     // 输入和输出文件名，不加尾缀
@@ -62,5 +63,20 @@ int main(int argc, char* argv[]) {
     VtuExporter exporter;
     exporter.ExportMesh(vtkFile,model);
     exporter.ExportGaussPoints(vtkGsFile,model);
+    for (auto& g : model.groups) {
+        for (unsigned int e = 0; e < g.GetNUME(); ++e) {
+            auto& elem = g.GetElement(e);
+            if (elem.GetElementNumber() != 93) continue;
+            auto* c = dynamic_cast<CContinuumElement*>(&elem);
+            std::cout << "Element 1 GP stresses:\n";
+            for (unsigned int ip = 0; ip < 8; ++ip) {
+                auto s = c->ComputeStressAtIntegrationPoint(ip);
+                std::cout << "  GP " << ip + 1
+                          << "  Sxx=" << s[0] << "  Syy=" << s[1] << "  Szz=" << s[2]
+                          << "  Sxy=" << s[3] << "  Syz=" << s[4] << "  Sxz=" << s[5]
+                          << "\n";
+            }
+        }
+    }
     return 0;
 }
