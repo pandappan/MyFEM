@@ -1,44 +1,32 @@
-# MyFEM
+# MyFEM 一个C++有限元框架
+<p align="center">
+  <img src="docs/cases/Benchmark_3d_truss_frame/readme_demo.png" width="500"/>
+  <br><em>3D星形桁架: 节点位移与应力与ABAQUS结果一致</em>
+</p>
+
 [![CI](https://github.com/pandappan/MyFEM/actions/workflows/ci.yml/badge.svg)](https://github.com/pandappan/MyFEM/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++](https://img.shields.io/badge/C%2B%2B-11-blue.svg)]()
 [![Platform](https://img.shields.io/badge/platform-linux-lightgrey.svg)]()
-## 简介
-MyFEM是一个线弹性有限元框架，采用C++面向对象设计方法。
-设计MyFEM的目的在于增强对有限元理论的认知，熟悉C++开发流程，
-以及为刚接触面向对象有限元的同学提供参考。
-程序虽然不大，但内容丰富，涵盖自由度管理，单元设计以及装配，
-载荷以及边界条件施加等有限元理论的的核心理论。
-不仅如此，MyFEM将有限元理论和面向对象的思想结合，合理布局各个模块，
-程序解耦度高，易于扩展新功能。总体来说，这是一次漂亮的理论实践。
 
-程序在设计思路上大量参考清华大学张雄老师开发的STAP++，
-在此基础上做了大量的改进与扩展。
-此外，程序在理论部分主要参考了《有限元单元法基础》，
-《Introduction to Finite Element Analysis》。
+
+> MyFEM是一个从零开始构建线弹性有限元框架，采用C++面向对象设计方法。
+
+> 支持1D(杆单元)，2D(平面应力、应变单元)，3D(固体单元)有限元分析。
+
+> 所有单元均通过经典基准案例与ABAQUS结果对比验证。
+
 ## 主要特性
-- 现代C++11 面向对象架构
-- 支持多种连续介质单元，Bar3D, Q4, H8
-- 兼容混合单元网格形式
-- 允许固定，指定位移边界条件
-- 允许点载荷，面载荷，体载荷施加
-- 积分点应力外推+应力平滑处理
-- VTK 可视化输出
-- 划行划列法施加边界约束以及约束力计算
-- Skyline稀疏矩阵存储，LDLT求解 
-## 构建
-```shell
-# 1.根目录上
-mkdir build && cd build
-cmake ..
-# 2.若是选择构建Release版本
-cmake --build .
-# 2.所示选择构建Debug版本
-cmake --build . --config Debug
-# 最终生成的可执行文件位置
-# build/bin/MyFEM
-```
-## 快速开始
+- 现代C++11 面向对象架构，模块解耦程度高，增加新单元仅需150行代码。
+- GoogleTest测试驱动，包含25+单元测试与3+集成测试案例。
+- 支持多种连续介质单元：Bar3D, Q4, H8，兼容混合网格输入格式。
+- 完整的载荷/边界条件处理：
+能同时处理点载荷、面/线载荷、体载荷，固定约束、指定位移约束这类加载工况。 
+此外还采用划行划列法处理边界约束与求解约束力。
+- 完善的后处理以及可视化模块：
+包含积分点的应力外推以及平滑处理功能，并且所有求解数据通过VTK文件可视化输出。
+- 稀疏矩阵存储、求解：SkylineMatrix稀疏矩阵格式降低内存消耗，
+LDLT直接法求解稀疏格式方程组。
 
 ## 架构
 ### 模块分层图
@@ -150,13 +138,25 @@ classDiagram
     CMaterial<--CStressMaterial
     CMaterial<--CSolidMaterial
 ```
-
+## 构建
+```shell
+# 1.根目录上
+mkdir build && cd build
+cmake ..
+# 2.若是选择构建Release版本
+cmake --build .
+# 2.所示选择构建Debug版本
+cmake --build . --config Debug
+# 最终生成的可执行文件位置
+# build/bin/MyFEM
+```
+## 快速开始
 ## 案例
 案例运行命令
 ```shell
 # 切换至exe目录下
 cd build/bin
-# 输入文件名，不加后缀运行
+# 输入文件名，文件实际后缀为.dat，但是只需输入文件名
 ./MyFEM FileName
 # 文件也可以相对路径的方式输入
 ./MyFEM ../Truss/FileName
@@ -172,6 +172,8 @@ cd build/bin
 ### 演示案例：多四边形单元
 ### 演示案例：3D单元
 ## 未来规划
-功能慢慢加
-## 参考资料
-程序
+- MPC约束方程施加
+- 剪切自锁问题
+- 体积自锁问题
+- 顺序热力耦合
+- 梁板壳单元

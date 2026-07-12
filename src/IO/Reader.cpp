@@ -8,6 +8,8 @@
 #include "../Model/Element/ElementGroup.h"
 #include <iostream>
 
+#include "Element/CContinuumElement.h"
+
 bool Reader::Read(const std::string& filename, Model& model) {
     std::ifstream input(filename.c_str());
     if (!input) {
@@ -72,9 +74,24 @@ bool Reader::ReadNodes(std::ifstream& input, Model& model) {
 }
 
 bool Reader::ReadGroups(std::ifstream &input, Model &model) {
+    // 读入单元数据
     for (auto& group : model.groups) {
         if (!group.Read(input, model.nodes)) return false;
     }
+    // 检查单元体积/面积是否为负，以判读输入的正确性
+    for (auto& group : model.groups) {
+        for (unsigned int e = 0; e < group.GetNUME(); e++) {
+            auto* c = dynamic_cast<CContinuumElement*>(&group.GetElement(e));
+            if (!c) continue;
+            double v = c->GetVolume();
+            if (v <= 0.0) {
+                std::cerr << "Error input in elemID: " << c->GetElementNumber()
+                << ", there is negative volume" <<std::endl;
+                return false;
+            }
+        }
+    }
+
     return true;
 }
 

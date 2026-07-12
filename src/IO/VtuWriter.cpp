@@ -57,15 +57,15 @@ void VtuWriter::WriteCells(const std::vector<unsigned int>& conn,
     out_ << "      <Cells>\n";
 
     out_ << "        <DataArray type=\"Int32\" Name=\"connectivity\" format=\"ascii\">\n";
-    for (int v : conn) out_ << "          " << v << "\n";
+    for (unsigned int v : conn) out_ << "          " << v << "\n";
     out_ << "        </DataArray>\n";
 
     out_ << "        <DataArray type=\"Int32\" Name=\"offsets\" format=\"ascii\">\n";
-    for (int v : offs) out_ << "          " << v << "\n";
+    for (unsigned int v : offs) out_ << "          " << v << "\n";
     out_ << "        </DataArray>\n";
 
     out_ << "        <DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n";
-    for (int v : types) out_ << "          " << v << "\n";
+    for (unsigned int v : types) out_ << "          " << v << "\n";
     out_ << "        </DataArray>\n";
 
     out_ << "      </Cells>\n";

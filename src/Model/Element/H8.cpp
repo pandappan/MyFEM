@@ -121,9 +121,9 @@ DenseMatrix<double> CH8::GetExprapolationMatrix() const {
     const double b = 0.5 * (1.0 - sqrt3);
     for (unsigned int i = 0; i < 8; i++) {
         for (unsigned int gp = 0; gp < 8; gp++) {
-            double fx = (nodeSign_[i][0] == nodeSign_[gp][0]) ? a : b;
-            double fy = (nodeSign_[i][1] == nodeSign_[gp][1]) ? a : b;
-            double fz = (nodeSign_[i][2] == nodeSign_[gp][2]) ? a : b;
+            double fx = (nodeSign_[i][0] == nodeSign_[gp][0])? a : b;
+            double fy = (nodeSign_[i][1] == nodeSign_[gp][1])? a : b;
+            double fz = (nodeSign_[i][2] == nodeSign_[gp][2])? a : b;
             E(i, gp) = fx * fy * fz;
         }
     }
