@@ -133,7 +133,12 @@ void CContinuumElement::InitializeIntegrationPoints() {
         volume_ += integrationPoints_[i].detJ_times_weight;
     }
     CMaterial* mat = GetElementMaterial();
-    double thk = mat->GetThickness();
+    double thk;
+    if (mat) { // 单元正常作为体元的分支
+        thk = mat->GetThickness();
+    } else { // 单元作为载荷面元的分支
+        thk = 1.0;
+    }
     volume_ *= thk;
     integrationPointsCached_ = true;
 }

@@ -120,7 +120,7 @@ bool CH8::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double val
     std::vector<int> nodesLocalID = GetFaceNodesLocalID(faceID);
     std::vector<CNode*> nodeList(4);
     for (unsigned int i = 0; i < 4; i++) {
-        nodeList[i] = nodes_[i];
+        nodeList[i] = nodes_[nodesLocalID[i]];
     }
     // 构建局部面元，并初始化形函数等信息
     CQ4 faceElem;
