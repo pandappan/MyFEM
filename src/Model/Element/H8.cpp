@@ -5,6 +5,7 @@
 #include "Node.h"
 #include "ElementGroup.h"
 #include "Material/Material.h"
+#include "Q4.h"
 
 const DOFIndex CH8::ActiveDOFs[3] = {UX,UY,UZ};
 const unsigned int CH8::NumActiveDOFsPerNode = 3;
@@ -111,6 +112,47 @@ void CH8::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const
             deformeCoords(j,i) = nodes_[i]->XYZ[j] + nodes_[i]->Displacement[j];
         }
     }
+}
+
+// 面载转化为等效节点载荷
+bool CH8::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
+    // 从局部面元编号转换为节点数组
+    std::vector<int> nodesLocalID = GetFaceNodesLocalID(faceID);
+    std::vector<CNode*> nodeList(4);
+    for (unsigned int i = 0; i < 4; i++) {
+        nodeList[i] = nodes_[i];
+    }
+    // 构建局部面元，并初始化形函数等信息
+    CQ4 faceElem;
+    faceElem.AsFaceElem(nodeList);
+    // 计算等效节点载荷并输出到节点
+    const auto& gsData =faceElem.GetIntegrationPoints();
+    for (unsigned int n = 0; n < 4; n++) {
+        double eqforce = 0.0;
+        for (unsigned int ip = 0; ip < 4; ip++) {
+                eqforce += gsData[ip].N[n] * value * gsData[ip].detJ_times_weight;
+        }
+        // 通过当前H8单元输入节点力中
+        nodes_[nodesLocalID[n]]->AddForce(dof, eqforce);
+    }
+    return true;
+}
+
+// H8单元面的局部节点编号
+std::vector<int> CH8::GetFaceNodesLocalID(unsigned int faceID) const {
+    std::vector<int> nodesLocalID(4);
+    switch (faceID) {
+        case 0: nodesLocalID = {0, 1, 2, 3}; break;
+        case 1: nodesLocalID = {5, 6, 7, 8}; break;
+        case 2: nodesLocalID = {0, 1, 5, 4}; break;
+        case 3: nodesLocalID = {1, 2, 6, 5}; break;
+        case 4: nodesLocalID = {2, 3, 7, 6}; break;
+        case 5: nodesLocalID = {3, 0, 4, 7}; break;
+        default: {
+            throw std::out_of_range("GetFaceNodesLocalID: Unknown faceID");
+        }
+    }
+    return nodesLocalID;
 }
 
 //! 单元外推矩阵

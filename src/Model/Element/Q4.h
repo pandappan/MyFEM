@@ -17,6 +17,9 @@ public:
     //!	Read element data from stream Input
     bool Read(std::ifstream& Input, CElementGroup& group, std::vector<CNode>& nodelist) override;
 
+    //! Q4单元作为H8单元的面元时接受节点数组初始化
+    void AsFaceElem(const std::vector<CNode*>& nodelist);
+
     //!	Write element data to stream
     void Write(std::ostream& output) const override;
     void WriteElementStress(std::ostream& output) const override;

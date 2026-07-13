@@ -95,3 +95,13 @@ TEST_F(H8UnitCubeFixture, UniformStressExtrapolatesToSameValue) {
         EXPECT_NEAR(val, 100.0, 1e-10) << "node " << i;
     }
 }
+
+// 施加面载荷，验证等效节点力
+TEST_F(H8UnitCubeFixture, ApplySurfaceLoad) {
+    // 顶部施加1N/mm^2的均布压力，节点等效载荷为0.25N
+    elem_->CalculateSurfaceLoad(0, 2, 1);
+    auto nodalLocalIDs = elem_->GetFaceNodesLocalID(0);
+    for (auto nodalLocalID : nodalLocalIDs) {
+        EXPECT_NEAR(nodes_[nodalLocalID].GetForce(2), 0.25, 1e-6);
+    }
+}

@@ -32,6 +32,15 @@ bool CQ4::Read(std::ifstream& Input, CElementGroup& group, std::vector<CNode>& n
     return true;
 }
 
+// Q4作为面元时，只需要节点数据便可进行初始化
+// 只传入节点指针数组，材料数组保持为空，无需生成方程号，初始化积分点处数据，供等效面力使用
+void CQ4::AsFaceElem(const std::vector<CNode*> &nodelist) {
+    for (int i = 0; i < 4; i++) {
+        nodes_[i] = nodelist[i];
+    }
+    InitializeIntegrationPoints();
+}
+
 void CQ4::Write(std::ostream& Output) const {
     Output << std::setw(6) << ElementNumber_;
     for (unsigned int i = 0; i < 4; i++) {
