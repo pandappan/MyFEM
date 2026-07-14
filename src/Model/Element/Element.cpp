@@ -135,6 +135,25 @@ void CElement::SetElementType(ElementTypes elementType) {
     elementType_ = elementType;
 }
 
+// 计算单元内的应变能 0.5 u^t K u
+double CElement::CalculateElementEnergy() const {
+    // 单元所有节点的位移
+    std::vector<double> nodesDisp(ND_);
+    std::vector<int> nodesBcode(ND_);
+    GetElementNodesDisp(nodesDisp, nodesBcode);
+    // 单元刚度矩阵
+    DenseMatrix<double> Ke(ND_, ND_);
+    ElementStiffness(Ke);
+    // 调用应变能公式
+    double energy = 0.0;
+    for (unsigned int i = 0; i < ND_; ++i) {
+        for (unsigned int j = 0; j < ND_; ++j) {
+            energy += 0.5 * nodesDisp[i] * Ke(i,j) * nodesDisp[j];
+        }
+    }
+    return energy;
+}
+
 void CElement::SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_) {
     nodes_ = std::move(NodeList);
     ElementMaterial_ = Material_;

@@ -20,6 +20,7 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     const double nu = 0.0;
     const double F_per_node = 0.5;   // Node 2 和 3 各 0.5
     const double expected_ux = 2 * F_per_node / E;   // σ=1/1=1, ε=1/E
+    const double extEnergy = 2 * F_per_node / E;
 
     Model model;
     model.dimension = 2;
@@ -87,4 +88,8 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     EXPECT_NEAR(model.nodes[2].Displacement[UX], expected_ux, 1e-10);
     EXPECT_NEAR(model.nodes[2].Displacement[UY], 0.0, 1e-10);
     EXPECT_NEAR(model.nodes[3].Displacement[UY], 0.0, 1e-10);
+
+    // 计算单元应变能
+    double energy = model.groups[0].GetElement(0).CalculateElementEnergy();
+    EXPECT_NEAR(2.0 * energy, extEnergy, 1e-8);
 }

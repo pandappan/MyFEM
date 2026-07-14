@@ -72,7 +72,7 @@ void CBar3D::WriteElementStress(std::ostream& out) const {
 }
 
 //	Calculate element stiffness matrix
-void CBar3D::ElementStiffness(DenseMatrix<double>& K)
+void CBar3D::ElementStiffness(DenseMatrix<double>& K) const
 {
 	K.SetZero();
 	// 双指针的nodes什么意思？

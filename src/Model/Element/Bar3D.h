@@ -28,7 +28,7 @@ public:
 //!	Write element data to stream
 	void Write(std::ostream& output) const override;
 	void WriteElementStress(std::ostream& output) const override;
-	void ElementStiffness(DenseMatrix<double>& K) override;
+	void ElementStiffness(DenseMatrix<double>& K) const override;
 	double ElementStress() const;
 	unsigned int GetNumActiveDOFsPerNode() const override {return NumActiveDOFsPerNode;};
 	const DOFIndex* GetActiveDOFs() const override {return ActiveDOFs;};

@@ -21,6 +21,7 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     const double F = 1000.0;  // N
     const double expected_ux = F * L / (E * A);
     const double expected_stress = F / A;
+    const double extEnergy = F * expected_ux;
 
     // -------- 构建 Model --------
     Model model;
@@ -100,4 +101,8 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     auto* bar = dynamic_cast<CBar3D*>(&model.groups[0].GetElement(0));
     ASSERT_NE(bar, nullptr);
     EXPECT_NEAR(bar->ElementStress(), expected_stress, 1e-4);
+
+    // 计算单元应变能
+    double energy = model.groups[0].GetElement(0).CalculateElementEnergy();
+    EXPECT_NEAR(2.0 * energy, extEnergy, 1e-8);
 }

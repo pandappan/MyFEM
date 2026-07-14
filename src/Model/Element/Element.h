@@ -38,7 +38,7 @@ public:
     virtual void Write(std::ostream& output) const = 0;
     virtual void WriteElementStress(std::ostream& output) const = 0;
     // 计算单元刚度矩阵
-    virtual void ElementStiffness(DenseMatrix<double>& Ke) = 0;
+    virtual void ElementStiffness(DenseMatrix<double>& Ke) const = 0;
     // 节点自由度数目
     virtual unsigned int GetNumActiveDOFsPerNode() const = 0;
     // 节点自由度编号
@@ -85,6 +85,8 @@ public:
     virtual void CalculateBodyForce(const double* bodyForce);
     // 单元平均应力
     virtual double GetRepresentativeStress() const {return 0.0;};
+    // 计算单元总应变能
+    double CalculateElementEnergy() const;
     // 测试使用
     void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
 protected:

@@ -184,7 +184,7 @@ bool VtuExporter::ExportMesh(const std::string& fileName, const Model& model) {
 
     w.EndPointData();
 
-    // 输出单元平均miss应力
+    // 输出单元平均miss应力，单元总应变能
     w.BeginCellData();
     // 单元编号
     {
@@ -215,6 +215,14 @@ bool VtuExporter::ExportMesh(const std::string& fileName, const Model& model) {
             for (unsigned int e = 0; e < g.GetNUME(); ++e)
                 s.push_back(g.GetElement(e).GetRepresentativeStress());
         w.WriteScalarField("ElementStress", s);
+    }
+    // 输出单元内总应变能
+    {
+        std::vector<double> energies;
+        for (const auto& g : model.groups)
+            for (unsigned int e = 0; e < g.GetNUME(); ++e)
+                energies.push_back(g.GetElement(e).CalculateElementEnergy());
+        w.WriteScalarField("ElementEnergy", energies);
     }
     w.EndCellData();
 

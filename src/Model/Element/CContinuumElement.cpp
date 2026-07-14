@@ -144,10 +144,8 @@ void CContinuumElement::InitializeIntegrationPoints() {
 }
 
 
-void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) {
-    if (!integrationPointsCached_) InitializeIntegrationPoints();
+void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
     Ke.SetZero();
-
     CMaterial* mat = GetElementMaterial();
     unsigned int nStress = mat->GetNumStressComponents();
     DenseMatrix<double> D(nStress, nStress);

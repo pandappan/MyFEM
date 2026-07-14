@@ -85,4 +85,27 @@ TEST(IntegrationTest, H8_UniaxialTension) {
     // ν=0 → x, y 方向无位移（除约束外）
     // Node 6 (1, 0, 1): Ux 自由 → 应约等于 0
     EXPECT_NEAR(model.nodes[5].Displacement[UX], 0.0, 1e-8);
+
+    // 计算单元应变能
+    double energy = model.groups[0].GetElement(0).CalculateElementEnergy();
+    EXPECT_NEAR(energy, 0.08, 1e-8);
+    // 验证能量守恒，Fext*U
+    std::vector<double> Fext(24);
+    unsigned int index = 0;
+    for (auto& node: model.nodes) {
+        for (unsigned int i = 0; i < model.dimension; i++) {
+            unsigned int dofIndex = index * model.dimension + i;
+            Fext[dofIndex] = node.NodeForce[i];
+        }
+        index++;
+    }
+    std::vector<double> U(24);
+    std::vector<int> nodesBcode(24);
+    model.groups[0].GetElement(0).GetElementNodesDisp(U, nodesBcode);
+    double extEnergy = 0.0;
+    for (unsigned int i = 0; i < 24; i++) {
+        extEnergy += Fext[i] * U[i];
+    }
+    EXPECT_NEAR(extEnergy, 0.16, 1e-8);
+    EXPECT_NEAR(2.0 * energy, extEnergy, 1e-8);
 }
