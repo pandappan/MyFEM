@@ -39,7 +39,8 @@ end
 subgraph IO_Layer[IO 层]
 Reader
 Writer
-VtkExporter
+VtuWriter
+VtuExporter
 end
 
 subgraph Analysis_Layer[Analysis 层]
@@ -161,19 +162,30 @@ cd build/bin
 # 文件也可以相对路径的方式输入
 ./MyFEM ../Truss/FileName
 ```
-### 演示案例：单一杆单元
-单一杆单元受拉工况
-![图片](docs/cases/example_1/test_1.png "test_1")
-### 演示案例：三杆单元
-多杆单元受拉工况
-### 演示案例：单一四边形单元
+### 演示案例：含孔方形板拉伸
+![图片](docs/cases/Benchmark_plate_with_hole/MyFEM_u.png "plate_with_hole")
+### 演示案例：悬臂梁弯曲
 四边形单元受拉工况
-![图片](docs/cases/example_3/test_3.png "test_3")
-### 演示案例：多四边形单元
-### 演示案例：3D单元
+![图片](docs/cases/Benchmark_3D_beam/MyFEM_u.png "3d_beam")
+
+## 正在进行
+- 程序使用手册撰写
+- 程序核心理论手册撰写
+
 ## 未来规划
 - MPC约束方程施加
 - 剪切自锁问题
 - 体积自锁问题
 - 顺序热力耦合
 - 梁板壳单元
+
+## 参考
+[1] 张雄, 有限元法基础
+
+[2] Dennis M. Kochmann, Introduction to Finite Element Analysis
+
+[3] Peter Wriggers, Nonlinear Finite Element Methods
+
+[4] Thomas J.R. Hughes, The Finite Element Method
+
+[5] 杨道奇, C++和面向对象数值计算

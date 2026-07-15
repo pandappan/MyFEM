@@ -9,7 +9,7 @@
 #include "../Material/Material.h"
 
 // 计算雅可比矩阵
-// jac_ij = (ax/axi)^T = x_iI o (aN_I/axi)_jI
+// Jac_ij = (ax/axi) = x_iI o (aN_I/axi)_jI
 void CContinuumElement::ComputeJacobian(const DenseMatrix<double>& dN_dxi,
     const DenseMatrix<double> &nodeCoords, DenseMatrix<double> &jacobian) const {
     jacobian.Resize(NDim_, NDim_);
@@ -21,6 +21,7 @@ void CContinuumElement::ComputeJacobian(const DenseMatrix<double>& dN_dxi,
 }
 
 // 计算雅可比矩阵的逆以及行列式
+// (Jac^-1)_ij detJac
 double CContinuumElement::ComputeInverseJacobian(const DenseMatrix<double> &jacobian,
     DenseMatrix<double> &invJacobian) const {
     double detJ = jacobian.Determinant();
@@ -32,6 +33,7 @@ double CContinuumElement::ComputeInverseJacobian(const DenseMatrix<double> &jaco
 }
 
 // 计算形函数的全局导数
+// dN_I/dx_i = dN_I/dxi_j * (Jac^-1)_ji
 void CContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_dxi,
                               const DenseMatrix<double>& invJacobian,
                               DenseMatrix<double>& dN_dx) const {
@@ -68,6 +70,7 @@ void CContinuumElement::ComputeIntegrationPointData(
     ipData.detJ_times_weight = detJ * weight;
 }
 
+// 计算B矩阵
 void CContinuumElement::ComputeBMatrix(unsigned int ip,
     DenseMatrix<double>& B) const {
     // 引用语法
@@ -143,7 +146,7 @@ void CContinuumElement::InitializeIntegrationPoints() {
     integrationPointsCached_ = true;
 }
 
-
+// Ke = B^T o D o B * detJac * W_I
 void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
     Ke.SetZero();
     CMaterial* mat = GetElementMaterial();
@@ -164,6 +167,7 @@ void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
 }
 
 // 体载转化为点载荷并写入节点中
+// Fext_I = N_I o b * rho * detJac * W_J
 void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
     // 单元的基本材料参数
     CMaterial* mat = GetElementMaterial();
@@ -187,6 +191,7 @@ void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
     }
 }
 
+// epsilon = B o u
 std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned int ip) const {
     unsigned int ns = GetElementMaterial()->GetNumStressComponents();
     DenseMatrix<double> B(ns, ND_);
