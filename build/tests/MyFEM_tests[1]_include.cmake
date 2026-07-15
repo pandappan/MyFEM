@@ -1,0 +1,5 @@
+if(EXISTS "/mnt/h/C++/MyFEM/build/tests/MyFEM_tests[1]_tests.cmake")
+  include("/mnt/h/C++/MyFEM/build/tests/MyFEM_tests[1]_tests.cmake")
+else()
+  add_test(MyFEM_tests_NOT_BUILT MyFEM_tests_NOT_BUILT)
+endif()
