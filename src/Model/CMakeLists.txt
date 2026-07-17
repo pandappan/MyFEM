@@ -20,6 +20,7 @@ add_library(MyFEM::Model ALIAS MyFEM_model)
 
 target_include_directories(MyFEM_model PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/third_party/nlohmann
 )
 target_link_libraries(MyFEM_model PUBLIC
         MyFEM::Core

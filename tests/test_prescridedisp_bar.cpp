@@ -17,8 +17,8 @@ TEST(IntegrationTest, BarWithPrescribedDisplacement) {
     model.dimension = 3;
     model.nodes.emplace_back(0.0, 0.0, 0.0);
     model.nodes.emplace_back(L, 0.0, 0.0);
-    model.nodes[0].NodeNumber = 1;
-    model.nodes[1].NodeNumber = 2;
+    model.nodes[0].Index = 1;
+    model.nodes[1].Index = 2;
     model.nodes[0].bcode[UX] = 1; // 全约束
     model.nodes[0].bcode[UY] = 1;
     model.nodes[0].bcode[UZ] = 1;
@@ -35,17 +35,14 @@ TEST(IntegrationTest, BarWithPrescribedDisplacement) {
     mat->nset = 1;
     mat->E    = E;
     mat->Area = A;
-    group.AddMaterialForTesting(std::move(mat));
+    model.materials.push_back(std::move(mat));
 
     // 单元
     auto elem = std::unique_ptr<CBar3D>(new CBar3D());
     std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1]};
-    elem->SetupForTesting(
-        nodes,
-        &group.GetMaterial(0)
-    );
-    group.AddElementForTesting(std::move(elem));
-
+    std::vector<unsigned int> connectivity = {0, 1};
+    elem->SetElementInfo(0, model.materials[0].get(), connectivity, model.nodes);
+    group.AddElement(std::move(elem));
     model.groups.push_back(std::move(group));
 
     Assembler::CalculateEquationNumber(model);

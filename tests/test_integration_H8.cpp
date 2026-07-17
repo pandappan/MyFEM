@@ -30,7 +30,7 @@ TEST(IntegrationTest, H8_UniaxialTension) {
     model.nodes.emplace_back(1.0, 0.0, 1.0);
     model.nodes.emplace_back(1.0, 1.0, 1.0);
     model.nodes.emplace_back(0.0, 1.0, 1.0);
-    for (unsigned int i = 0; i < 8; ++i) model.nodes[i].NodeNumber = i + 1;
+    for (unsigned int i = 0; i < 8; ++i) model.nodes[i].Index = i;
 
     // 底面 z=0 (N1-N4): Uz=0
     // N1: 全约束（防止刚体平移+旋转）
@@ -54,15 +54,13 @@ TEST(IntegrationTest, H8_UniaxialTension) {
 
     auto mat = std::unique_ptr<CSolid3DMaterial>(new CSolid3DMaterial());
     mat->nset = 1; mat->E = E; mat->nu = 0.0;
-    group.AddMaterialForTesting(std::move(mat));
+    model.materials.push_back(std::move(mat));
 
     auto elem = std::unique_ptr<CH8>(new CH8());
-    std::vector<CNode*> nps;
-    for (unsigned int i = 0; i < 8; ++i) nps.push_back(&model.nodes[i]);
-    elem->SetupForTesting(nps, &group.GetMaterial(0));
+    std::vector<unsigned int> connectivity = {0,1,2,3,4,5,6,7};
+    elem->SetElementInfo(0, model.GetMaterialPtr(0), connectivity, model.nodes);
     elem->InitializeIntegrationPoints();
-    group.AddElementForTesting(std::move(elem));
-
+    group.AddElement(std::move(elem));
     model.groups.push_back(std::move(group));
 
     // Pipeline

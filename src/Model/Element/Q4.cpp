@@ -17,21 +17,6 @@ CQ4::CQ4() {
     AllocateStorage(2,4,8);
 }
 
-bool CQ4::Read(std::ifstream& Input, CElementGroup& group, std::vector<CNode>& nodelist) {
-    unsigned int MSet;
-    std::vector<unsigned int> NodeNum(4);
-    for (int i = 0; i < 4; i++) {
-        Input >> NodeNum[i];
-    }
-    Input >> MSet;
-    ElementMaterial_ = &(group.GetMaterial(MSet - 1));
-    for (int i = 0; i < 4; i++) {
-        nodes_[i] = &nodelist[NodeNum[i]-1];
-    }
-    InitializeIntegrationPoints();
-    return true;
-}
-
 // Q4作为面元时，只需要节点数据便可进行初始化
 // 只传入节点指针数组，材料数组保持为空，无需生成方程号，初始化积分点处数据，供等效面力使用
 void CQ4::AsFaceElem(const std::vector<CNode*> &nodelist) {
@@ -44,7 +29,7 @@ void CQ4::AsFaceElem(const std::vector<CNode*> &nodelist) {
 void CQ4::Write(std::ostream& Output) const {
     Output << std::setw(6) << ElementNumber_;
     for (unsigned int i = 0; i < 4; i++) {
-        Output << std::setw(6) << nodes_[i]->NodeNumber;
+        Output << std::setw(6) << nodes_[i]->Index;
     }
     Output << std::setw(6) << ElementMaterial_->nset << std::endl;
 }

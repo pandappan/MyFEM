@@ -6,27 +6,29 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "Node.h"
-#include "Element/ElementGroup.h"
 #include "Material/Material.h"
+#include "Element/ElementGroup.h"
 #include "../Core/SkylineMatrix.h"
 
+
 struct ConcentratedLoad {
-    unsigned int node;
-    unsigned int dof;
+    unsigned int node_0;
+    unsigned int dof_0;
     double value;
 };
 
 struct PreDisplacement {
-    unsigned int node;
-    unsigned int dof;
+    unsigned int node_0;
+    unsigned int dof_0;
     double value;
 };
 
 struct SurfaceLoad {
-    unsigned int elemID;  ///< 1-based element ID
-    unsigned int faceID;  ///< 1-based face ID
-    unsigned int dof;     ///< 1-based DOF (1=X, 2=Y, 3=Z)
+    unsigned int elemId_0;
+    unsigned int faceId_0;
+    unsigned int dof_0;
     double       value;   ///< Distributed load per unit length/area
 };
 
@@ -36,12 +38,13 @@ public:
     std::string title;
     unsigned int dimension = 3;
     unsigned int modex = 0;
+    std::vector<std::unique_ptr<CMaterial>> materials;
     std::vector<CNode> nodes;
     std::vector<CElementGroup> groups;
     std::vector<ConcentratedLoad> cloads;
     std::vector<PreDisplacement> predisplacements;
     std::vector<SurfaceLoad> sloads;
-    std::vector<CElement*> globalElementList;
+    std::unordered_map<unsigned int, CElement*> globalElementMap; // 单元全局编号(0基)-单元指针映射
     double bodyForce[3] = {0.0, 0.0, 0.0};
     // 整体刚度矩阵，右端项
     unsigned int neq = 0;
@@ -50,6 +53,7 @@ public:
     // 查询函数
     unsigned int GetNumNodes() const {return nodes.size();}
     unsigned int GetNumGroups() const {return groups.size();}
+    CMaterial* GetMaterialPtr(unsigned int index0) const {return materials[index0].get();}
     Model() = default;
     ~Model();
     // 不允许拷贝，只允许移动

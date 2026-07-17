@@ -7,6 +7,16 @@
 #include "../../Core/Types.h"
 #include "../../Core/DenseMatrix.h"
 
+// 初始化单元基础信息
+void CElement::SetElementInfo(unsigned int elemId_0, CMaterial* matPtr,
+    const std::vector<unsigned int>& connectivity_0, std::vector<CNode>& nodeList) {
+    ElementNumber_   = elemId_0;
+    ElementMaterial_ = matPtr;
+    for (unsigned int i = 0; i < NEN_; ++i)
+        nodes_[i] = &nodeList[connectivity_0[i]];
+}
+
+
 // 获取单元所有节点的坐标
 // x_iI
 CElement::CElement():elementType_(ElementTypes::UNDEFINED),ElementNumber_(0),

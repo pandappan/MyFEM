@@ -31,7 +31,7 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     model.nodes.emplace_back(1.0, 1.0, 0.0);
     model.nodes.emplace_back(0.0, 1.0, 0.0);
     for (unsigned int i = 0; i < 4; ++i)
-        model.nodes[i].NodeNumber = i + 1;
+        model.nodes[i].Index = i + 1;
 
     // 2D 分析：UZ 全部约束
     for (auto& n : model.nodes) n.bcode[UZ] = 1;
@@ -58,17 +58,14 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     mat->E   = E;
     mat->nu  = nu;
     mat->thk = 1.0;
-    group.AddMaterialForTesting(std::move(mat));
+    model.materials.push_back(std::move(mat));
 
     auto elem = std::unique_ptr<CQ4>(new CQ4());
     std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1], &model.nodes[2], &model.nodes[3]};
-    elem->SetupForTesting(
-        nodes,
-        &group.GetMaterial(0)
-    );
+    std::vector<unsigned int> connectivity = {0, 1, 2, 3};
+    elem->SetElementInfo(0, model.materials[0].get(), connectivity, model.nodes);
     elem.get()->InitializeIntegrationPoints();
-    group.AddElementForTesting(std::move(elem));
-
+    group.AddElement(std::move(elem));
     model.groups.push_back(std::move(group));
 
     // Pipeline

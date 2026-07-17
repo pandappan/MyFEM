@@ -15,7 +15,7 @@ TEST(Q4Distorted, PureStrainOnTrapezoid) {
     nodes.emplace_back(2.0, 0.0, 0.0);
     nodes.emplace_back(1.7, 1.0, 0.0);
     nodes.emplace_back(0.3, 1.0, 0.0);
-    for (unsigned int i = 0; i < 4; ++i) nodes[i].NodeNumber = i + 1;
+    for (unsigned int i = 0; i < 4; ++i) nodes[i].Index = i + 1;
     
     auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
     mat->E = 1.0; mat->nu = 0.0; mat->thk = 1.0;

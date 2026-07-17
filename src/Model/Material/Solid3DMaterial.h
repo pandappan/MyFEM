@@ -7,8 +7,7 @@
 
 class CSolid3DMaterial : public CMaterial {
 public:
-    bool Read(std::ifstream& Input) override;
-
+    CSolid3DMaterial();
     void Write(std::ostream& Output) const override;
 
     unsigned int GetNumStressComponents() const override {return 6;};

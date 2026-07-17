@@ -7,5 +7,7 @@
 #include "../Core/Types.h"
 class CElement;
 class CMaterial;
-std::unique_ptr<CElement> CreateElement(ElementTypes type);
-std::unique_ptr<CMaterial> CreateMaterial(ElementTypes type);
+std::unique_ptr<CMaterial> CreateMaterialByString(const std::string& type);
+std::unique_ptr<CElement> CreateElementByString(const std::string& type);
+ElementTypes StringToElementType(const std::string& type);
+bool MaterialCompatibleWithElement(const std::string& matString, ElementTypes elemType);

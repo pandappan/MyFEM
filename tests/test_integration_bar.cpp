@@ -30,8 +30,8 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     // 节点：注意 CNode 默认构造后 bcode 全 0（自由）
     model.nodes.emplace_back(0.0, 0.0, 0.0);
     model.nodes.emplace_back(L,   0.0, 0.0);
-    model.nodes[0].NodeNumber = 1;
-    model.nodes[1].NodeNumber = 2;
+    model.nodes[0].Index = 0;
+    model.nodes[1].Index = 1;
 
     // Node 1：全固定
     model.nodes[0].bcode[UX] = 1;
@@ -55,17 +55,14 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     mat->nset = 1;
     mat->E    = E;
     mat->Area = A;
-    group.AddMaterialForTesting(std::move(mat));
+    model.materials.push_back(std::move(mat));
 
     // 单元
     auto elem = std::unique_ptr<CBar3D>(new CBar3D());
     std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1]};
-    elem->SetupForTesting(
-        nodes,
-        &group.GetMaterial(0)
-    );
-    group.AddElementForTesting(std::move(elem));
-
+    std::vector<unsigned int> connectivity = {0,1,2,3};
+    elem->SetElementInfo(0, model.materials[0].get(),connectivity,model.nodes);
+    group.AddElement(std::move(elem));
     model.groups.push_back(std::move(group));
 
     // -------- 执行完整分析流程 --------

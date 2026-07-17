@@ -21,8 +21,8 @@ protected:
         // 两个节点，沿 X 方向
         nodes_.emplace_back(0.0, 0.0, 0.0);
         nodes_.emplace_back(L_, 0.0, 0.0);
-        nodes_[0].NodeNumber = 1;
-        nodes_[1].NodeNumber = 2;
+        nodes_[0].Index = 0;
+        nodes_[1].Index = 1;
 
         // 材料
         mat_.reset(new CBarMaterial());

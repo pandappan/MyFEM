@@ -6,10 +6,10 @@
 #include "CPlaneStressMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-bool CPlaneStressMaterial::Read(std::ifstream& Input) {
-    Input >> nset >> rho >> E >> nu >> thk;
-    return true;
+CPlaneStressMaterial::CPlaneStressMaterial(): thk(1.0) {
+    matType = MaterialTypes::PS;
 }
+
 void CPlaneStressMaterial::Write(std::ostream& Output) const {
     Output << std::setw(6) << rho
     << std::setw(6)<< E

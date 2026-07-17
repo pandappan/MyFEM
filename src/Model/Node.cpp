@@ -43,22 +43,19 @@ CNode::CNode(double X, double Y, double Z)
 
 };
 
-//	从输入流中读入节点约束信息以及节点坐标
-bool CNode::Read(std::ifstream& Input, unsigned int dimension)
-{
-	assert(dimension == 2 || dimension == 3);
-	Input >> NodeNumber;	// node number
-	if (dimension == 2) {   // 读取2D的自由度约束代码，将3D剩余的自由度约束代码全部置为约束
-		Input >> bcode[UX] >> bcode[UY]
-		      >> XYZ[0] >> XYZ[1];
-		bcode[UZ]    = 1;
-		XYZ[2]       = 0.0;
-	} else { // 读取3D自由度约束代码
-		Input >> bcode[UX] >> bcode[UY] >> bcode[UZ]
-	          >> XYZ[0] >> XYZ[1] >> XYZ[2];
-	}
-
-	return true;
+void CNode::SetGeom(unsigned int nodeId_0, std::vector<double>& xyz) {
+	Index      = nodeId_0;
+	XYZ[0] = xyz[0]; XYZ[1] = xyz[1]; XYZ[2] = xyz[2];
+}
+void CNode::SetDimConstraints(unsigned int dim) {
+	if (dim == 2) bcode[UZ] = 1;
+}
+void CNode::SetFixConstraints(const std::vector<unsigned int>& dofs_0) {
+	for (unsigned int d : dofs_0) bcode[d] = 1;
+}
+void CNode::SetPreDispConstraints(unsigned int dof_0, double value) {
+	bcode[dof_0]        = 2;
+	Displacement[dof_0] = value;
 }
 
 // 将节点约束代码转化为全局方程号，并且返回当前全局最大方程号的引用

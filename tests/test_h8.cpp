@@ -21,7 +21,7 @@ protected:
         nodes_.emplace_back(1.0, 1.0, 1.0);   // N7
         nodes_.emplace_back(0.0, 1.0, 1.0);   // N8
         for (unsigned int i = 0; i < 8; ++i)
-            nodes_[i].NodeNumber = i + 1;
+            nodes_[i].Index = i;
         
         mat_.reset(new CSolid3DMaterial());
         mat_->nset = 1;

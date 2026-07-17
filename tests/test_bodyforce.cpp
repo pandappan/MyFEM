@@ -13,7 +13,7 @@ TEST(BodyForc, Bar3DGravityHalvedBetweenNodes) {
     nodes.emplace_back(0.0,0.0,0.0);
     nodes.emplace_back(L,0.0,0.0);
     for (unsigned int i = 0; i < nodes.size(); i++) {
-        nodes[i].NodeNumber = i + 1;
+        nodes[i].Index = i;
     }
     // 材料参数
     auto mat = std::unique_ptr<CBarMaterial>(new CBarMaterial());
@@ -46,7 +46,7 @@ TEST(BodyForce, Q4UniformGravity) {
     nodes.emplace_back(1.0, 0.0, 0.0);
     nodes.emplace_back(1.0, 1.0, 0.0);
     nodes.emplace_back(0.0, 1.0, 0.0);
-    for (unsigned int i = 0; i < 4; ++i) nodes[i].NodeNumber = i+1;
+    for (unsigned int i = 0; i < 4; ++i) nodes[i].Index = i;
 
     auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
     mat->E = 1e6; mat->nu = 0.3; mat->thk = 1.0; mat->rho = 100.0;

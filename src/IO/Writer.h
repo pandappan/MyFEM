@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 
+// 作用：将处理后的输入信息打印，检查前处理是否存在问题
 class Model;
 class Writer {
 private:
@@ -24,10 +25,6 @@ public:
     void OutputNodeInfo(const Model& model);
     void OutputEquationNumber(const Model& model);
     void OutputElementInfo(const Model& model);
-    void OutputNodeForce(const Model& model);
-    void OutputNodalDisplacement(const Model& model);
-    void OutputNodalBCForce(const Model& model);
-    void OutputElementStress(const Model& model);
     void OutputTotalSystemData(const Model& model);
     // 操作符重载
     template<class T>

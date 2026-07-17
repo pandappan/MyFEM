@@ -35,6 +35,8 @@ public:
     //========通用逻辑========
     // 单元刚度矩阵
     void ElementStiffness(DenseMatrix<double>& Ke) const override;
+    // 连续介质单元独有逻辑
+    void OnSetupComplete() override {InitializeIntegrationPoints();};
     // 计算所有积分点的形函数信息
     void InitializeIntegrationPoints();
     // 将体载转化为点载

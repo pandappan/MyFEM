@@ -23,7 +23,7 @@ TEST(IntegrationTest, Q4SurfaceLoadTopEdge) {
     model.nodes.emplace_back(1.0, 1.0, 0.0);
     model.nodes.emplace_back(0.0, 1.0, 0.0);
     for (unsigned int i = 0; i < 4; ++i)
-        model.nodes[i].NodeNumber = i + 1;
+        model.nodes[i].Index = i;
     
     // 2D: UZ 全约束
     for (auto& n : model.nodes) n.bcode[UZ] = 1;
@@ -40,23 +40,23 @@ TEST(IntegrationTest, Q4SurfaceLoadTopEdge) {
     
     auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
     mat->nset = 1;  mat->E = E;  mat->nu = 0.0;  mat->thk = 1.0;
-    group.AddMaterialForTesting(std::move(mat));
+    model.materials.push_back(std::move(mat));
     
     auto elem = std::unique_ptr<CQ4>(new CQ4());
     elem->SetElementNumber(1);   // ★ 面力查找需要
     std::vector<CNode*> nps = {&model.nodes[0], &model.nodes[1],
                                &model.nodes[2], &model.nodes[3]};
-    elem->SetupForTesting(nps, &group.GetMaterial(0));
+    std::vector<unsigned int> connectivity = {0,1,2,3};
+    elem->SetElementInfo(0,model.GetMaterialPtr(0),connectivity,model.nodes);
     elem->InitializeIntegrationPoints();
-    group.AddElementForTesting(std::move(elem));
-    
+    group.AddElement(std::move(elem));
     model.groups.push_back(std::move(group));
     
     //面力：顶边 (faceID=3, N3-N4, 1-based=3) 施加 UY 方向 q=10
     SurfaceLoad sl;
-    sl.elemID = 1;
-    sl.faceID = 3;    // 1-based，对应顶边
-    sl.dof    = 2;
+    sl.elemId_0 = 0;
+    sl.faceId_0 = 2;    // 1-based，对应顶边
+    sl.dof_0    = 1;
     sl.value  = q;
     model.sloads.push_back(sl);
     
@@ -64,7 +64,7 @@ TEST(IntegrationTest, Q4SurfaceLoadTopEdge) {
     Assembler::CalculateEquationNumber(model);
     Assembler::CalculateLocationMatrix(model);
     Assembler::AllocateLinearSystem(model);
-    Assembler::BuildGlobalElementIndex(model);
+    Assembler::InitializeElementMap(model);
     Assembler::ConvertSLoadsToCLoads(model);
     Assembler::AssembleForce(model);
     Assembler::AssembleStiffnessAndConstraintCorrection(model);

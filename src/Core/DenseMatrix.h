@@ -6,6 +6,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <vector>
+#include <iomanip>
 
 template <typename T>
 class DenseMatrix {
@@ -48,6 +49,8 @@ public:
     DenseMatrix<T>  Transpose() const;
     T               Determinant() const;
     DenseMatrix<T>  Inverse() const;
+    template <class T_>
+    friend std::ostream &operator<<(std::ostream &out, const DenseMatrix<T_> &mat);
 };
 
 // ======================= 实现 =======================
@@ -261,4 +264,24 @@ DenseMatrix<T> DenseMatrix<T>::InverseGaussJordan() const {
         for (unsigned int j = 0; j < cols_; ++j)
             r(i, j) = aug(i, j + cols_);
     return r;
+}
+
+template <typename T>
+std::ostream &operator<<(std::ostream &out, const DenseMatrix<T> &mat) {
+    auto oldFlags = out.flags();
+    auto oldPrec = out.precision();
+    std::streamsize oldW = out.width();
+
+    out << std::fixed << std::setprecision(4);
+    for (unsigned int i = 0; i < mat.rows_; i++) {
+        for (unsigned int j = 0; j < mat.cols_; j++) {
+            out << std::setw(10) << mat(i,j) << " ";
+        }
+        out << '\n';
+    }
+    out << std::endl;
+    out.flags(oldFlags);
+    out.precision(oldPrec);
+    out.width(oldW);
+    return out;
 }

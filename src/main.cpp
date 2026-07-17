@@ -5,7 +5,7 @@
 #include <iostream>
 #include "Analysis/Assembly.h"
 #include "Analysis/Solver.h"
-#include "IO/Reader.h"
+#include "IO/JsonReader.h"
 #include "IO/VtuExporter.h"
 #include "IO/Writer.h"
 #include "Model/Model.h"
@@ -21,11 +21,11 @@ int main(int argc, char* argv[]) {
     std::string outFile = inFile + ".out";
     std::string vtkFile = inFile + ".vtu";
     std::string vtkGsFile = inFile + ".gs.vtu";
-    inFile = inFile + ".dat";
+    inFile = inFile + ".json";
     // 模型信息
     Model model;
-    Reader reader;
-    if (!reader.Read(inFile, model)) return 1;
+    JsonReader jsonReader;
+    if (!jsonReader.Read(inFile,model)) return 1;
     // 输出模型信息
     Writer writer(outFile);
     writer.OutputHeading(model);
@@ -35,16 +35,15 @@ int main(int argc, char* argv[]) {
     writer.OutputEquationNumber(model);
     writer.OutputElementInfo(model);
     Assembler::CalculateLocationMatrix(model);
-    writer.OutputNodeForce(model);
     Assembler::AllocateLinearSystem(model);
     writer.OutputTotalSystemData(model);
     if (model.modex == 0) {
         std::cout << "Data check model. Exit! \n";
         return 0;
     }
-    // 构建单元全局映射表，转化面载荷至节点载荷
-    Assembler::BuildGlobalElementIndex(model);
+    Assembler::InitializeElementMap(model);
     Assembler::ConvertSLoadsToCLoads(model);
+    Assembler::ConvertBLoadsToCLoads(model);
     // 先装配外载荷，再装配刚度矩阵和右端修正项
     Assembler::AssembleForce(model);
     Assembler::AssembleStiffnessAndConstraintCorrection(model);
@@ -55,28 +54,9 @@ int main(int argc, char* argv[]) {
     Assembler::WriteDisplacementToNodes(model);
     Assembler::CalculateNodalBCForce(model);
     Assembler::CalculateNodalStress(model);
-    // 输出结果
-    writer.OutputNodalDisplacement(model);
-    writer.OutputElementStress(model);
-    writer.OutputNodalBCForce(model);
     // 可视化导出结果
     VtuExporter exporter;
     exporter.ExportMesh(vtkFile,model);
     exporter.ExportGaussPoints(vtkGsFile,model);
-    for (auto& g : model.groups) {
-        for (unsigned int e = 0; e < g.GetNUME(); ++e) {
-            auto& elem = g.GetElement(e);
-            if (elem.GetElementNumber() != 93) continue;
-            auto* c = dynamic_cast<CContinuumElement*>(&elem);
-            std::cout << "Element 1 GP stresses:\n";
-            for (unsigned int ip = 0; ip < 8; ++ip) {
-                auto s = c->ComputeStressAtIntegrationPoint(ip);
-                std::cout << "  GP " << ip + 1
-                          << "  Sxx=" << s[0] << "  Syy=" << s[1] << "  Szz=" << s[2]
-                          << "  Sxy=" << s[3] << "  Syz=" << s[4] << "  Sxz=" << s[5]
-                          << "\n";
-            }
-        }
-    }
     return 0;
 }

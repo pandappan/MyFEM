@@ -6,9 +6,8 @@
 #include "PlaneStrainMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-bool CPlaneStrainMaterial::Read(std::ifstream& Input)  {
-    Input >> nset >> rho >> E >> nu >> thk ;
-    return true;
+CPlaneStrainMaterial::CPlaneStrainMaterial() :thk(1.0) {
+    matType = MaterialTypes::PE;
 }
 
 void CPlaneStrainMaterial::Write(std::ostream& output) const {

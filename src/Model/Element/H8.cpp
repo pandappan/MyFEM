@@ -24,25 +24,10 @@ CH8::CH8() {
     AllocateStorage(3, 8, 24);
 }
 
-bool CH8::Read(std::ifstream &Input, CElementGroup &group, std::vector<CNode> &nodelist) {
-    unsigned int MSet;
-    std::vector<unsigned int> NodeNum(8);
-    for (int i = 0; i < 8; i++) {
-        Input >> NodeNum[i];
-    }
-    Input >> MSet;
-    ElementMaterial_ = &(group.GetMaterial(MSet - 1));
-    for (int i = 0; i < 8; i++) {
-        nodes_[i] = &nodelist[NodeNum[i]-1];
-    }
-    InitializeIntegrationPoints();
-    return true;
-}
-
 void CH8::Write(std::ostream &output) const {
     output << std::setw(6) << ElementNumber_;
     for (unsigned int i = 0; i < 8; i++) {
-        output << std::setw(6) << nodes_[i]->NodeNumber;
+        output << std::setw(6) << nodes_[i]->Index;
     }
     output << std::setw(6) << ElementMaterial_->nset << std::endl;
 }
@@ -143,7 +128,7 @@ std::vector<int> CH8::GetFaceNodesLocalID(unsigned int faceID) const {
     std::vector<int> nodesLocalID(4);
     switch (faceID) {
         case 0: nodesLocalID = {0, 1, 2, 3}; break;
-        case 1: nodesLocalID = {5, 6, 7, 8}; break;
+        case 1: nodesLocalID = {4, 5, 6, 7}; break;
         case 2: nodesLocalID = {0, 1, 5, 4}; break;
         case 3: nodesLocalID = {1, 2, 6, 5}; break;
         case 4: nodesLocalID = {2, 3, 7, 6}; break;

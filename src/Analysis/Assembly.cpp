@@ -1,12 +1,13 @@
 //
 // Created by Administrator on 2026/7/6.
 //
-#include "iostream"
+#include <iostream>
 #include "Assembly.h"
 #include "../Model/Element/Element.h"
 #include "../Model/Model.h"
 #include "../Core/DenseMatrix.h"
 #include "Element/CContinuumElement.h"
+#include "Material/Material.h"
 
 void Assembler::CalculateEquationNumber(Model& model) {
     model.neq = 0;
@@ -43,17 +44,25 @@ void Assembler::AllocateLinearSystem(Model &model) {
     model.K->Allocate();
 }
 
-// 构建单元的全局映射表，用于面载荷寻找所属单元
-void Assembler::BuildGlobalElementIndex(Model &model) {
-    unsigned int totalElements = 0;
+// 填充单元映射表值：单元编号-单元指针，为后续面元寻找对应单元提供索引
+void Assembler::InitializeElementMap(Model &model) {
+    // 初始化内存
+    unsigned int totolElems = 0;
     for (auto& group : model.groups) {
-        totalElements += group.GetNUME();
+        totolElems += group.GetNUME();
     }
-    model.globalElementList.reserve(totalElements);
+    model.globalElementMap.clear();
+    model.globalElementMap.reserve(totolElems);
+    // 填充映射表值
     for (auto& group : model.groups) {
-        unsigned int nume = group.GetNUME();
-        for (unsigned int e = 0; e < nume; e++) {
-            model.globalElementList.push_back(&group.GetElement(e));
+        for (unsigned int e = 0; e < group.GetNUME(); e++) {
+            CElement* elem = &(group.GetElement(e));
+            unsigned int elemId_0 = elem->GetElementNumber();
+            auto it = model.globalElementMap.find(elemId_0);
+            if (it != model.globalElementMap.end()) {
+                throw std::runtime_error("Error: Element \"" + std::to_string(elemId_0) + "\" already exists");
+            }
+            model.globalElementMap.emplace(elemId_0, elem);
         }
     }
 }
@@ -62,11 +71,8 @@ void Assembler::BuildGlobalElementIndex(Model &model) {
 void Assembler::ConvertSLoadsToCLoads(Model &model) {
     // 循环所有面载荷，逐步转化为等效节点载荷，并存入节点中
     for (auto& sload: model.sloads) {
-        unsigned int elemID_0based = sload.elemID - 1;
-        unsigned int faceID_0based = sload.faceID - 1; // 转化为0基
-        unsigned int dof_0based = sload.dof -1; // 转化为0基
-        CElement* elem = model.globalElementList[elemID_0based];
-        elem->CalculateSurfaceLoad(faceID_0based, dof_0based, sload.value);
+        CElement* elem = model.globalElementMap[sload.elemId_0];
+        elem->CalculateSurfaceLoad(sload.faceId_0, sload.dof_0, sload.value);
     }
 }
 

@@ -12,9 +12,6 @@ public:
     // 构造函数
     CH8();
 
-    //!	Read element data from stream Input
-    bool Read(std::ifstream& Input, CElementGroup& group, std::vector<CNode>& nodelist) override;
-
     //!	Write element data to stream
     void Write(std::ostream& output) const override;
     void WriteElementStress(std::ostream& output) const override;

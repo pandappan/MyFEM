@@ -9,7 +9,7 @@ public:
     static void CalculateEquationNumber(Model& model);
     static void CalculateLocationMatrix(Model& model);
     static void AllocateLinearSystem(Model& model);
-    static void BuildGlobalElementIndex(Model& model);
+    static void InitializeElementMap(Model& model);
     static void ConvertSLoadsToCLoads(Model& model);
     static void ConvertBLoadsToCLoads(Model& model);
     static void AssembleForce(Model& model);

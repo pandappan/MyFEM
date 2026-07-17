@@ -13,18 +13,21 @@
 #include <fstream>
 #include <memory>
 #include <vector>
+#include "json.hpp"
 #include "../../Core/Types.h"
 
 class CNode;
 class CElement;
 class CMaterial;
+class Model;
+using json = nlohmann::json;
+
 
 //! Element group class
 class CElementGroup {
 private:
     ElementTypes type_ = ElementTypes::UNDEFINED;
     std::vector<std::unique_ptr<CElement>> elements_;
-    std::vector<std::unique_ptr<CMaterial>> materials_;
 public:
     CElementGroup();
     ~CElementGroup();
@@ -34,17 +37,15 @@ public:
     // 允许移动？
     CElementGroup(CElementGroup&&);
     CElementGroup& operator=(CElementGroup&&);
-    bool Read(std::ifstream& Input, std::vector<CNode>& nodelist);
+    // 初始化group信息
+    void SetGroupsInfo(ElementTypes elemType, unsigned int num);
+    // 加入group的单元
+    void AddElement(std::unique_ptr<CElement> elem);
     CElement& GetElement(unsigned int i) { return *elements_[i]; }
     const CElement& GetElement(unsigned int i) const { return *elements_[i]; }
-    CMaterial& GetMaterial(unsigned int i) { return *materials_[i]; }
-    const CMaterial& GetMaterial(unsigned int i) const { return *materials_[i]; }
     ElementTypes GetElementType() const { return type_; }
     unsigned int GetNUME() const {return elements_.size();}
-    unsigned int GetNUMAT() const {return materials_.size();}
-    ElementTypes GetElementType() {return type_;}
     // 测试入口
     void SetTypeForTesting(ElementTypes t) { type_ = t; }
-    void AddMaterialForTesting(std::unique_ptr<CMaterial> mat);
     void AddElementForTesting(std::unique_ptr<CElement> elem);
 };

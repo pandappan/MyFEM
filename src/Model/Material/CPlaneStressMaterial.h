@@ -10,10 +10,9 @@
 class CPlaneStressMaterial : public CMaterial{
 public:
     double thk;
-    CPlaneStressMaterial(): thk(1.0) {};
-    bool Read(std::ifstream &Input) override;
+    CPlaneStressMaterial();
     void Write(std::ostream &Output) const override;
     unsigned int GetNumStressComponents() const override {return 3;};
     void ComputeElasticMatrix(DenseMatrix<double>& D) const override;
-    double GetThickness() const {return thk;};
+    double GetThickness() const override {return thk;};
 };

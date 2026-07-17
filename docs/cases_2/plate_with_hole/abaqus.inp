@@ -2254,25 +2254,3 @@ Part-1-1_left, PINNED
 ** Name: Load-1   Type: Surface traction
 *Dsload
 Part-1-1_right, TRVEC, 100., 1., 0., 0.
-** 
-** OUTPUT REQUESTS
-** 
-*Restart, write, frequency=0
-** 
-** FIELD OUTPUT: F-Output-1
-** 
-*Output, field
-*Node Output
-CF, RF, U
-*Element Output, directions=YES
-MISES, S
-** 
-** HISTORY OUTPUT: H-Output-1
-** 
-*Output, history
-*Node Output, nset=Part-1-1_Set-1
-CF1, CF2, CF3, CM1, CM2, CM3, RF1, RF2
-RF3, RM1, RM2, RM3
-*Element Output, elset=Part-1-1_Set-1
-BIMOM, SF1, SF2, SF3, SM1, SM2, SM3
-*End Step

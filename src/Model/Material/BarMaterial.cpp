@@ -7,10 +7,9 @@
 #include "BarMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-//!	Read material data from stream Input
-bool CBarMaterial::Read(std::ifstream& Input) {
-    Input >> nset >> rho >> E >> Area;
-    return true;
+
+CBarMaterial::CBarMaterial() {
+    matType = MaterialTypes::Bar;
 }
 
 //!	Write material data to Stream

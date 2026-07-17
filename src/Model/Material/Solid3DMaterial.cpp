@@ -6,9 +6,8 @@
 #include "Solid3DMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-bool CSolid3DMaterial::Read(std::ifstream& Input) {
-    Input >> nset >> rho >> E >> nu ;
-    return true;
+CSolid3DMaterial::CSolid3DMaterial() {
+    matType = MaterialTypes::SOLID;
 }
 
 void CSolid3DMaterial::Write(std::ostream& Output) const {

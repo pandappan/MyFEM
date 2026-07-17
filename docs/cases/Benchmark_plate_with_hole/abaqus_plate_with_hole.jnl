@@ -457,3 +457,26 @@ mdb.jobs['Job-1']._Message(JOB_COMPLETED, {'time': 'Sat Jul 11 11:14:34 2026',
     'jobName': 'Job-1'})
 # Save by Administrator on 2026_07_11-11.14.58; build 2020 2019_09_14-01.49.31 163176
 # Save by Administrator on 2026_07_11-13.23.19; build 2020 2019_09_14-01.49.31 163176
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+del mdb.models['Model-1'].loads['Load-1']
+mdb.models['Model-1'].SurfaceTraction(createStepName='Step-1', directionVector=
+    (mdb.models['Model-1'].rootAssembly.instances['Part-1-1'].vertices[7], 
+    mdb.models['Model-1'].rootAssembly.instances['Part-1-1'].vertices[6]), 
+    distributionType=UNIFORM, field='', localCsys=None, magnitude=-100.0, name=
+    'Load-1', region=
+    mdb.models['Model-1'].rootAssembly.instances['Part-1-1'].surfaces['right'], 
+    traction=GENERAL)
+mdb.models['Model-1'].loads['Load-1'].setValues(magnitude=100.0)
+# Save by Administrator on 2026_07_17-15.40.37; build 2020 2019_09_14-01.49.31 163176

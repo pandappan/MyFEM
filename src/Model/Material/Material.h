@@ -11,6 +11,7 @@
 #pragma once
 #include <fstream>
 #include <vector>
+#include "Types.h"
 
 template<class T>
 class DenseMatrix;
@@ -23,18 +24,15 @@ class CMaterial
 public:
 
 	unsigned int nset;	//!< Number of set
-	
+	MaterialTypes matType;
 	double E;  //!< Young's modulus
 	double nu;
 	double rho;
 
 public:
-	CMaterial() : nset(0), E(0.0), nu(0.0), rho(0.0) {}
+	CMaterial() : nset(0), matType(MaterialTypes::UNDEFINED), E(0.0), nu(0.0), rho(0.0){}
 //! Virtual deconstructor
     virtual ~CMaterial() = default;
-
-//!	Read material data from stream Input
-	virtual bool Read(std::ifstream& Input) = 0;
 
 //!	Write material data to Stream
     virtual void Write(std::ostream& output) const = 0;

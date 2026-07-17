@@ -32,8 +32,9 @@ public:
     CElement();
     virtual ~CElement() = default;
     // 纯粹虚接口
-    // 读取单元数据
-    virtual bool Read(std::ifstream& Input, CElementGroup& Group, std::vector<CNode>& NodeList) = 0;
+    // 设置单元基础信息
+    void SetElementInfo(unsigned int elemId_0, CMaterial* matPtr,
+        const std::vector<unsigned int>& connectivity_0, std::vector<CNode>& nodeList);
     // 写出单元数据
     virtual void Write(std::ostream& output) const = 0;
     virtual void WriteElementStress(std::ostream& output) const = 0;
@@ -89,6 +90,8 @@ public:
     double CalculateElementEnergy() const;
     // 测试使用
     void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
+    // 连续介质单元积分点信息完成初始化
+    virtual void OnSetupComplete() {}
 protected:
     void AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int nd);
 };

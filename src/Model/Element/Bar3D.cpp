@@ -27,23 +27,11 @@ CBar3D::CBar3D()
 	AllocateStorage(3,2,6);
 }
 
-//	Read element data from stream Input
-bool CBar3D::Read(std::ifstream& Input,
-				  CElementGroup& group,
-				  std::vector<CNode>& nodelist) {
-	unsigned int N1, N2, MSet;
-	Input >> N1 >> N2 >> MSet;
-	ElementMaterial_ = &group.GetMaterial(MSet - 1); // 获取基类指针
-	nodes_[0] = &nodelist[N1 - 1];
-	nodes_[1] = &nodelist[N2 - 1];
-	return true;
-}
-
 //	Write element data to stream
 void CBar3D::Write(std::ostream& output) const
 {
-	output << std::setw(6) << nodes_[0]->NodeNumber
-	<< std::setw(6) << nodes_[1]->NodeNumber
+	output << std::setw(6) << nodes_[0]->Index
+	<< std::setw(6) << nodes_[1]->Index
 	<< std::setw(6) << ElementMaterial_->nset << std::endl;
 }
 

@@ -25,8 +25,8 @@ public:
 /*!	For 3D bar and solid elements, NDF = 3. For 3D beam or shell elements, NDF = 6 or 6 */
 	const static unsigned int NDF = 3;
 
-//!	Node numer
-	unsigned int NodeNumber;
+//!
+	unsigned int Index = 0;
 
 //!	x, y and z coordinates of the node
 	double XYZ[3];
@@ -54,8 +54,18 @@ public:
 //!	Constructor
 	CNode(double X = 0.0, double Y = 0.0, double Z = 0.0);
 
-//!	Read nodal point data from stream Input
-	bool Read(std::ifstream& Input, unsigned int dimension);
+//! 网格几何基础信息设置
+// 设置几何信息
+	void SetGeom(unsigned int nodeId_0, std::vector<double>& XYZ);
+//! 维度约束信息设置
+// 根据维度信息设置2D情况的约束信息
+	void SetDimConstraints(unsigned int dim);
+//! 固定约束信息设置
+// 输入固定约束的自由度编号数组，0基，设置自由度为1
+	void SetFixConstraints(const std::vector<unsigned int>& dofs_0);
+//! 指定位移约束信息设置
+// 输入指定位移约束的节点自由度，0基，设置自由度为2，并指定位移值
+	void SetPreDispConstraints(unsigned int dof_0, double value);
 
 //! 累加方式设置节点力
 	inline void AddForce(unsigned int dof, double value) {
@@ -107,11 +117,11 @@ void CNode::Write(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	if (dimension == 2) {
-		output << std::setw(6) << NodeNumber
+		output << std::setw(6) << Index
 		<< std::setw(6) << bcode[UX] << std::setw(6) << bcode[UY]
 		<< std::setw(6) << XYZ[0] << std::setw(6) << XYZ[1]<< std::endl;
 	} else {
-		output << std::setw(6) << NodeNumber
+		output << std::setw(6) << Index
 		<< std::setw(6) << bcode[UX] << std::setw(6) << bcode[UY] << std::setw(6) << bcode[UZ]
 	    << std::setw(6) << XYZ[0] << std::setw(6) << XYZ[1] << std::setw(6) << XYZ[2] << std::endl;
 	}
@@ -122,7 +132,7 @@ template <class Stream>
 void CNode::WriteEquationNo(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
-	output << std::setw(9) << NodeNumber << "       ";
+	output << std::setw(9) << Index << "       ";
     if (dimension == 2) {
 	    output << std::setw(6) << eqn[UX] << std::setw(6) << eqn[UY];
     } else {
@@ -136,7 +146,7 @@ template <class Stream>
 void CNode::WriteNodalDisplacement(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
-	output << std::setw(6) << NodeNumber << "        ";
+	output << std::setw(6) << Index << "        ";
     if (dimension == 2) { // 2D问题输出前2个自由度
 		if (bcode[UX] == 0) { // 自由则直接输出位移
 			output << std::setw(5) << Displacement[UX];
@@ -168,7 +178,7 @@ template <class Stream>
 void CNode::WriteNodeForces(Stream &output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
-	output << std::setw(6) << NodeNumber << "        ";
+	output << std::setw(6) << Index << "        ";
 	if (dimension == 2) {
 		output << std::setw(6) << NodeForce[UX] << std::setw(6) << NodeForce[UY];
 	} else {
@@ -183,7 +193,7 @@ template <class Stream>
 void CNode::WriteNodeBCForces(Stream &output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
-	output << std::setw(6) << NodeNumber << "        ";
+	output << std::setw(6) << Index << "        ";
 	if (dimension == 2) {
 		output << std::setw(6) << NodeBCForce[UX] << std::setw(6) << NodeBCForce[UY];
 	} else {

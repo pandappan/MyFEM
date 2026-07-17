@@ -76,7 +76,7 @@ Connectivity CollectConnectivity(const Model& model) {
             const auto& elem = g.GetElement(e);
             const auto& nodes = elem.GetNodes();
             for (auto* np : nodes)
-                out.conn.push_back(np->NodeNumber - 1);
+                out.conn.push_back(np->Index);
             running_offset += static_cast<int>(nodes.size());
             out.offs.push_back(running_offset);
             out.types.push_back(vtkType);

@@ -22,3 +22,9 @@ option(BUILD_TESTING "Build unit tests" ON)
 if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
+
+# 临时测试文件
+add_executable(json_spike ${CMAKE_SOURCE_DIR}/docs/examples/json_spike.cpp)
+target_include_directories(json_spike
+PRIVATE
+${CMAKE_SOURCE_DIR}/third_party/nlohmann)

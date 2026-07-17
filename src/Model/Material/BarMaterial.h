@@ -12,11 +12,8 @@ class CBarMaterial : public CMaterial
 public:
 
     double Area;	//!< Sectional area of a bar element
-
 public:
-
-    //!	Read material data from stream Input
-    bool Read(std::ifstream& Input) override;
+    CBarMaterial();
     //!	Write material data to Stream
     void Write(std::ostream& output) const override;
     //  应力分量个数

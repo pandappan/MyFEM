@@ -17,7 +17,6 @@ add_executable(MyFEM_tests
         test_solver.cpp
         test_integration_bar.cpp
         test_integration_Q4.cpp
-        test_read_predisp.cpp
         test_prescridedisp_bar.cpp
         test_surface_load.cpp
         test_integration_surfaceload.cpp

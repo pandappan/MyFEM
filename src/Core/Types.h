@@ -47,6 +47,7 @@
  **/
 
 #pragma once
+#include <string>
 
 enum DOFIndex: int {
     UX = 0,
@@ -65,6 +66,14 @@ enum class ElementTypes: int {
     T3_PE = 6,
     H8 = 7,
     Tet4 =8
+};
+
+enum class MaterialTypes: int {
+    UNDEFINED = 0,
+    Bar = 1,
+    PS = 2,
+    PE = 3,
+    SOLID = 4
 };
 
 inline const char* ElementTypeName(ElementTypes type) {
@@ -87,5 +96,34 @@ inline const char* ElementTypeName(ElementTypes type) {
             return "Tet4";
         default :
             return "undefined element type";
+    }
+}
+
+inline ElementTypes StringToElementType(const std::string& type) {
+    if (type == std::string("Bar3D")) return ElementTypes::Bar3D;
+    if (type == std::string("Q4_PS")) return ElementTypes::Q4_PS;
+    if (type == std::string("Q4_PE")) return ElementTypes::Q4_PE;
+    if (type == std::string("H8")) return ElementTypes::H8;
+    return ElementTypes::UNDEFINED;
+}
+
+inline MaterialTypes StringToMaterialType(const std::string& type) {
+    if (type == std::string("bar")) return MaterialTypes::Bar;
+    if (type == std::string("plane_stress")) return MaterialTypes::PS;
+    if (type == std::string("plane_strain")) return MaterialTypes::PE;
+    if (type == std::string("solid3d")) return MaterialTypes::SOLID;
+    return MaterialTypes::UNDEFINED;
+}
+
+inline bool MaterialCompatibleWithElement(MaterialTypes matType, ElementTypes elemType) {
+    switch (elemType) {
+        case ElementTypes::Bar3D: return matType == MaterialTypes::Bar;
+        case ElementTypes::Q4_PS:
+        case ElementTypes::T3_PS: return matType == MaterialTypes::PS;
+        case ElementTypes::Q4_PE:
+        case ElementTypes::T3_PE: return matType == MaterialTypes::PE;
+        case ElementTypes::H8:
+        case ElementTypes::Tet4:  return matType == MaterialTypes::SOLID;
+        default: return false;
     }
 }
