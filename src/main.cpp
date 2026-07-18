@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
     Writer writer(outFile);
     writer.OutputHeading(model);
     writer.OutputNodeInfo(model);
+    writer.OutputMpcInfo(model);
     // 初始化刚度矩阵与残差
     Assembler::CalculateEquationNumber(model);
     writer.OutputEquationNumber(model);

@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="8" NumberOfCells="8">
+      <Points>
+        <DataArray type="Float64" NumberOfComponents="3" format="ascii">
+          0.211325 0.211325 0
+          0.788675 0.211325 0
+          0.788675 0.788675 0
+          0.211325 0.788675 0
+          1.21132 0.211325 0
+          1.78868 0.211325 0
+          1.78868 0.788675 0
+          1.21132 0.788675 0
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="ascii">
+          0
+          1
+          2
+          3
+          4
+          5
+          6
+          7
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+          1
+          2
+          3
+          4
+          5
+          6
+          7
+          8
+        </DataArray>
+        <DataArray type="UInt8" Name="types" format="ascii">
+          1
+          1
+          1
+          1
+          1
+          1
+          1
+          1
+        </DataArray>
+      </Cells>
+      <PointData>
+        <DataArray type="Int32" Name="ElementID" format="ascii">
+          0
+          0
+          0
+          0
+          1
+          1
+          1
+          1
+        </DataArray>
+        <DataArray type="Int32" Name="GaussPointID" format="ascii">
+          1
+          2
+          3
+          4
+          1
+          2
+          3
+          4
+        </DataArray>
+        <DataArray type="Float64" Name="Sxx" format="ascii">
+          2
+          2
+          2
+          2
+          2
+          2
+          2
+          2
+        </DataArray>
+        <DataArray type="Float64" Name="Syy" format="ascii">
+          0
+          0
+          0
+          0
+          5.73067e-17
+          2.13871e-16
+          2.13871e-16
+          5.73067e-17
+        </DataArray>
+        <DataArray type="Float64" Name="Sxy" format="ascii">
+          -8.91919e-17
+          1.27649e-16
+          1.75928e-16
+          -8.42805e-17
+          -8.21538e-16
+          2.19296e-16
+          5.61329e-16
+          -5.22873e-16
+        </DataArray>
+        <DataArray type="Float64" Name="VonMises" format="ascii">
+          2
+          2
+          2
+          2
+          2
+          2
+          2
+          2
+        </DataArray>
+      </PointData>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>

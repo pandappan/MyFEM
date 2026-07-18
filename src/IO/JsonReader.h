@@ -14,8 +14,10 @@ private:
     bool ParseElementGroups(const json& j, Model& model);
     bool ParseBoundaryConditions(const json& j, Model& model);
     bool ParseLoads(const json& j, Model& model);
+    bool ParseConstrains(const json& j, Model& model);
     static std::vector<unsigned int> DofStringToInt(const std::vector<std::string>& dofsString);
     static unsigned int DofStringToInt(const std::string& dofsString);
     static unsigned int Base1ToBase0(unsigned int idx_1);
     static std::vector<unsigned int> Base1ToBase0(const std::vector<unsigned int> &idxs_1);
+    static bool ValidateMpcs(Model& model);
 };

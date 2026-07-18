@@ -49,6 +49,29 @@ void Writer::OutputNodeInfo(const Model& model) {
     *this << "\n";
 }
 
+void Writer::OutputMpcInfo(const Model& model) {
+    if (model.mpcs.empty()) return;
+    *this << "\n M U L T I - P O I N T   C O N S T R A I N T S\n\n";
+    *this << "  Number of MPCs = " << model.mpcs.size() << "\n";
+    unsigned int i = 0;
+    for (const auto& mpc : model.mpcs) {
+        *this << "  MPC " << i++ << ": u(node "
+              << mpc.slaveNode_0 + 1 << ", dof " << mpc.slaveDof_0
+              << ") = ";
+        bool first = true;
+        for (const auto& t : mpc.masters) {
+            if (!first) *this << " + ";
+            *this << t.coeff << "*u(node " << t.node_0 + 1
+                  << ", dof " << t.dof_0 << ")";
+            first = false;
+        }
+        if (mpc.beta != 0.0) *this << " + " << mpc.beta;
+        *this << "\n";
+    }
+    *this << "\n";
+    *this << std::endl;
+}
+
 void Writer::OutputEquationNumber(const Model& model) {
     *this << " EQUATION NUMBERS\n\n"
           << "   NODE   Degrees of freedom\n";
@@ -93,3 +116,5 @@ void Writer::OutputTotalSystemData(const Model& model) {
           << "  NWK = " << model.K->size() << "\n"
           << "  MK  = " << model.K->GetMaximumHalfBandwidth() << "\n";
 }
+
+

@@ -26,6 +26,7 @@ public:
     void OutputEquationNumber(const Model& model);
     void OutputElementInfo(const Model& model);
     void OutputTotalSystemData(const Model& model);
+    void OutputMpcInfo(const Model& model);
     // 操作符重载
     template<class T>
     Writer& operator<<(const T& value) {

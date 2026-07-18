@@ -32,6 +32,19 @@ struct SurfaceLoad {
     double       value;   ///< Distributed load per unit length/area
 };
 
+struct MPCTerm {
+    unsigned int node_0;
+    unsigned int dof_0;
+    double coeff;
+};
+
+struct MPC {
+    unsigned int slaveNode_0;
+    unsigned int slaveDof_0;
+    std::vector<MPCTerm> masters;
+    double beta = 0.0;
+};
+
 class Model {
 public:
     // 模型网格，载荷数据
@@ -46,6 +59,10 @@ public:
     std::vector<SurfaceLoad> sloads;
     std::unordered_map<unsigned int, CElement*> globalElementMap; // 单元全局编号(0基)-单元指针映射
     double bodyForce[3] = {0.0, 0.0, 0.0};
+    // 多点约束方程
+    std::vector<MPC> mpcs;
+    // 从节点的自由度-全局映射
+    std::unordered_map<unsigned int, unsigned int> slaveDofToMpc;
     // 整体刚度矩阵，右端项
     unsigned int neq = 0;
     std::unique_ptr<CSkylineMatrix<double>> K;
@@ -54,6 +71,7 @@ public:
     unsigned int GetNumNodes() const {return nodes.size();}
     unsigned int GetNumGroups() const {return groups.size();}
     CMaterial* GetMaterialPtr(unsigned int index0) const {return materials[index0].get();}
+    int FindMPCBySlave(unsigned int slaveNode_0, unsigned int slaveDof_0);
     Model() = default;
     ~Model();
     // 不允许拷贝，只允许移动

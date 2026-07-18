@@ -1,0 +1,23 @@
+Title: MPC parse test - midpoint
+        (20:9:57 on July 18, 2026, Saturday)
+
+C O N T R O L   I N F O R M A T I O N
+
+  DIMENSION = 2
+  NUMNP     = 6
+  NUMEG     = 1
+
+     0     1     1     0     0
+     1     0     0     1     0
+     2     0     0     2     0
+     3     1     1     0     1
+     4     0     0     1     1
+     5     0     0     2     1
+
+
+ M U L T I - P O I N T   C O N S T R A I N T S
+
+  Number of MPCs = 1
+  MPC 0: u(node 2, dof 0) = 1*u(node 1, dof 0) + 1*u(node 3, dof 0)
+
+

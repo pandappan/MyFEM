@@ -76,6 +76,48 @@ std::vector<unsigned int> JsonReader::Base1ToBase0(const std::vector<unsigned in
     return idxs_0;
 }
 
+// 建立slave-mpc映射，并判断从自由度是否过约束
+bool JsonReader::ValidateMpcs(Model &model) {
+    std::unordered_map<unsigned int, unsigned int> slaveKeys;
+    for (unsigned int i = 0; i < model.mpcs.size(); i++) {
+        const MPC& mpc = model.mpcs[i];
+        // 边界检查：检查节点是否合法
+        if (mpc.slaveNode_0 >= model.nodes.size()) {
+            throw std::runtime_error("MPC: slave node out of range:" + std::to_string(mpc.slaveNode_0+1));
+        }
+        // 限制1：slave dof 不能被重复（出现次数为1）
+        unsigned int sKey = mpc.slaveNode_0 * CNode::NDF + mpc.slaveDof_0;
+        if (slaveKeys.count(sKey)) {
+            throw std::runtime_error("MPC: duplicate slave DOF (node " + std::to_string(mpc.slaveNode_0+1) +")");
+        }
+        // 限制2：slave dof 不能同时被固定和指定位移约束
+        unsigned int sBcode = model.nodes[mpc.slaveNode_0].bcode[mpc.slaveDof_0];
+        if (sBcode != 0) {
+            throw std::runtime_error("MPC: slave DOF is alreay constrained \"(fixed/prescribed) at node\""
+                + std::to_string(mpc.slaveNode_0 + 1));
+        }
+        slaveKeys[sKey] = i;
+    }
+    // 限制3：master不能是其它MPC的slave
+    for (const MPC& mpc : model.mpcs) {
+        for (const MPCTerm& t : mpc.masters) {
+            if (t.node_0 >= model.nodes.size())
+                throw std::runtime_error("MPC: master node out of range: "
+                                         + std::to_string(t.node_0 + 1));
+            unsigned int mKey = t.node_0 * CNode::NDF + t.dof_0;
+            if (slaveKeys.count(mKey))
+                throw std::runtime_error("MPC: chained MPC not supported "
+                    "(a master is also a slave) at node "
+                    + std::to_string(t.node_0 + 1));
+            // master 不能等于自己的 slave
+            unsigned int sKey = mpc.slaveNode_0 * CNode::NDF + mpc.slaveDof_0;
+            if (mKey == sKey)
+                throw std::runtime_error("MPC: master coincides with its slave");
+        }
+    }
+    model.slaveDofToMpc = std::move(slaveKeys);
+    return true;
+}
 
 bool JsonReader::Read(const std::string &filename, Model &model) {
     // 读文件，创建json
@@ -95,6 +137,7 @@ bool JsonReader::Read(const std::string &filename, Model &model) {
         if (!ParseElementGroups(j,model)) {return false;}
         if (!ParseBoundaryConditions(j,model)) {return false;}
         if (!ParseLoads(j,model)) {return false;}
+        if (!ParseConstrains(j,model)) {return false;}
     } catch (const json::parse_error& e) {
         std::cerr << "Json parse error: " << e.what() << std::endl;
         return false;
@@ -293,5 +336,51 @@ bool JsonReader::ParseLoads(const json &j, Model &model) {
             model.bodyForce[i] = bodyForceJson.at(i).get<double>();
         }
     }
+    return true;
+}
+
+//
+// 约定第一个为从自由度，与主自由度一致，需要输入一样的参数
+bool JsonReader::ParseConstrains(const json &j, Model &model) {
+    // 存在约束检测
+    if (!j.contains("constraints")) return true;
+    const auto& consJson = j.at("constraints");
+    // 存在mpc检测
+    if (!consJson.contains("mpc")) return true;
+    const auto& mpcArray = consJson.at("mpc");
+    // 预总MPC容量
+    model.mpcs.clear();
+    model.mpcs.reserve(mpcArray.size());
+    // 设置约束方程，并逐条检测从约束状态，防止一个自由度被多次约束
+    for (auto& item: mpcArray) {
+        MPC mpc{};
+        auto& slave = item.at("slave");
+        mpc.slaveNode_0 = Base1ToBase0(slave.at("node").get<unsigned int>());
+        mpc.slaveDof_0 = DofStringToInt(slave.at("dof").get<std::string>());
+        double slaveValue = slave.value("coeff", 1.0);
+        // 异常值检测
+        if (std::abs(slaveValue) < 1.0e-12) {
+            throw std::runtime_error("ParseConstrains: slave value is near zero" + std::to_string(slaveValue));
+        }
+        // 从值系数
+        double factor = 1.0 / slaveValue;
+        // 预设约束方程主项的容量
+        mpc.masters.clear();
+        mpc.masters.reserve(item.at("masters").size());
+        if (!mpc.masters.capacity()) {
+            throw std::runtime_error("ParseConstrains: no master found");
+        }
+        for (auto& m: item.at("masters")) {
+            MPCTerm master{};
+            master.node_0 = Base1ToBase0(m.at("node").get<unsigned int>());
+            master.dof_0 = DofStringToInt(m.at("dof").get<std::string>());
+            master.coeff = factor * m.at("coeff").get<double>();
+            mpc.masters.push_back(master);
+        }
+        mpc.beta = factor * item.value("beta", 0.0);
+        model.mpcs.push_back(mpc);
+    }
+    // 建立slave->mpc映射，检测从自由度是否过约束
+    if (!ValidateMpcs(model)) return false;
     return true;
 }
