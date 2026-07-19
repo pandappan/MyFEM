@@ -339,7 +339,7 @@ bool JsonReader::ParseLoads(const json &j, Model &model) {
     return true;
 }
 
-//
+// 读取MPC约束情况，检测约束是否冲突，设置从自由度边界约束代码
 // 约定第一个为从自由度，与主自由度一致，需要输入一样的参数
 bool JsonReader::ParseConstrains(const json &j, Model &model) {
     // 存在约束检测
@@ -382,5 +382,11 @@ bool JsonReader::ParseConstrains(const json &j, Model &model) {
     }
     // 建立slave->mpc映射，检测从自由度是否过约束
     if (!ValidateMpcs(model)) return false;
+    // 设置节点从自由度代码，bcode=2，后续不进入方程号
+    for (auto& mpc: model.mpcs) {
+        unsigned int nodeId_0 = mpc.slaveNode_0;
+        unsigned int dofId_0 = mpc.slaveDof_0;
+        model.nodes[nodeId_0].bcode[dofId_0] = 2;
+    }
     return true;
 }

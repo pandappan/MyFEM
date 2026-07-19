@@ -106,7 +106,9 @@ void Assembler::AssembleForce(Model &model) {
     }
 }
 
-// 循环装配单元刚度矩阵和指定位移约束的造成的右端修正项
+// 装配单元刚度矩阵
+// 计算并且装配位移约束的造成的右端修正项
+// 受主从自由度影响，将单元刚度矩阵和右端项进行修正
 void Assembler::AssembleStiffnessAndConstraintCorrection(Model &model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();

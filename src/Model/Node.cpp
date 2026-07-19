@@ -59,7 +59,7 @@ void CNode::SetPreDispConstraints(unsigned int dof_0, double value) {
 }
 
 // 将节点约束代码转化为全局方程号，并且返回当前全局最大方程号的引用
-// 自由自由度bcode=0形成方程号，而约束自由度bcode!=0不形成方程号
+// 自由自由度bcode=0形成方程号，而约束自由度bcode!=0不形成方程号（固定，指定位移，从自由度）
 void CNode::GenerateNodeEquation(unsigned int &NEQ) {
 	for (unsigned int i = 0; i < NDF; i++) {
 		if (bcode[i] == 0) {

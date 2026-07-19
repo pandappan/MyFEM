@@ -24,7 +24,7 @@
   ],
   "boundary_conditions": {
     "fixed": [
-      {"nodes": [4], "dof": ["x", "y"]}
+      {"nodes": [1, 4], "dof": ["x", "y"]}
     ],
     "prescribed": []
   },
@@ -39,7 +39,7 @@
   "constraints": {
     "mpc": [
       {
-        "slave":  {"node": 1, "dof": "x","coeff": 0.5},
+        "slave":  {"node": 2, "dof": "x","coeff": 0.5},
         "masters": [
           {"node": 1, "dof": "x", "coeff": 0.5},
           {"node": 3, "dof": "x", "coeff": 0.5}

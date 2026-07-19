@@ -1,5 +1,5 @@
 Title: MPC parse test - midpoint
-        (20:9:57 on July 18, 2026, Saturday)
+        (20:57:13 on July 18, 2026, Saturday)
 
 C O N T R O L   I N F O R M A T I O N
 
@@ -8,7 +8,7 @@ C O N T R O L   I N F O R M A T I O N
   NUMEG     = 1
 
      0     1     1     0     0
-     1     0     0     1     0
+     1     2     0     1     0
      2     0     0     2     0
      3     1     1     0     1
      4     0     0     1     1
@@ -21,3 +21,13 @@ C O N T R O L   I N F O R M A T I O N
   MPC 0: u(node 2, dof 0) = 1*u(node 1, dof 0) + 1*u(node 3, dof 0)
 
 
+ EQUATION NUMBERS
+
+   NODE   Degrees of freedom
+     N     X    Y
+        0            0     0
+        1            0     1
+        2            2     3
+        3            0     0
+        4            4     5
+        5            6     7
