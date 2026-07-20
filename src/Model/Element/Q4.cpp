@@ -137,8 +137,8 @@ void CQ4::GetVisualizationNodes(DenseMatrix<double>& coords) const {
 void CQ4::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const {
     deformeCoords.Resize(2, NEN_);
     for (unsigned int i = 0; i < NEN_; i++) {
-        deformeCoords(0,i) = nodes_[i]->XYZ[0] + nodes_[i]->Displacement[0];
-        deformeCoords(1,i) = nodes_[i]->XYZ[1] + nodes_[i]->Displacement[1];
+        deformeCoords(0,i) = nodes_[i]->XYZ[0] + nodes_[i]->displacement[0];
+        deformeCoords(1,i) = nodes_[i]->XYZ[1] + nodes_[i]->displacement[1];
     }
 }
 
@@ -154,4 +154,10 @@ DenseMatrix<double> CQ4::GetExprapolationMatrix() const {
     E(2, 0) = c;  E(2, 1) = b;  E(2, 2) = a;  E(2, 3) = b;
     E(3, 0) = b;  E(3, 1) = c;  E(3, 2) = b;  E(3, 3) = a;
     return E;
+}
+
+MaterialCategory CQ4::GetRequiredMaterial() const {
+    if (elementType_ == ElementTypes::Q4_PE) return MaterialCategory::MechaincalPlaneStrain;
+    if (elementType_ == ElementTypes::T3_PS) return MaterialCategory::MechaincalPlaneStress;
+    return MaterialCategory::UNDEFINED;
 }

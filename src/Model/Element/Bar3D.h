@@ -39,4 +39,6 @@ public:
 	virtual void GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const;
 //! 杆单元应力
 	virtual double GetRepresentativeStress() const override;
+	// 获取单元所述的材料类型
+	MaterialCategory GetRequiredMaterial() const override;
 };

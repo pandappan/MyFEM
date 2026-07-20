@@ -15,4 +15,5 @@ public:
     unsigned int GetNumStressComponents() const override {return 3;};
     void ComputeElasticMatrix(DenseMatrix<double>& D) const override;
     double GetThickness() const override {return thk;};
+    MaterialCategory GetCateogory() const override;
 };

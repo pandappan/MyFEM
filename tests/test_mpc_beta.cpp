@@ -76,7 +76,7 @@ TEST(BetaTest, SlaveDrivenByBeta) {
     Solve(model);
 
     // N3 固定 -> u3=0，故 u2 = 1.0*0 + beta = 0.05
-    EXPECT_NEAR(model.nodes[1].Displacement[UX], 0.05, 1e-12);
+    EXPECT_NEAR(model.nodes[1].displacement[UX], 0.05, 1e-12);
 }
 
 
@@ -127,8 +127,8 @@ TEST(BetaTest, LoadOnSlaveNode) {
   ASSERT_TRUE(reader.Read(WriteTempJson("load_on_slave.json", jsonText), model));
   Solve(model);
 
-  double um = model.nodes[2].Displacement[UX];  // master N3.x
-  double us = model.nodes[1].Displacement[UX];  // slave  N2.x
+  double um = model.nodes[2].displacement[UX];  // master N3.x
+  double us = model.nodes[1].displacement[UX];  // slave  N2.x
   EXPECT_NEAR(um, 0.1, 1e-9);   // 力经 Tᵀ 传到 master，等效 F/k
   EXPECT_NEAR(us, 0.1, 1e-9);   // slave 回代 = master
 }
@@ -181,8 +181,8 @@ TEST(BetaTest, LoadOnSlaveNodeForce) {
   ASSERT_TRUE(reader.Read(WriteTempJson("load_on_slave.json", jsonText), model));
   Solve(model);
 
-  double um = model.nodes[2].Displacement[UX];  // master N3.x
-  double us = model.nodes[1].Displacement[UX];  // slave  N2.x
+  double um = model.nodes[2].displacement[UX];  // master N3.x
+  double us = model.nodes[1].displacement[UX];  // slave  N2.x
   EXPECT_NEAR(um, 0.1, 1e-9);   // 力经 Tᵀ 传到 master，等效 F/k
   EXPECT_NEAR(us, 0.1, 1e-9);   // slave 回代 = master
 }

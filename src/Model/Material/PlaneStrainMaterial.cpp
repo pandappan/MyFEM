@@ -25,3 +25,7 @@ void CPlaneStrainMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
     D(1,0) = factor * nu;            D(1,1) = factor * (1.0 - nu);
     D(2,2) = factor * (1.0 - 2.0 * nu) / 2.0;
 }
+
+MaterialCategory CPlaneStrainMaterial::GetCateogory() const {
+    return MaterialCategory::MechaincalPlaneStrain;
+}

@@ -46,8 +46,8 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     model.nodes[3].bcode[UX] = 1;
 
     // 载荷
-    model.nodes[1].NodeForce[UX] = F_per_node;
-    model.nodes[2].NodeForce[UX] = F_per_node;
+    model.nodes[1].nodeForce[UX] = F_per_node;
+    model.nodes[2].nodeForce[UX] = F_per_node;
 
     // Group
     CElementGroup group;
@@ -81,10 +81,10 @@ TEST(IntegrationTest, Q4_UniaxialTension_UsingFullPipeline) {
     Assembler::WriteDisplacementToNodes(model);
 
     // 断言
-    EXPECT_NEAR(model.nodes[1].Displacement[UX], expected_ux, 1e-10);
-    EXPECT_NEAR(model.nodes[2].Displacement[UX], expected_ux, 1e-10);
-    EXPECT_NEAR(model.nodes[2].Displacement[UY], 0.0, 1e-10);
-    EXPECT_NEAR(model.nodes[3].Displacement[UY], 0.0, 1e-10);
+    EXPECT_NEAR(model.nodes[1].displacement[UX], expected_ux, 1e-10);
+    EXPECT_NEAR(model.nodes[2].displacement[UX], expected_ux, 1e-10);
+    EXPECT_NEAR(model.nodes[2].displacement[UY], 0.0, 1e-10);
+    EXPECT_NEAR(model.nodes[3].displacement[UY], 0.0, 1e-10);
 
     // 计算单元应变能
     double energy = model.groups[0].GetElement(0).CalculateElementEnergy();

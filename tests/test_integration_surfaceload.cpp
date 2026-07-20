@@ -75,9 +75,9 @@ TEST(IntegrationTest, Q4SurfaceLoadTopEdge) {
     Assembler::WriteDisplacementToNodes(model);
     
     // 断言：N3 和 N4 的 UY 都是 q/E
-    EXPECT_NEAR(model.nodes[2].Displacement[UY], expected_uy, 1e-8);
-    EXPECT_NEAR(model.nodes[3].Displacement[UY], expected_uy, 1e-8);
+    EXPECT_NEAR(model.nodes[2].displacement[UY], expected_uy, 1e-8);
+    EXPECT_NEAR(model.nodes[3].displacement[UY], expected_uy, 1e-8);
     
     // 因为 ν=0，UX 应该几乎为 0
-    EXPECT_NEAR(model.nodes[2].Displacement[UX], 0.0, 1e-8);
+    EXPECT_NEAR(model.nodes[2].displacement[UX], 0.0, 1e-8);
 }

@@ -50,11 +50,16 @@
 #pragma once
 #include <string>
 
+constexpr unsigned int DOF_MAX = 7;
 enum DOFIndex: int {
     UX = 0,
     UY = 1,
     UZ = 2,
-    NDOF_MAX=3
+    ROTX = 3,
+    ROTY = 4,
+    ROTZ = 5,
+    TEMP = 6,
+    NDF_MAX=DOF_MAX
 };
 
 enum class ElementTypes: int {
@@ -75,6 +80,18 @@ enum class MaterialTypes: int {
     PS = 2,
     PE = 3,
     SOLID = 4
+};
+
+enum class MaterialCategory: int {
+    UNDEFINED             = 0,
+    Mechaincal1D          = 1,
+    MechaincalPlaneStress = 2,
+    MechaincalPlaneStrain = 3,
+    MechaincalSolid       = 4,
+    MechaincalAxisym      = 5,
+    Thermal               = 6,
+    BeamSection           = 7,
+    ShellSection          = 8
 };
 
 inline const char* ElementTypeName(ElementTypes type) {
@@ -114,17 +131,4 @@ inline MaterialTypes StringToMaterialType(const std::string& type) {
     if (type == std::string("plane_strain")) return MaterialTypes::PE;
     if (type == std::string("solid3d")) return MaterialTypes::SOLID;
     return MaterialTypes::UNDEFINED;
-}
-
-inline bool MaterialCompatibleWithElement(MaterialTypes matType, ElementTypes elemType) {
-    switch (elemType) {
-        case ElementTypes::Bar3D: return matType == MaterialTypes::Bar;
-        case ElementTypes::Q4_PS:
-        case ElementTypes::T3_PS: return matType == MaterialTypes::PS;
-        case ElementTypes::Q4_PE:
-        case ElementTypes::T3_PE: return matType == MaterialTypes::PE;
-        case ElementTypes::H8:
-        case ElementTypes::Tet4:  return matType == MaterialTypes::SOLID;
-        default: return false;
-    }
 }

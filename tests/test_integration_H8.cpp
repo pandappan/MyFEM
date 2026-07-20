@@ -47,7 +47,7 @@ TEST(IntegrationTest, H8_UniaxialTension) {
 
     // 顶面 (N5-N8) 各施加 Fz = 1
     for (int i = 4; i < 8; ++i)
-        model.nodes[i].NodeForce[UZ] = F_per_node;
+        model.nodes[i].nodeForce[UZ] = F_per_node;
 
     CElementGroup group;
     group.SetTypeForTesting(ElementTypes::H8);
@@ -77,12 +77,12 @@ TEST(IntegrationTest, H8_UniaxialTension) {
 
     // σzz = 4/1 = 4, εzz = 4/100 = 0.04, Uz(top) = 0.04
     for (int i = 4; i < 8; ++i)
-        EXPECT_NEAR(model.nodes[i].Displacement[UZ], 0.04, 1e-8)
+        EXPECT_NEAR(model.nodes[i].displacement[UZ], 0.04, 1e-8)
             << "Node " << i + 1;
 
     // ν=0 → x, y 方向无位移（除约束外）
     // Node 6 (1, 0, 1): Ux 自由 → 应约等于 0
-    EXPECT_NEAR(model.nodes[5].Displacement[UX], 0.0, 1e-8);
+    EXPECT_NEAR(model.nodes[5].displacement[UX], 0.0, 1e-8);
 
     // 计算单元应变能
     double energy = model.groups[0].GetElement(0).CalculateElementEnergy();
@@ -93,7 +93,7 @@ TEST(IntegrationTest, H8_UniaxialTension) {
     for (auto& node: model.nodes) {
         for (unsigned int i = 0; i < model.dimension; i++) {
             unsigned int dofIndex = index * model.dimension + i;
-            Fext[dofIndex] = node.NodeForce[i];
+            Fext[dofIndex] = node.nodeForce[i];
         }
         index++;
     }

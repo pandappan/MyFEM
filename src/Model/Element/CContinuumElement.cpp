@@ -202,7 +202,7 @@ std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned 
     int index = 0;
     for (unsigned int i = 0; i < NEN_; i++) {
         for (unsigned int j = 0; j < ndofs; j++) {
-            ue[index++] = nodes_[i]->Displacement[dofs[j]];
+            ue[index++] = nodes_[i]->displacement[dofs[j]];
         }
     }
     std::vector<double> strain(ns, 0.0);

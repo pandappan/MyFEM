@@ -13,5 +13,5 @@ public:
     unsigned int GetNumStressComponents() const override {return 6;};
 
     void ComputeElasticMatrix(DenseMatrix<double>& D) const override;
-
+    MaterialCategory GetCateogory() const override;
 };

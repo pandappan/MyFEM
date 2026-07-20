@@ -44,8 +44,8 @@ TEST(StressSmoothing, Q4UniformStressField) {
     model.nodes[3].bcode[UX] = 1;
 
     // 载荷
-    model.nodes[1].NodeForce[UX] = F_per_node;
-    model.nodes[2].NodeForce[UX] = F_per_node;
+    model.nodes[1].nodeForce[UX] = F_per_node;
+    model.nodes[2].nodeForce[UX] = F_per_node;
 
     // Group
     CElementGroup group;

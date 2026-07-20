@@ -52,7 +52,7 @@ void CBar3D::WriteElementStress(std::ostream& out) const {
 	unsigned int idx = 0;
 	for (unsigned int i = 0; i < NEN_; ++i)
 		for (unsigned int d = 0; d < 3; ++d)
-			stress += S[idx++] * nodes_[i]->Displacement[d];
+			stress += S[idx++] * nodes_[i]->displacement[d];
 	out << std::setw(16)  << ElementNumber_
 		<< std::setw(16) << stress * mat->Area   // Force
 		<< std::setw(16) << stress               // Stress
@@ -119,7 +119,7 @@ double CBar3D::ElementStress() const
 	unsigned int idx = 0;
 	for (unsigned int i = 0; i < NEN_; ++i)
 		for (unsigned int d = 0; d < 3; ++d)
-			stress += S[idx++] * nodes_[i]->Displacement[d];
+			stress += S[idx++] * nodes_[i]->displacement[d];
 	return stress;
 }
 
@@ -152,9 +152,13 @@ void CBar3D::GetVisualizationDeformeNodes(DenseMatrix<double>& coords) const {
 	coords.Resize(3, NEN_);
 	for (unsigned int i = 0; i < NEN_; i++)
 		for (unsigned int d = 0; d < 3; d++)
-			coords(d, i) = nodes_[i]->XYZ[d] + nodes_[i]->Displacement[d];
+			coords(d, i) = nodes_[i]->XYZ[d] + nodes_[i]->displacement[d];
 }
 
 double CBar3D::GetRepresentativeStress() const {
 	return ElementStress();
+}
+
+MaterialCategory CBar3D::GetRequiredMaterial() const {
+	return MaterialCategory::Mechaincal1D;
 }

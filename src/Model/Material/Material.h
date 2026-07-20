@@ -44,5 +44,7 @@ public:
 	virtual void ComputeStress(const std::vector<double>& strain, std::vector<double>& stress) const;
 	// 获取单元厚度
 	inline virtual double GetThickness() const { return 1.0; } // 默认厚度1
+	// 材料类型
+	virtual MaterialCategory GetCateogory() const = 0;
 };
 

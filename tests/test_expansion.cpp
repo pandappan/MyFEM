@@ -37,7 +37,7 @@ protected:
         nodeC.eqn[UX] = 0;
         nodeC.eqn[UY] = 0;
         nodeC.eqn[UZ] = 6;
-        nodeC.Displacement[UY] = 0.05;
+        nodeC.displacement[UY] = 0.05;
 
         // MPC: u_{B,x} = 2.0 * u_{A,x}(自由) + 3.0 * u_{C.x}(固定) + 0.5 * u_{C,y}(指定位移) + 0.1
         // 期望terms = {eqn 1, 2.0} const = 0.1 + 0.5 * 0.05 = 0.125
@@ -49,7 +49,7 @@ protected:
         mpc.masters.push_back({2,1,0.5});
         mpc.beta = 0.1;
         model.mpcs.push_back(mpc);
-        model.slaveDofToMpc[1 * CNode::NDF + UX] = 0;
+        model.slaveDofToMpc[1 * NDF_MAX + UX] = 0;
         elem.SetupForTesting({&model.nodes[1], &model.nodes[2]},nullptr);
     }
 };

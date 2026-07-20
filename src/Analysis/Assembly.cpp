@@ -100,7 +100,8 @@ void Assembler::ConvertBLoadsToCLoads(Model &model) {
 void Assembler::AssembleForce(Model &model) {
     std::fill(model.force.begin(), model.force.end(), 0.0);
     for (auto& node : model.nodes) {
-        for (unsigned int d = 0; d < CNode::NDF; d++) {
+        for (unsigned int d = 0; d < NDF_MAX; d++) {
+            if (!node.IsDofActive(d)) continue; // 跳过未激活自由度
             double f = node.GetForce(d);
             if (f == 0.0) continue;
 
@@ -172,7 +173,7 @@ void Assembler::AssembleStiffnessAndConstraintCorrection(Model &model) {
 
 void Assembler::WriteDisplacementToNodes(Model &model) {
     for (auto& node : model.nodes) {
-        node.UpdataNodeDisplacement(model.force);
+        node.UpdateNodeDisplacement(model.force);
     }
 }
 
@@ -247,10 +248,10 @@ void Assembler::CalculateNodalStress(Model& model) {
 // 求解从自由度位移：u_slave = Σ coeff·u_master + beta
 void Assembler::RecoverSlaveDisplacement(Model &model) {
     for (auto& mpc: model.mpcs) {
-        double& slaveDisp = model.nodes[mpc.slaveNode_0].Displacement[mpc.slaveDof_0];
+        double& slaveDisp = model.nodes[mpc.slaveNode_0].displacement[mpc.slaveDof_0];
         slaveDisp += mpc.beta;
         for (auto& m: mpc.masters) {
-            slaveDisp += m.coeff * model.nodes[m.node_0].Displacement[m.dof_0];
+            slaveDisp += m.coeff * model.nodes[m.node_0].displacement[m.dof_0];
         }
     }
 }
@@ -273,7 +274,7 @@ DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
         case 1: // 固定无需展开
             break;
         case 2: // 指定位移，只有常数
-            result.constant = node->Displacement[dof_0];
+            result.constant = node->displacement[dof_0];
             break;
         case 3: { // 从自由度，展开为主自由度的线性组合
             int mpcId = model.FindMPCBySlave(node->Index, dof_0);
@@ -292,7 +293,7 @@ DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
                     case 1: // 主自由度固定，则无贡献
                         break;
                     case 2: // 主自由度指定位移，则对常数项有贡献
-                        result.constant += t.coeff * m.Displacement[t.dof_0];
+                        result.constant += t.coeff * m.displacement[t.dof_0];
                         break;
                     case 3: // 主自由度为为其余MPC的从自由度，则报错
                         throw std::runtime_error("Chained MPC not supported");

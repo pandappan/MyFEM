@@ -29,3 +29,7 @@ void CSolid3DMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
     D(2,0)=c2; D(2,1)=c2; D(2,2)=c1;
     D(3,3)=c3; D(4,4)=c3; D(5,5)=c3;
 }
+
+MaterialCategory CSolid3DMaterial::GetCateogory() const {
+    return MaterialCategory::MechaincalSolid;
+}

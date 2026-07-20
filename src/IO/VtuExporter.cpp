@@ -90,9 +90,9 @@ std::vector<double> CollectDisplacement(const Model& model) {
     std::vector<double> u;
     u.reserve(3 * model.nodes.size());
     for (const auto& n : model.nodes) {
-        u.push_back(n.Displacement[0]);
-        u.push_back(n.Displacement[1]);
-        u.push_back(n.Displacement[2]);
+        u.push_back(n.displacement[0]);
+        u.push_back(n.displacement[1]);
+        u.push_back(n.displacement[2]);
     }
     return u;
 }
@@ -153,9 +153,9 @@ bool VtuExporter::ExportMesh(const std::string& fileName, const Model& model) {
         std::vector<double> f;
         f.reserve(3 * model.nodes.size());
         for (const auto& n : model.nodes) {
-            f.push_back(n.NodeForce[0]);
-            f.push_back(n.NodeForce[1]);
-            f.push_back(n.NodeForce[2]);
+            f.push_back(n.nodeForce[0]);
+            f.push_back(n.nodeForce[1]);
+            f.push_back(n.nodeForce[2]);
         }
         w.WriteVectorField("NodeForce", f, 3);
     }
@@ -165,9 +165,9 @@ bool VtuExporter::ExportMesh(const std::string& fileName, const Model& model) {
         std::vector<double> f;
         f.reserve(3 * model.nodes.size());
         for (const auto& n : model.nodes) {
-            f.push_back(n.NodeBCForce[0]);
-            f.push_back(n.NodeBCForce[1]);
-            f.push_back(n.NodeBCForce[2]);
+            f.push_back(n.nodeBCForce[0]);
+            f.push_back(n.nodeBCForce[1]);
+            f.push_back(n.nodeBCForce[2]);
         }
         w.WriteVectorField("BCForce", f, 3);
     }

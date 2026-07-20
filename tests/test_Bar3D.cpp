@@ -70,12 +70,12 @@ TEST_F(Bar3DAxialFixture, StiffnessMatrixSymmetric) {
 TEST_F(Bar3DAxialFixture, StressUnderPrescribedElongation) {
     // 手动设置节点位移：Node 2 沿 X 方向拉伸 Δ = 0.01
     const double delta = 0.01;
-    nodes_[0].Displacement[UX] = 0.0;
-    nodes_[0].Displacement[UY] = 0.0;
-    nodes_[0].Displacement[UZ] = 0.0;
-    nodes_[1].Displacement[UX] = delta;
-    nodes_[1].Displacement[UY] = 0.0;
-    nodes_[1].Displacement[UZ] = 0.0;
+    nodes_[0].displacement[UX] = 0.0;
+    nodes_[0].displacement[UY] = 0.0;
+    nodes_[0].displacement[UZ] = 0.0;
+    nodes_[1].displacement[UX] = delta;
+    nodes_[1].displacement[UY] = 0.0;
+    nodes_[1].displacement[UZ] = 0.0;
     
     // 解析应力：σ = E·ε = E·(Δ/L)
     const double expected = E_ * delta / L_;

@@ -28,3 +28,7 @@ void CBarMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const {
     D.SetZero();
     D(0,0) = E;
 }
+
+MaterialCategory CBarMaterial::GetCateogory() const {
+    return MaterialCategory::Mechaincal1D;
+}

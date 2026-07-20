@@ -44,7 +44,7 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     model.nodes[1].bcode[UZ] = 1;
 
     // 载荷：X 方向 F
-    model.nodes[1].NodeForce[UX] = F;
+    model.nodes[1].nodeForce[UX] = F;
 
     // -------- 建 Element Group --------
     CElementGroup group;
@@ -87,12 +87,12 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
 
     // -------- 断言结果 --------
     // Node 2 X 位移 = F·L/(E·A)
-    EXPECT_NEAR(model.nodes[1].Displacement[UX], expected_ux, 1e-10);
+    EXPECT_NEAR(model.nodes[1].displacement[UX], expected_ux, 1e-10);
 
     // Node 1 位移 = 0（约束）
-    EXPECT_DOUBLE_EQ(model.nodes[0].Displacement[UX], 0.0);
-    EXPECT_DOUBLE_EQ(model.nodes[0].Displacement[UY], 0.0);
-    EXPECT_DOUBLE_EQ(model.nodes[0].Displacement[UZ], 0.0);
+    EXPECT_DOUBLE_EQ(model.nodes[0].displacement[UX], 0.0);
+    EXPECT_DOUBLE_EQ(model.nodes[0].displacement[UY], 0.0);
+    EXPECT_DOUBLE_EQ(model.nodes[0].displacement[UZ], 0.0);
 
     // 单元应力 = F/A
     auto* bar = dynamic_cast<CBar3D*>(&model.groups[0].GetElement(0));

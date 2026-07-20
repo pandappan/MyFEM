@@ -94,7 +94,7 @@ void CH8::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const
     deformeCoords.Resize(3, NEN_);
     for (unsigned int i = 0; i < NEN_; i++) {
         for (unsigned int j = 0; j < 3; j++) {
-            deformeCoords(j,i) = nodes_[i]->XYZ[j] + nodes_[i]->Displacement[j];
+            deformeCoords(j,i) = nodes_[i]->XYZ[j] + nodes_[i]->displacement[j];
         }
     }
 }
@@ -155,4 +155,8 @@ DenseMatrix<double> CH8::GetExprapolationMatrix() const {
         }
     }
     return E;
+}
+
+MaterialCategory CH8::GetRequiredMaterial() const {
+    return MaterialCategory::MechaincalSolid;
 }

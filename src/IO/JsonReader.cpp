@@ -86,7 +86,7 @@ bool JsonReader::ValidateMpcs(Model &model) {
             throw std::runtime_error("MPC: slave node out of range:" + std::to_string(mpc.slaveNode_0+1));
         }
         // 限制1：slave dof 不能被重复（出现次数为1）
-        unsigned int sKey = mpc.slaveNode_0 * CNode::NDF + mpc.slaveDof_0;
+        unsigned int sKey = mpc.slaveNode_0 * NDF_MAX + mpc.slaveDof_0;
         if (slaveKeys.count(sKey)) {
             throw std::runtime_error("MPC: duplicate slave DOF (node " + std::to_string(mpc.slaveNode_0+1) +")");
         }
@@ -104,13 +104,13 @@ bool JsonReader::ValidateMpcs(Model &model) {
             if (t.node_0 >= model.nodes.size())
                 throw std::runtime_error("MPC: master node out of range: "
                                          + std::to_string(t.node_0 + 1));
-            unsigned int mKey = t.node_0 * CNode::NDF + t.dof_0;
+            unsigned int mKey = t.node_0 * NDF_MAX + t.dof_0;
             if (slaveKeys.count(mKey))
                 throw std::runtime_error("MPC: chained MPC not supported "
                     "(a master is also a slave) at node "
                     + std::to_string(t.node_0 + 1));
             // master 不能等于自己的 slave
-            unsigned int sKey = mpc.slaveNode_0 * CNode::NDF + mpc.slaveDof_0;
+            unsigned int sKey = mpc.slaveNode_0 * NDF_MAX + mpc.slaveDof_0;
             if (mKey == sKey)
                 throw std::runtime_error("MPC: master coincides with its slave");
         }
@@ -178,8 +178,6 @@ bool JsonReader::ParseNodes(const json &j, Model &model) {
         CNode node;
         // 设置节点基本信息
         node.SetGeom(nodeId_0, XYZ);
-        // 默认全部约束保持自由，根据维度锁定Z自由度
-        node.SetDimConstraints(model.dimension);
         model.nodes.push_back(node);
     }
     return true;
@@ -234,8 +232,6 @@ bool JsonReader::ParseElementGroups(const json &j, Model &model) {
         if (matId_0 >= model.materials.size()) {
             throw std::runtime_error("ParseElementGroups: Invalid material reference " + std::to_string(matId_0));
         }
-        if (!MaterialCompatibleWithElement(model.materials[matId_0]->matType, elemType))
-            throw std::runtime_error("Material incompatible with element type");
         CMaterial* matPtr = model.materials[matId_0].get();
         CElementGroup& group = model.groups[idxGroup];
         group.SetGroupsInfo(elemType,g.at("elements").size());
@@ -247,6 +243,10 @@ bool JsonReader::ParseElementGroups(const json &j, Model &model) {
             auto elem = CreateElementByString(elemString);
             if (!elem) {
                 throw std::runtime_error("Error: Could not create element \"" + elemString + "\"");
+            }
+            // 检查材料的兼容性
+            if (elem->GetRequiredMaterial() != matPtr->GetCateogory()) {
+                throw std::runtime_error("Material incompatible with element type");
             }
             // 单元基础信息，单元积分点信息
             elem->SetElementType(elemType);

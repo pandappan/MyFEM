@@ -53,4 +53,6 @@ public:
     std::vector<int> GetFaceNodesLocalID(unsigned int faceID) const;
     //! 单元外推矩阵
     DenseMatrix<double> GetExprapolationMatrix() const override;
+    // 单元的材料类型，根据单元类型兼容两种材料
+    MaterialCategory GetRequiredMaterial() const override;
 };

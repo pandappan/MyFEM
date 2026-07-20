@@ -25,7 +25,7 @@ TEST(IntegrationTest, BarWithPrescribedDisplacement) {
     model.nodes[1].bcode[UX] = 2; // 给定2指定位移，其余约束
     model.nodes[1].bcode[UY] = 1;
     model.nodes[1].bcode[UZ] = 1;
-    model.nodes[1].SetPreDisp(UX, u_prescribed);
+    model.nodes[1].SetPreDispConstraints(UX, u_prescribed);
     // -------- 建 Element Group --------
     CElementGroup group;
     group.SetTypeForTesting(ElementTypes::Bar3D);
@@ -52,6 +52,6 @@ TEST(IntegrationTest, BarWithPrescribedDisplacement) {
 
     // 验证反力
     const double expect_rf = E * A * u_prescribed / L;
-    EXPECT_NEAR(nodes[0]->NodeBCForce[0], -expect_rf, 1e-8);
-    EXPECT_NEAR(nodes[1]->NodeBCForce[0], +expect_rf, 1e-8);
+    EXPECT_NEAR(nodes[0]->nodeBCForce[0], -expect_rf, 1e-8);
+    EXPECT_NEAR(nodes[1]->nodeBCForce[0], +expect_rf, 1e-8);
 }

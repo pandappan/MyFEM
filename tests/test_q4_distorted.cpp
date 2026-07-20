@@ -28,8 +28,8 @@ TEST(Q4Distorted, PureStrainOnTrapezoid) {
     // 手动施加纯 x 应变：u = 0.01·x, v = 0
     const double eps = 0.01;
     for (auto& n : nodes) {
-        n.Displacement[0] = eps * n.XYZ[0];
-        n.Displacement[1] = 0.0;
+        n.displacement[0] = eps * n.XYZ[0];
+        n.displacement[1] = 0.0;
     }
     
     // 检查每个积分点的应变

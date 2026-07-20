@@ -20,4 +20,5 @@ public:
     unsigned int GetNumStressComponents() const override;
     //  弹性矩阵
     void ComputeElasticMatrix(DenseMatrix<double>& D) const override;
+    MaterialCategory GetCateogory() const override;
 };

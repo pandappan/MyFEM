@@ -30,6 +30,7 @@ add_executable(MyFEM_tests
         test_profile.cpp
         test_assemble_mpc.cpp
         test_mpc_beta.cpp
+        test_node_dof.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::IO

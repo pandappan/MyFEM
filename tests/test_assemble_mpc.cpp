@@ -89,7 +89,7 @@ TEST(AssembleMpcTest, EqualDisplacement) {
     Solve(model);
 
     // master 是 N3.x，应等于 F/k = 0.1
-    EXPECT_NEAR(model.nodes[2].Displacement[UX], 0.1, 1e-9);
+    EXPECT_NEAR(model.nodes[2].displacement[UX], 0.1, 1e-9);
 }
 
 // 等位移：slave 位移应等于 master
@@ -137,8 +137,8 @@ TEST(RecoverTest, SlaveEqualsMaster) {
     JsonReader reader;
     ASSERT_TRUE(reader.Read(WriteTempJson("recover_equal.json", jsonText), model));
     Solve(model);
-    double um = model.nodes[2].Displacement[UX];  // master N3.x
-    double us = model.nodes[1].Displacement[UX];  // slave  N2.x
+    double um = model.nodes[2].displacement[UX];  // master N3.x
+    double us = model.nodes[1].displacement[UX];  // slave  N2.x
     EXPECT_NEAR(um, 0.1, 1e-9);
     EXPECT_NEAR(us, um, 1e-12);   // slave == master
 }
@@ -189,7 +189,7 @@ TEST(RecoverTest, SlaveWithCoefficient) {
     JsonReader reader;
     ASSERT_TRUE(reader.Read(WriteTempJson("recover_coeff.json", jsonText), model));
     Solve(model);
-    double um = model.nodes[2].Displacement[UX];  // N3.x
-    double us = model.nodes[1].Displacement[UX];  // N2.x
+    double um = model.nodes[2].displacement[UX];  // N3.x
+    double us = model.nodes[1].displacement[UX];  // N2.x
     EXPECT_NEAR(us, 0.5 * um, 1e-12);   // 关系恒成立
 }

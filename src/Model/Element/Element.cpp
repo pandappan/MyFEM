@@ -14,6 +14,8 @@ void CElement::SetElementInfo(unsigned int elemId_0, CMaterial* matPtr,
     ElementMaterial_ = matPtr;
     for (unsigned int i = 0; i < NEN_; ++i)
         nodes_[i] = &nodeList[connectivity_0[i]];
+    // 激活单元所述节点的自由度
+    RegisterDofsOnNodes();
 }
 
 
@@ -59,7 +61,7 @@ void CElement::GetElementNodesDisp(std::vector<double>& nodesDisp,
     unsigned int index = 0;
     for (const auto* node : nodes_) {
         for (unsigned int d = 0; d < ndof; ++d) {
-            nodesDisp[index]  = node->Displacement[dofs[d]];
+            nodesDisp[index]  = node->displacement[dofs[d]];
             nodesBcode[index] = static_cast<int>(node->bcode[dofs[d]]);
             index++;
         }
@@ -72,7 +74,7 @@ void CElement::GetElementNodesForce(std::vector<double>& nodesForce) {
     unsigned int index = 0;
     for (const auto* node : nodes_) {
         for (unsigned int d = 0; d < ndof; ++d) {
-            nodesForce[index] = node->NodeForce[dofs[d]];
+            nodesForce[index] = node->nodeForce[dofs[d]];
             index++;
         }
     }
@@ -150,4 +152,14 @@ double CElement::CalculateElementEnergy() const {
 void CElement::SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_) {
     nodes_ = std::move(NodeList);
     ElementMaterial_ = Material_;
+}
+
+void CElement::RegisterDofsOnNodes() {
+    const DOFIndex* dofs = GetActiveDOFs();
+    const unsigned int ndof = GetNumActiveDOFsPerNode();
+    for (CNode* node: nodes_) {
+        for (unsigned int d = 0; d < ndof; ++d) {
+            node->ActivateDof(static_cast<unsigned int>(dofs[d]));
+        }
+    }
 }

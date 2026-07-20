@@ -89,7 +89,11 @@ public:
     // 测试使用
     void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
     // 连续介质单元积分点信息完成初始化
-    virtual void OnSetupComplete() {}
+    virtual void OnSetupComplete() {};
+    // 声明单元所需的材料类型，用于兼容性检查
+    virtual MaterialCategory GetRequiredMaterial() const = 0;
+    // 将单元使用的自由度在所有节点上的掩码置位
+    void RegisterDofsOnNodes();
 protected:
     void AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int nd);
 };

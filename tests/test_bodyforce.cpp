@@ -27,12 +27,12 @@ TEST(BodyForc, Bar3DGravityHalvedBetweenNodes) {
     const double g[3] = {0.0, -10.0, 0.0};
     elem->CalculateBodyForce(g);
     // 验证
-    EXPECT_NEAR(nodes[0].NodeForce[0],0.0,1.0e-8);
-    EXPECT_NEAR(nodes[0].NodeForce[1],-1000.0,1.0e-8);
-    EXPECT_NEAR(nodes[0].NodeForce[2],0.0,1.0e-8);
-    EXPECT_NEAR(nodes[1].NodeForce[0],0.0,1.0e-8);
-    EXPECT_NEAR(nodes[1].NodeForce[1],-1000.0,1.0e-8);
-    EXPECT_NEAR(nodes[1].NodeForce[2],0.0,1.0e-8);
+    EXPECT_NEAR(nodes[0].nodeForce[0],0.0,1.0e-8);
+    EXPECT_NEAR(nodes[0].nodeForce[1],-1000.0,1.0e-8);
+    EXPECT_NEAR(nodes[0].nodeForce[2],0.0,1.0e-8);
+    EXPECT_NEAR(nodes[1].nodeForce[0],0.0,1.0e-8);
+    EXPECT_NEAR(nodes[1].nodeForce[1],-1000.0,1.0e-8);
+    EXPECT_NEAR(nodes[1].nodeForce[2],0.0,1.0e-8);
 }
 
 TEST(BodyForce, Q4UniformGravity) {
@@ -63,9 +63,9 @@ TEST(BodyForce, Q4UniformGravity) {
     // 局部 dof: [UX_N1, UY_N1, UX_N2, UY_N2, ...]
     double total_y = 0.0;
     for (unsigned int i = 0; i < 4; ++i) {
-        EXPECT_NEAR(nodes[i].NodeForce[0],     0.0,   1e-10) << "Node " << i+1 << " UX";
-        EXPECT_NEAR(nodes[i].NodeForce[1], -250.0, 1e-10) << "Node " << i+1 << " UY";
-        total_y += nodes[i].NodeForce[1];
+        EXPECT_NEAR(nodes[i].nodeForce[0],     0.0,   1e-10) << "Node " << i+1 << " UX";
+        EXPECT_NEAR(nodes[i].nodeForce[1], -250.0, 1e-10) << "Node " << i+1 << " UY";
+        total_y += nodes[i].nodeForce[1];
     }
 
     // 总力守恒

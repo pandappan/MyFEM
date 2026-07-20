@@ -29,8 +29,8 @@ protected:
 
 TEST_F(Q4SurfaceLoadFixture, Surface0UniformLoadX) {
     elem_->CalculateSurfaceLoad(0,UX,5);
-    EXPECT_NEAR(nodes_[0].NodeForce[0],5.0,1e-10);
-    EXPECT_NEAR(nodes_[0].NodeForce[1],0.0,1e-10);
-    EXPECT_NEAR(nodes_[1].NodeForce[0],5.0,1e-10);
-    EXPECT_NEAR(nodes_[1].NodeForce[1],0.0,1e-10);
+    EXPECT_NEAR(nodes_[0].nodeForce[0],5.0,1e-10);
+    EXPECT_NEAR(nodes_[0].nodeForce[1],0.0,1e-10);
+    EXPECT_NEAR(nodes_[1].nodeForce[0],5.0,1e-10);
+    EXPECT_NEAR(nodes_[1].nodeForce[1],0.0,1e-10);
 }
