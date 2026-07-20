@@ -386,7 +386,7 @@ bool JsonReader::ParseConstrains(const json &j, Model &model) {
     for (auto& mpc: model.mpcs) {
         unsigned int nodeId_0 = mpc.slaveNode_0;
         unsigned int dofId_0 = mpc.slaveDof_0;
-        model.nodes[nodeId_0].bcode[dofId_0] = 2;
+        model.nodes[nodeId_0].bcode[dofId_0] = 3;
     }
     return true;
 }

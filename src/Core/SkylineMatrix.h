@@ -104,13 +104,9 @@ inline CSkylineMatrix<T_>::CSkylineMatrix(unsigned int N)
     MK_  = 0;
     NWK_ = 0;
 
-    ColumnHeights_.reserve(NEQ_);
-    for (unsigned int i = 0; i < NEQ_; i++)
-        ColumnHeights_[i] = 0;
+    ColumnHeights_.assign(NEQ_,0);
 
-    DiagonalAddress_.reserve(NEQ_ + 1);
-    for (unsigned int i = 0; i < NEQ_ + 1; i++)
-        DiagonalAddress_[i] = 0;
+    DiagonalAddress_.assign(NEQ_ + 1,0);
 }
 
 //! operator function (i,j) where i and j numbering from 1
@@ -138,8 +134,6 @@ inline void CSkylineMatrix<T_>::Allocate()
     NWK_ = DiagonalAddress_[NEQ_] - DiagonalAddress_[0];
 
     data_.assign(NWK_, 0.0);
-    for (unsigned int i = 0; i < NWK_; i++)
-        data_[i] = T_(0);
 }
 
 // 列高数组的引用
@@ -195,13 +189,17 @@ void CSkylineMatrix<T_>::CalculateColumnHeight(const std::vector<unsigned int>& 
 template <class T_>
 void CSkylineMatrix<T_>::CalculateMaximumHalfBandwidth()
 {
-    MK_ = ColumnHeights_[0];
+    if (!ColumnHeights_.empty()) {
+        MK_ = ColumnHeights_[0];
 
-    for (unsigned int i=1; i<NEQ_; i++)
-        if (MK_ < ColumnHeights_[i])
-            MK_ = ColumnHeights_[i];
+        for (unsigned int i=1; i<NEQ_; i++)
+            if (MK_ < ColumnHeights_[i])
+                MK_ = ColumnHeights_[i];
 
-    MK_ = MK_ + 1;
+        MK_ = MK_ + 1;
+    } else {
+        MK_ = 1;
+    }
 }
 
 //    Assemble the banded global stiffness matrix (skyline storage scheme)

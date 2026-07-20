@@ -2,6 +2,7 @@
 // Created by Administrator on 2026/7/6.
 //
 #include <iostream>
+#include <stdexcept>
 #include "Assembly.h"
 #include "../Model/Element/Element.h"
 #include "../Model/Model.h"
@@ -36,7 +37,8 @@ void Assembler::AllocateLinearSystem(Model &model) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
             CElement& element = group.GetElement(e);
-            model.K->CalculateColumnHeight(element.GetLocationMatrix());
+            std::vector<unsigned int> eqs = GetEffectiveEquations(element, model);
+            model.K->CalculateColumnHeight(eqs);
         }
     }
     model.K->CalculateMaximumHalfBandwidth();
@@ -93,39 +95,75 @@ void Assembler::ConvertBLoadsToCLoads(Model &model) {
     }
 }
 
-// 装配节点上的所有力，包括点载荷，面载的等效点载，体载的等效点载
+// 装配节点外载荷到方程右端
+// 自由度直接进方程；从自由度上的力按 T 分摊到 master
 void Assembler::AssembleForce(Model &model) {
     std::fill(model.force.begin(), model.force.end(), 0.0);
     for (auto& node : model.nodes) {
         for (unsigned int d = 0; d < CNode::NDF; d++) {
-            unsigned int eq = node.eqn[d];
-            if (eq) {
-                model.force[eq - 1] += node.GetForce(d);
+            double f = node.GetForce(d);
+            if (f == 0.0) continue;
+
+            switch (node.bcode[d]) {
+                case 0:  // 自由：直接进方程
+                    model.force[node.eqn[d] - 1] += f;
+                    break;
+                case 3: { // 从自由度：按约束关系分摊到 master
+                    int m = model.FindMPCBySlave(node.Index, d);
+                    if (m < 0) break;
+                    for (const auto& t : model.mpcs[m].masters) {
+                        const CNode& mn = model.nodes[t.node_0];
+                        if (mn.bcode[t.dof_0] == 0)   // 只有自由 master 进方程
+                            model.force[mn.eqn[t.dof_0] - 1] += t.coeff * f;
+                        // master 固定/指定位移：力落到约束上，算作反力，不进右端
+                    }
+                    break;
+                }
+                default: break; // 固定(1)/指定位移(2)：外力算作反力，不进右端
             }
         }
     }
 }
 
-// 装配单元刚度矩阵
-// 计算并且装配位移约束的造成的右端修正项
-// 受主从自由度影响，将单元刚度矩阵和右端项进行修正
+// 装配单元刚度和右端约束修正（主从消去 / 变换法）
+// 每个局部自由度展开成保留自由度的线性组合 + 常数：u_i = Σ c_{i,p} a_p + g_i
+// 刚度: K(p,q) += c_{i,p} c_{j,q} ke(i,j)      —— 即 Tᵀ ke T 的散射形式
+// 右端: f(p)   -= c_{i,p} ke(i,j) g_j          —— 即 -Tᵀ ke g（含指定位移与 beta）
 void Assembler::AssembleStiffnessAndConstraintCorrection(Model &model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
             CElement& element = group.GetElement(e);
             unsigned int nd = element.GetND();
-            const std::vector<unsigned int>& lm = element.GetLocationMatrix();
-            // 装配单元刚度矩阵
+
+            // 单元刚度
             DenseMatrix<double> ke(nd, nd);
             element.ElementStiffness(ke);
-            model.K->Assembly(ke,lm);
-            // 装配右端修正项
-            std::vector<double> right(nd);
-            element.ElementRight(ke, right);
+
+            // 预计算每个局部自由度的展开
+            std::vector<DofExpansion> exp(nd);
+            for (unsigned int i = 0; i < nd; i++)
+                exp[i] = GetLocalDofExpansion(element, i, model);
+
             for (unsigned int i = 0; i < nd; i++) {
-                if (lm[i] != 0) {
-                    model.force[lm[i]-1] -= right[i];
+                const DofExpansion& ei = exp[i];
+                for (unsigned int j = 0; j < nd; j++) {
+                    const DofExpansion& ej = exp[j];
+                    double kij = ke(i, j);
+                    if (kij == 0.0) continue;
+
+                    for (const auto& p : ei.terms) {
+                        // 刚度：只写上三角，避免 skyline 折叠导致的重复计入
+                        for (const auto& q : ej.terms) {
+                            if (p.globalEqn <= q.globalEqn)
+                                (*model.K)(p.globalEqn, q.globalEqn)
+                                    += p.coeff * q.coeff * kij;
+                        }
+                        // 右端：把 j 的常数（指定位移 / beta / 指定位移master）移到右端
+                        if (ej.constant != 0.0)
+                            model.force[p.globalEqn - 1]
+                                -= p.coeff * kij * ej.constant;
+                    }
                 }
             }
         }
@@ -204,4 +242,81 @@ void Assembler::CalculateNodalStress(Model& model) {
             node.stress[c] /= node.stressWieghts;
         }
     }
+}
+
+// 求解从自由度位移：u_slave = Σ coeff·u_master + beta
+void Assembler::RecoverSlaveDisplacement(Model &model) {
+    for (auto& mpc: model.mpcs) {
+        double& slaveDisp = model.nodes[mpc.slaveNode_0].Displacement[mpc.slaveDof_0];
+        slaveDisp += mpc.beta;
+        for (auto& m: mpc.masters) {
+            slaveDisp += m.coeff * model.nodes[m.node_0].Displacement[m.dof_0];
+        }
+    }
+}
+
+// 局部自由度展开为全局自由度的线性组合+常数
+// 四种 bcode 对应变换矩阵 L 的一行 + g 的一个分量
+DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
+    unsigned int localDof, const Model &model) {
+    DofExpansion result;
+    // 局部自由度转化为(全局节点,全局分量)
+    unsigned int ndof = element.GetNumActiveDOFsPerNode();
+    const DOFIndex* dofs = element.GetActiveDOFs();
+    unsigned int nodeIdx = localDof / ndof;
+    unsigned int dof_0 = dofs[localDof % ndof];
+    const CNode* node = element.GetNodes()[nodeIdx];
+    switch (node->bcode[dof_0]) {
+        case 0: // 自由：展开为自身，系数为1
+            result.terms.push_back({node->eqn[dof_0],1.0});
+            break;
+        case 1: // 固定无需展开
+            break;
+        case 2: // 指定位移，只有常数
+            result.constant = node->Displacement[dof_0];
+            break;
+        case 3: { // 从自由度，展开为主自由度的线性组合
+            int mpcId = model.FindMPCBySlave(node->Index, dof_0);
+            if (mpcId < 0) {
+                throw std::runtime_error("Slave Dof has no MPC entry (node "
+                    + std::to_string(node->Index+1 )+")");
+            }
+            const MPC& mpc = model.mpcs[mpcId];
+            result.constant = mpc.beta;
+            for (const auto& t: mpc.masters) {
+                const CNode& m = model.nodes[t.node_0];
+                switch (m.bcode[t.dof_0]) {
+                    case 0: // 主自由度为自由，正常进入系数中
+                        result.terms.push_back({m.eqn[dof_0],t.coeff});
+                        break;
+                    case 1: // 主自由度固定，则无贡献
+                        break;
+                    case 2: // 主自由度指定位移，则对常数项有贡献
+                        result.constant += t.coeff * m.Displacement[t.dof_0];
+                        break;
+                    case 3: // 主自由度为为其余MPC的从自由度，则报错
+                        throw std::runtime_error("Chained MPC not supported");
+                    default:break;
+                }
+            }
+            break;
+        }
+        default:
+            throw std::runtime_error("Unknow bcode");
+    }
+    return result;
+}
+
+// 收集单元展开后会被写入 K 的全部全局方程号
+// 无 MPC 时等价于 LocationMatrix 的非零项
+std::vector<unsigned int> Assembler::GetEffectiveEquations(const CElement& element,
+    const Model& model) {
+    std::vector<unsigned int> eqs;
+    unsigned int nd = element.GetND();
+    for (unsigned int i = 0; i < nd; i++) {
+        DofExpansion e = GetLocalDofExpansion(element, i, model);
+        for (const auto& t : e.terms)
+            eqs.push_back(t.globalEqn);   // terms 里的 globalEqn 非零，否在根本不会进入循环中
+    }
+    return eqs;
 }

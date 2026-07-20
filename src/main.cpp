@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
     solver.BackSubstitution(model.force);
     // 求解结果处理
     Assembler::WriteDisplacementToNodes(model);
+    Assembler::RecoverSlaveDisplacement(model);
     Assembler::CalculateNodalBCForce(model);
     Assembler::CalculateNodalStress(model);
     // 可视化导出结果

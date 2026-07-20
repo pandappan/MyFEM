@@ -26,6 +26,10 @@ add_executable(MyFEM_tests
         test_q4_distorted.cpp
         test_h8.cpp
         test_integration_H8.cpp
+        test_expansion.cpp
+        test_profile.cpp
+        test_assemble_mpc.cpp
+        test_mpc_beta.cpp
 )
 target_link_libraries(MyFEM_tests PRIVATE
         MyFEM::IO

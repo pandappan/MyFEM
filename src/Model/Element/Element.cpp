@@ -78,6 +78,8 @@ void CElement::GetElementNodesForce(std::vector<double>& nodesForce) {
     }
 }
 
+// 反力：R_i = Σ_j K(i,j)·u_j - f_i
+// 只写回固定、指定位移约束的反力，自由，从属位移则不处理
 void CElement::CalculateBCForce() {
     DenseMatrix<double> Ke(ND_, ND_);
     Ke.SetZero();
@@ -93,10 +95,9 @@ void CElement::CalculateBCForce() {
     const DOFIndex*    dofs = GetActiveDOFs();
     const unsigned int ndof = GetNumActiveDOFsPerNode();
 
-    // 反力：R_i = Σ_j K(i,j)·u_j - f_i
     for (unsigned int i = 0; i < ND_; ++i) {
-        // 只处理约束
-        if (nodesBcode[i] == 0) continue;
+        // 只对固定和指定位移求解反力，自由和从属位移则跳过
+        if (nodesBcode[i] != 1 && nodesBcode[i] != 2) continue;
 
         double KU = 0.0;
         for (unsigned int j = 0; j < ND_; ++j)
@@ -107,24 +108,6 @@ void CElement::CalculateBCForce() {
         unsigned int nodeIdx  = i / ndof;
         unsigned int localDof = i % ndof;
         nodes_[nodeIdx]->AddBcForce(dofs[localDof], BCForce);
-    }
-}
-
-void CElement::ElementRight(const DenseMatrix<double>& Ke, std::vector<double> &right) {
-    // 单元的节点位移
-    std::vector<double> nodesDisp(ND_);
-    std::vector<int> nodesBcode(ND_);
-    GetElementNodesDisp(nodesDisp, nodesBcode);
-    for (unsigned int i = 0; i < ND_; i++) {
-        right[i] = 0.0;
-        // 只对自由自由度累加贡献
-        if (nodesBcode[i] != 0) continue;
-        for (unsigned int j = 0; j < ND_; j++) {
-            // 只对约束自由度累加贡献
-            if (nodesBcode[j] != 0) {
-                right[i] += Ke(i, j) * nodesDisp[j];
-            }
-        }
     }
 }
 

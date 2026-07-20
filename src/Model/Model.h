@@ -71,7 +71,7 @@ public:
     unsigned int GetNumNodes() const {return nodes.size();}
     unsigned int GetNumGroups() const {return groups.size();}
     CMaterial* GetMaterialPtr(unsigned int index0) const {return materials[index0].get();}
-    int FindMPCBySlave(unsigned int slaveNode_0, unsigned int slaveDof_0);
+    int FindMPCBySlave(unsigned int slaveNode_0, unsigned int slaveDof_0) const;
     Model() = default;
     ~Model();
     // 不允许拷贝，只允许移动

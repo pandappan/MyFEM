@@ -76,8 +76,6 @@ public:
     void GetElementNodesForce(std::vector<double>& nodesForce);
     // 单元层面回代求解反力，写入节点
     void CalculateBCForce();
-    // 单元右端修正项目
-    void ElementRight(const DenseMatrix<double>& Ke, std::vector<double> &right);
     // 将面载荷转化为节点载荷，并存入节点中
     virtual bool CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value);
     // 设置单元的类型
