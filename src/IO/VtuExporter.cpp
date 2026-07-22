@@ -15,6 +15,7 @@ namespace {
     int VtkCellType(ElementTypes t) {
         switch (t) {
             case ElementTypes::Bar3D: return 3;
+            case ElementTypes::Q4_AX:
             case ElementTypes::Q4_PS:
             case ElementTypes::Q4_PE: return 9;
             case ElementTypes::T3_PS:
@@ -30,6 +31,11 @@ double VonMises(const std::vector<double>& s) {
         double sxx = s[0], syy = s[1], sxy = s[2];
         return std::sqrt(sxx*sxx - sxx*syy + syy*syy + 3.0*sxy*sxy);
     }
+    if (s.size() == 4) {
+        double srr = s[0], szz = s[1], stt = s[2], srz = s[3];
+        double d1 = srr - szz, d2 = szz - stt, d3 = stt - srr;
+        return std::sqrt(0.5 * (d1 * d1 + d2 * d2 + d3 * d3) + 3.0 * srz * srz);
+    }
     if (s.size() == 6) {
         double sxx=s[0], syy=s[1], szz=s[2];
         double sxy=s[3], syz=s[4], sxz=s[5];
@@ -43,8 +49,10 @@ double VonMises(const std::vector<double>& s) {
 // 应力分量名称
 const char* StressComponentName(unsigned int nComp, unsigned int c) {
     static const char* names2d[3] = {"Sxx", "Syy", "Sxy"};
+    static const char* names2daxi[4] = {"Srr", "Szz", "Stt", "Srz"};
     static const char* names3d[6] = {"Sxx", "Syy", "Szz", "Sxy", "Syz", "Sxz"};
     if (nComp == 3) return names2d[c];
+    if (nComp == 4) return names2daxi[c];
     if (nComp == 6) return names3d[c];
     return "S?";
 }

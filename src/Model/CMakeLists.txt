@@ -9,12 +9,14 @@ add_library(MyFEM_model STATIC
         Element/Bar3D.cpp
         Element/Q4.cpp
         Element/H8.cpp
+        Element/Q4_AX.cpp
 
         Material/Material.cpp
         Material/BarMaterial.cpp
         Material/CPlaneStressMaterial.cpp
         Material/PlaneStrainMaterial.cpp
         Material/Solid3DMaterial.cpp
+        Material/CAxisymMaterial.cpp
 )
 add_library(MyFEM::Model ALIAS MyFEM_model)
 

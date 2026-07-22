@@ -158,5 +158,5 @@ DenseMatrix<double> CH8::GetExprapolationMatrix() const {
 }
 
 MaterialCategory CH8::GetRequiredMaterial() const {
-    return MaterialCategory::MechaincalSolid;
+    return MaterialCategory::MechanicalSolid;
 }

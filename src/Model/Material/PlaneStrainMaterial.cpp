@@ -7,7 +7,7 @@
 #include "../../Core/DenseMatrix.h"
 
 CPlaneStrainMaterial::CPlaneStrainMaterial() :thk(1.0) {
-    matType = MaterialTypes::PE;
+    matType = MaterialCategory::MechanicalPlaneStrain;
 }
 
 void CPlaneStrainMaterial::Write(std::ostream& output) const {
@@ -27,5 +27,5 @@ void CPlaneStrainMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
 }
 
 MaterialCategory CPlaneStrainMaterial::GetCateogory() const {
-    return MaterialCategory::MechaincalPlaneStrain;
+    return MaterialCategory::MechanicalPlaneStrain;
 }

@@ -9,7 +9,7 @@
 
 
 CBarMaterial::CBarMaterial() {
-    matType = MaterialTypes::Bar;
+    matType = MaterialCategory::Mechanical1D;
 }
 
 //!	Write material data to Stream
@@ -30,5 +30,5 @@ void CBarMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const {
 }
 
 MaterialCategory CBarMaterial::GetCateogory() const {
-    return MaterialCategory::Mechaincal1D;
+    return MaterialCategory::Mechanical1D;
 }

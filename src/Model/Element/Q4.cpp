@@ -157,7 +157,7 @@ DenseMatrix<double> CQ4::GetExprapolationMatrix() const {
 }
 
 MaterialCategory CQ4::GetRequiredMaterial() const {
-    if (elementType_ == ElementTypes::Q4_PE) return MaterialCategory::MechaincalPlaneStrain;
-    if (elementType_ == ElementTypes::T3_PS) return MaterialCategory::MechaincalPlaneStress;
+    if (elementType_ == ElementTypes::Q4_PE) return MaterialCategory::MechanicalPlaneStrain;
+    if (elementType_ == ElementTypes::Q4_PS) return MaterialCategory::MechanicalPlaneStress;
     return MaterialCategory::UNDEFINED;
 }

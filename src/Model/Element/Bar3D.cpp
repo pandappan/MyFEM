@@ -160,5 +160,5 @@ double CBar3D::GetRepresentativeStress() const {
 }
 
 MaterialCategory CBar3D::GetRequiredMaterial() const {
-	return MaterialCategory::Mechaincal1D;
+	return MaterialCategory::Mechanical1D;
 }

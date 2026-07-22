@@ -18,15 +18,15 @@ namespace {
         mat->rho = matJson.value("rho",0.0);
         mat->E = matJson.at("E").get<double>();
         // 杆独有
-        if (mat->matType == MaterialTypes::Bar) {
+        if (mat->matType == MaterialCategory::Mechanical1D) {
             mat->nu = 0.0;
             dynamic_cast<CBarMaterial*>(mat)->Area = matJson.value("area",1.0);
         } else {
             // 连续介质单元
             mat->nu = matJson.at("nu").get<double>();
-            if (mat->matType == MaterialTypes::PS) {
+            if (mat->matType == MaterialCategory::MechanicalPlaneStress) {
                 dynamic_cast<CPlaneStressMaterial*>(mat)->thk = matJson.value("thk",1.0);
-            } else if (mat->matType == MaterialTypes::PE) {
+            } else if (mat->matType == MaterialCategory::MechanicalPlaneStrain) {
                 dynamic_cast<CPlaneStrainMaterial*>(mat)->thk = matJson.value("thk",1.0);
             }
         }

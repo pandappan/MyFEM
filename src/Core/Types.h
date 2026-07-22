@@ -70,25 +70,19 @@ enum class ElementTypes: int {
     Q4_PE = 4,
     T3_PS = 5,
     T3_PE = 6,
-    H8 = 7,
-    Tet4 =8
-};
-
-enum class MaterialTypes: int {
-    UNDEFINED = 0,
-    Bar = 1,
-    PS = 2,
-    PE = 3,
-    SOLID = 4
+    H8    = 7,
+    Tet4  =8,
+    Q4_AX = 9,
+    T3_AX = 10
 };
 
 enum class MaterialCategory: int {
     UNDEFINED             = 0,
-    Mechaincal1D          = 1,
-    MechaincalPlaneStress = 2,
-    MechaincalPlaneStrain = 3,
-    MechaincalSolid       = 4,
-    MechaincalAxisym      = 5,
+    Mechanical1D          = 1,
+    MechanicalPlaneStress = 2,
+    MechanicalPlaneStrain = 3,
+    MechanicalSolid       = 4,
+    MechanicalAxisym      = 5,
     Thermal               = 6,
     BeamSection           = 7,
     ShellSection          = 8
@@ -112,6 +106,10 @@ inline const char* ElementTypeName(ElementTypes type) {
             return "H8";
         case ElementTypes::Tet4 :
             return "Tet4";
+        case ElementTypes::Q4_AX:
+            return "Q4_AX";
+        case ElementTypes::T3_AX:
+            return "T3_AX";
         default :
             return "undefined element type";
     }
@@ -121,14 +119,8 @@ inline ElementTypes StringToElementType(const std::string& type) {
     if (type == std::string("Bar3D")) return ElementTypes::Bar3D;
     if (type == std::string("Q4_PS")) return ElementTypes::Q4_PS;
     if (type == std::string("Q4_PE")) return ElementTypes::Q4_PE;
-    if (type == std::string("H8")) return ElementTypes::H8;
+    if (type == std::string("H8"))    return ElementTypes::H8;
+    if (type == std::string("Q4_AX")) return ElementTypes::Q4_AX;
+    if (type == std::string("T3_AX")) return ElementTypes::T3_AX;
     return ElementTypes::UNDEFINED;
-}
-
-inline MaterialTypes StringToMaterialType(const std::string& type) {
-    if (type == std::string("bar")) return MaterialTypes::Bar;
-    if (type == std::string("plane_stress")) return MaterialTypes::PS;
-    if (type == std::string("plane_strain")) return MaterialTypes::PE;
-    if (type == std::string("solid3d")) return MaterialTypes::SOLID;
-    return MaterialTypes::UNDEFINED;
 }

@@ -132,17 +132,18 @@ void CContinuumElement::InitializeIntegrationPoints() {
                                     nodeCoords, integrationPoints_[i]);
     }
     volume_ = 0.0;
-    for (unsigned int i = 0; i < nGp; i++) {
-        volume_ += integrationPoints_[i].detJ_times_weight;
-    }
     CMaterial* mat = GetElementMaterial();
-    double thk;
+    double thk = 1.0;
     if (mat) { // 单元正常作为体元的分支
-        thk = mat->GetThickness();
+        for (unsigned int ip = 0; ip < nGp; ip++) {
+            thk = GetIntegrationVolumeFactor(ip);
+            volume_ += integrationPoints_[ip].detJ_times_weight * thk;
+        }
     } else { // 单元作为载荷面元的分支
-        thk = 1.0;
+        for (unsigned int ip = 0; ip < nGp; ip++) {
+            volume_ += integrationPoints_[ip].detJ_times_weight * thk;
+        }
     }
-    volume_ *= thk;
     integrationPointsCached_ = true;
 }
 
@@ -150,13 +151,13 @@ void CContinuumElement::InitializeIntegrationPoints() {
 void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
     Ke.SetZero();
     CMaterial* mat = GetElementMaterial();
-    unsigned int nStress = mat->GetNumStressComponents();
-    DenseMatrix<double> D(nStress, nStress);
+    unsigned int numStrain = GetNumStrainComponents();
+    DenseMatrix<double> D(numStrain, numStrain);
     mat->ComputeElasticMatrix(D);
-    double thk = mat->GetThickness();
-    DenseMatrix<double> B(nStress, ND_);
+    DenseMatrix<double> B(numStrain, ND_);
     for (unsigned int ip = 0; ip < GetNumIntegrationPoints(); ++ip) {
         ComputeBMatrix(ip, B);
+        double thk = GetIntegrationVolumeFactor(ip);
         double dv = integrationPoints_[ip].detJ_times_weight * thk;
         DenseMatrix<double> DB   = D.DotMat(B);              // (nS, ND_)
         DenseMatrix<double> BtDB = B.Transpose().DotMat(DB); // (ND_, ND_)
@@ -173,13 +174,13 @@ void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
     CMaterial* mat = GetElementMaterial();
     double rho = mat->rho;
     if (std::abs(rho) < 1.0e-12) return;
-    double thk = mat->GetThickness();
     // 积分点缓存变量
     if (!integrationPointsCached_) InitializeIntegrationPoints();
     for (unsigned int i = 0; i < NEN_; i++) {
         // 累加计算系数
         double factor = 0.0;
         for (unsigned int ip = 0; ip < GetNumIntegrationPoints(); ip++) {
+            double thk = GetIntegrationVolumeFactor(ip);
             double dv = integrationPoints_[ip].detJ_times_weight * thk;
             factor += integrationPoints_[ip].N[i] * rho * dv;
         }
@@ -193,8 +194,8 @@ void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
 
 // epsilon = B o u
 std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned int ip) const {
-    unsigned int ns = GetElementMaterial()->GetNumStressComponents();
-    DenseMatrix<double> B(ns, ND_);
+    unsigned int numStrain = GetNumStrainComponents();
+    DenseMatrix<double> B(numStrain, ND_);
     ComputeBMatrix(ip, B);
     std::vector<double> ue(ND_, 0.0);
     const DOFIndex* dofs = GetActiveDOFs();
@@ -205,16 +206,16 @@ std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned 
             ue[index++] = nodes_[i]->displacement[dofs[j]];
         }
     }
-    std::vector<double> strain(ns, 0.0);
+    std::vector<double> strain(numStrain, 0.0);
     strain = B.DotVec(ue);
     return strain;
 }
 
 std::vector<double> CContinuumElement::ComputeStressAtIntegrationPoint(unsigned int ip) const {
-    unsigned int ns = GetElementMaterial()->GetNumStressComponents();
-    std::vector<double> strain(ns, 0.0);
+    unsigned int numStrain = GetNumStrainComponents();
+    std::vector<double> strain(numStrain, 0.0);
     strain = ComputeStrainAtIntegrationPoint(ip);
-    std::vector<double> stress(ns, 0.0);
+    std::vector<double> stress(numStrain, 0.0);
     GetElementMaterial()->ComputeStress(strain, stress);
     return stress;
 }
@@ -234,7 +235,7 @@ DenseMatrix<double> CContinuumElement::GetExprapolationMatrix() const {
 void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> > &nodalStress) const {
     // 积分点个数，应力分量数目
     const unsigned int nGp = GetNumIntegrationPoints();
-    const unsigned int nComp = ElementMaterial_->GetNumStressComponents();
+    const unsigned int numStrain = GetNumStrainComponents();
     // 所有积分点处的应力
     std::vector<std::vector<double>> gpStress(nGp);
     for (unsigned int i = 0; i < nGp; i++) {
@@ -243,10 +244,10 @@ void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> 
     // 外推矩阵
     DenseMatrix<double> E = GetExprapolationMatrix();
     // 初始化输出
-    nodalStress.assign(NEN_, std::vector<double>(nComp, 0.0));
+    nodalStress.assign(NEN_, std::vector<double>(numStrain, 0.0));
     // 逐节点，逐分量外推应力
     for (unsigned int n = 0; n < NEN_; n++) {
-        for (unsigned int c = 0; c < nComp; c++) {
+        for (unsigned int c = 0; c < numStrain; c++) {
             double stress = 0.0;
             for (unsigned int gp = 0; gp < nGp; gp++) {
                 stress += E(n,gp) * gpStress[gp][c];
@@ -275,8 +276,8 @@ DenseMatrix<double> CContinuumElement::GetIntegrationPointPositions() const {
 // 返回所有积分点处的应力(nGp,nComp)
 std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses() const {
     const unsigned int nGp = GetNumIntegrationPoints();
-    const unsigned int nComp = ElementMaterial_->GetNumStressComponents();
-    std::vector<std::vector<double>> stress(nGp, std::vector<double>(nComp, 0.0));
+    const unsigned int numStrain = GetNumStrainComponents();
+    std::vector<std::vector<double>> stress(nGp, std::vector<double>(numStrain, 0.0));
     for (unsigned int i = 0; i < nGp; i++) {
         stress[i] = ComputeStressAtIntegrationPoint(i);
     }
@@ -286,18 +287,18 @@ std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses
 double CContinuumElement::GetRepresentativeStress() const {
     // 将所有积分点的miss应力平均
     unsigned int nGp = GetNumIntegrationPoints();
-    unsigned int nComp = ElementMaterial_->GetNumStressComponents();
+    unsigned int numStrain = GetNumStrainComponents();
     std::vector<std::vector<double>> stress = GetIntegrationPointStresses();
     double miss = 0.0;
     for (const auto& ipStress: stress) {
         double temp = 0.0;
-        if (nComp == 3) {
+        if (numStrain == 3) {
             double sxx = ipStress[0];
             double syy = ipStress[1];
             double sxy = ipStress[2];
             temp = std::sqrt(sxx*sxx + syy*syy - sxx*syy + 3.0 * sxy*sxy);
 
-        } else if (nComp == 6) {
+        } else if (numStrain == 6) {
             double sxx=ipStress[0], syy=ipStress[1], szz=ipStress[2];
             double sxy=ipStress[3], syz=ipStress[4], sxz=ipStress[5];
             double d1 = sxx-syy, d2 = syy-szz, d3 = szz-sxx;
@@ -307,4 +308,14 @@ double CContinuumElement::GetRepresentativeStress() const {
         miss += temp;
     }
     return miss / nGp;
+}
+
+// r = sum N_I xi_I
+double CContinuumElement::GetRadiusAtIntegrationPoint(unsigned int ip) const {
+    const std::vector<double> N = integrationPoints_[ip].N;
+    double radius = 0.0;
+    for (unsigned int I = 0; I < NEN_; I++) {
+        radius += N[I] * nodes_[I]->XYZ[0];
+    }
+    return radius;
 }

@@ -288,7 +288,7 @@ DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
                 const CNode& m = model.nodes[t.node_0];
                 switch (m.bcode[t.dof_0]) {
                     case 0: // 主自由度为自由，正常进入系数中
-                        result.terms.push_back({m.eqn[dof_0],t.coeff});
+                        result.terms.push_back({m.eqn[t.dof_0],t.coeff});
                         break;
                     case 1: // 主自由度固定，则无贡献
                         break;

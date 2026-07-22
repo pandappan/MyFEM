@@ -7,7 +7,7 @@
 #include "../../Core/DenseMatrix.h"
 
 CSolid3DMaterial::CSolid3DMaterial() {
-    matType = MaterialTypes::SOLID;
+    matType = MaterialCategory::MechanicalSolid;
 }
 
 void CSolid3DMaterial::Write(std::ostream& Output) const {
@@ -31,5 +31,5 @@ void CSolid3DMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
 }
 
 MaterialCategory CSolid3DMaterial::GetCateogory() const {
-    return MaterialCategory::MechaincalSolid;
+    return MaterialCategory::MechanicalSolid;
 }

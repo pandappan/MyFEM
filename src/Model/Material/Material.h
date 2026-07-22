@@ -24,13 +24,13 @@ class CMaterial
 public:
 
 	unsigned int nset;	//!< Number of set
-	MaterialTypes matType;
+	MaterialCategory matType;
 	double E;  //!< Young's modulus
 	double nu;
 	double rho;
 
 public:
-	CMaterial() : nset(0), matType(MaterialTypes::UNDEFINED), E(0.0), nu(0.0), rho(0.0){}
+	CMaterial() : nset(0), matType(MaterialCategory::UNDEFINED), E(0.0), nu(0.0), rho(0.0){}
 //! Virtual deconstructor
     virtual ~CMaterial() = default;
 

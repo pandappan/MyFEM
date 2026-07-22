@@ -7,6 +7,7 @@
 #include <vector>
 #include "Element.h"
 #include "../../Core/DenseMatrix.h"
+#include "Material/Material.h"
 
 template<class T>
 class DenseMatrix;
@@ -31,6 +32,17 @@ protected:
     bool integrationPointsCached_ = false;
     // 单元的外推矩阵，如果没有特殊外推矩阵，则取各节点取积分平均值
     virtual DenseMatrix<double> GetExprapolationMatrix() const;
+    // 单元积分体积因子 dv = factor * detJ_times_weights
+    // 3D = 1, 2D = thickness, axisym = 2 pi * r(ip)
+    virtual double GetIntegrationVolumeFactor(unsigned int ip) const {
+        return ElementMaterial_->GetThickness();
+    }
+    // 计算应变B矩阵
+    virtual void ComputeBMatrix(unsigned int ip, DenseMatrix<double>& BMatrix) const;
+    // 应变分量数目，常规单元直接用，轴对称单元需要派生
+    unsigned int GetNumStrainComponents() const {
+        return ElementMaterial_->GetNumStressComponents();
+    }
 public:
     //========通用逻辑========
     // 单元刚度矩阵
@@ -41,6 +53,8 @@ public:
     void InitializeIntegrationPoints();
     // 将体载转化为点载
     void CalculateBodyForce(const double *bodyForce) override;
+    // 获取积分点处的形函数，半径坐标
+    double GetRadiusAtIntegrationPoint(unsigned int ip) const;
     // 计算积分点处的应变
     std::vector<double> ComputeStrainAtIntegrationPoint(unsigned int ip) const;
     // 计算单元在积分点处的应力
@@ -65,11 +79,15 @@ public:
     std::vector<std::vector<double>> GetIntegrationPointStresses() const;
     // 将所有积分点的应力外推至节点应力
     virtual void ExtrapolatStressToNodes(std::vector<std::vector<double>>& nodalStress) const;
+    void ComputeBMatrixForTesting(unsigned int ip, DenseMatrix<double>& B) const {
+        ComputeBMatrix(ip, B);
+    }
+    std::vector<double> ComputeStrainForTesting(unsigned int ip) const {
+        return ComputeStrainAtIntegrationPoint(ip);
+    }
 
 private:
     //========私有辅助========
-    //! 计算应变B矩阵
-    void ComputeBMatrix(unsigned int ip, DenseMatrix<double>& BMatrix) const;
     //! 计算雅可比矩阵
     void ComputeJacobian(const DenseMatrix<double>& dN_dxi,
         const DenseMatrix<double>& nodeCoords,
