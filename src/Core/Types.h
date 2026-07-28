@@ -71,7 +71,7 @@ enum class ElementTypes: int {
     T3_PS = 5,
     T3_PE = 6,
     H8    = 7,
-    Tet4  =8,
+    Tet4  = 8,
     Q4_AX = 9,
     T3_AX = 10
 };

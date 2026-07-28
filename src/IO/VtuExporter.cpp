@@ -262,7 +262,7 @@ bool VtuExporter::ExportGaussPoints(const std::string& fileName,
             auto sigmas    = c->GetIntegrationPointStresses();
 
             const unsigned int nGp = sigmas.size();
-            const unsigned int nDim = positions.GetRow();
+            const unsigned int nDim = positions.GetRows();
 
             for (unsigned int gp = 0; gp < nGp; ++gp) {
                 xyz.push_back(positions(0, gp));

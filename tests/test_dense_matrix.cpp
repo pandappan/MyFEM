@@ -3,8 +3,8 @@
 
 TEST(DenseMatrix, DefaultConstruct) {
     DenseMatrix<double> m;
-    EXPECT_EQ(m.GetRow(), 0u);
-    EXPECT_EQ(m.GetCol(), 0u);
+    EXPECT_EQ(m.GetRows(), 0u);
+    EXPECT_EQ(m.GetCols(), 0u);
 }
 
 TEST(DenseMatrix, Determinant2x2) {
@@ -51,8 +51,8 @@ TEST(DenseMatrix, TransposeTwiceIsIdentity) {
     m(1,0)=4; m(1,1)=5; m(1,2)=6;
 
     DenseMatrix<double> mt = m.Transpose();
-    EXPECT_EQ(mt.GetRow(), 3u);
-    EXPECT_EQ(mt.GetCol(), 2u);
+    EXPECT_EQ(mt.GetRows(), 3u);
+    EXPECT_EQ(mt.GetCols(), 2u);
     EXPECT_DOUBLE_EQ(mt(0,0), 1.0);
     EXPECT_DOUBLE_EQ(mt(1,0), 2.0);
     EXPECT_DOUBLE_EQ(mt(2,1), 6.0);

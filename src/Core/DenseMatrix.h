@@ -10,19 +10,6 @@
 
 template <typename T>
 class DenseMatrix {
-private:
-    unsigned int rows_;
-    unsigned int cols_;
-    T* data_;
-
-    T Determinant2x2() const;
-    T Determinant3x3() const;
-    T DeterminantLU() const;
-    DenseMatrix<T> Inverse1x1() const;
-    DenseMatrix<T> Inverse2x2() const;
-    DenseMatrix<T> Inverse3x3() const;
-    DenseMatrix<T> InverseGaussJordan() const;
-
 public:
     DenseMatrix() : rows_(0), cols_(0), data_(nullptr) {}
     DenseMatrix(unsigned int rows, unsigned int cols);
@@ -32,12 +19,16 @@ public:
     DenseMatrix<T>& operator=(const DenseMatrix<T>& mat);
     void Resize(unsigned int rows, unsigned int cols);
 
-    unsigned int GetRow () const { return rows_; }
-    unsigned int GetCol () const { return cols_; }
+    unsigned int GetRows () const { return rows_; }
+    unsigned int GetCols () const { return cols_; }
     unsigned int GetSize() const { return rows_ * cols_; }
 
     T&       operator()(unsigned int row, unsigned int col);
     const T& operator()(unsigned int row, unsigned int col) const;
+    std::vector<T> Row(unsigned int row) const;
+    std::vector<T> Col(unsigned int col) const;
+    bool SetRow(const std::vector<T>& vec, unsigned int row);
+    bool SetCol(const std::vector<T>& vec, unsigned int col);
 
     void SetZero() { std::fill_n(data_, rows_ * cols_, T(0)); }
 
@@ -51,6 +42,18 @@ public:
     DenseMatrix<T>  Inverse() const;
     template <class T_>
     friend std::ostream &operator<<(std::ostream &out, const DenseMatrix<T_> &mat);
+private:
+    unsigned int rows_;
+    unsigned int cols_;
+    T* data_;
+private:
+    T Determinant2x2() const;
+    T Determinant3x3() const;
+    T DeterminantLU() const;
+    DenseMatrix<T> Inverse1x1() const;
+    DenseMatrix<T> Inverse2x2() const;
+    DenseMatrix<T> Inverse3x3() const;
+    DenseMatrix<T> InverseGaussJordan() const;
 };
 
 // ======================= 实现 =======================
@@ -102,6 +105,55 @@ const T& DenseMatrix<T>::operator()(unsigned int row, unsigned int col) const {
     assert(row < rows_ && col < cols_);
     return data_[col * rows_ + row];
 }
+
+template<typename T>
+std::vector<T> DenseMatrix<T>::Row(unsigned int row) const {
+    if (row >= rows_) {
+        throw std::invalid_argument("Row index great then Matrix size");
+    }
+    std::vector<T> out(cols_, T(0));
+    for (unsigned int c = 0; c < cols_; c++) {
+        out[c] = (*this)(row,c);
+    }
+    return out;
+}
+
+template<typename T>
+std::vector<T> DenseMatrix<T>::Col(unsigned int col) const {
+    if (col >= cols_) {
+        throw std::invalid_argument("Col index great then Matrix size");
+    }
+    std::vector<T> out(rows_, T(0));
+    std::copy(data_ + rows_ * col, data_ + rows_ * col + rows_, out.begin());
+    return out;
+}
+
+template<typename T>
+bool DenseMatrix<T>::SetRow(const std::vector<T> &vec, unsigned int row) {
+    if (row >= rows_) {
+        throw std::invalid_argument("Row index great then Matrix size");
+    }
+    if (cols_ != vec.size()) {
+        throw std::invalid_argument("Column size mismatch");
+    }
+    for (unsigned int c = 0; c < cols_; c++) {
+        (*this)(row,c) = vec[c];
+    }
+    return true;
+}
+
+template<typename T>
+bool DenseMatrix<T>::SetCol(const std::vector<T> &vec, unsigned int col) {
+    if (col >= cols_) {
+        throw std::invalid_argument("Column index great then Matrix size");
+    }
+    if (rows_ != vec.size()) {
+        throw std::invalid_argument("Row size mismatch");
+    }
+    std::copy(vec.begin(),vec.end(),data_ + rows_ * col);
+    return true;
+}
+
 
 template <typename T>
 std::vector<T> DenseMatrix<T>::DotVec(const std::vector<T>& vec) const {
