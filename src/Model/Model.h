@@ -51,13 +51,13 @@ public:
     std::string title;
     unsigned int dimension = 3;
     unsigned int modex = 0;
-    std::vector<std::unique_ptr<CMaterial>> materials;
-    std::vector<CNode> nodes;
+    std::vector<std::unique_ptr<Material>> materials;
+    std::vector<Node> nodes;
     std::vector<CElementGroup> groups;
     std::vector<ConcentratedLoad> cloads;
     std::vector<PreDisplacement> predisplacements;
     std::vector<SurfaceLoad> sloads;
-    std::unordered_map<unsigned int, CElement*> globalElementMap; // 单元全局编号(0基)-单元指针映射
+    std::unordered_map<unsigned int, Element*> globalElementMap; // 单元全局编号(0基)-单元指针映射
     double bodyForce[3] = {0.0, 0.0, 0.0};
     // 多点约束方程
     std::vector<MPC> mpcs;
@@ -65,12 +65,12 @@ public:
     std::unordered_map<unsigned int, unsigned int> slaveDofToMpc;
     // 整体刚度矩阵，右端项
     unsigned int neq = 0;
-    std::unique_ptr<CSkylineMatrix<double>> K;
+    std::unique_ptr<SkylineMatrix<double>> K;
     std::vector<double> force; // 求解前为外载荷，求解后存储节点位移
     // 查询函数
     unsigned int GetNumNodes() const {return nodes.size();}
     unsigned int GetNumGroups() const {return groups.size();}
-    CMaterial* GetMaterialPtr(unsigned int index0) const {return materials[index0].get();}
+    Material* GetMaterialPtr(unsigned int index0) const {return materials[index0].get();}
     int FindMPCBySlave(unsigned int slaveNode_0, unsigned int slaveDof_0) const;
     Model() = default;
     ~Model();

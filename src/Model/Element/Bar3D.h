@@ -1,20 +1,10 @@
-/*****************************************************************************/
-/*  STAP++ : A C++ FEM code sharing the same input data file with STAP90     */
-/*     Computational Dynamics Laboratory                                     */
-/*     School of Aerospace Engineering, Tsinghua University                  */
-/*                                                                           */
-/*     Release 1.11, November 22, 2017                                       */
-/*                                                                           */
-/*     http://www.comdyn.cn/                                                 */
-/*****************************************************************************/
-
 #pragma once
 #include <ostream>
 #include <fstream>
 #include "Element.h"
 
 //! Bar element class
-class CBar3D : public CElement
+class Bar3D : public Element
 {
 private:
 	// 静态成员变量，属于类本身的特性，不单独属于某个类，静态常量可以在类内定义，静态常量数组需要在类外定义
@@ -22,7 +12,7 @@ private:
 	static const unsigned int NumActiveDOFsPerNode;
 public:
 //!	Constructor
-	CBar3D();
+	Bar3D();
 //!	Write element data to stream
 	void Write(std::ostream& output) const override;
 	void WriteElementStress(std::ostream& output) const override;

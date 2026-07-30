@@ -6,15 +6,15 @@
 #include <vector>
 #include "../../Core/Types.h"
 
-class CNode;
-class CMaterial;
+class Node;
+class Material;
 class Writer;
 class CElementGroup;
 template<class T>
 class DenseMatrix;
 
 //!	Element base class
-class CElement
+class Element
 {
 protected:
     ElementTypes elementType_;
@@ -22,19 +22,19 @@ protected:
     unsigned int NDim_; // 单元坐标维度
     unsigned int NEN_; // 单元节点数目
     unsigned int ND_;
-    std::vector<CNode*> nodes_;
-    CMaterial* ElementMaterial_;
+    std::vector<Node*> nodes_;
+    Material* ElementMaterial_;
     std::vector<unsigned int> LocationMatrix_;
     double volume_; // 单元体积
 
 public:
 
-    CElement();
-    virtual ~CElement() = default;
+    Element();
+    virtual ~Element() = default;
     // 纯粹虚接口
     // 设置单元基础信息
-    void SetElementInfo(unsigned int elemId_0, CMaterial* matPtr,
-        const std::vector<unsigned int>& connectivity_0, std::vector<CNode>& nodeList);
+    void SetElementInfo(unsigned int elemId_0, Material* matPtr,
+        const std::vector<unsigned int>& connectivity_0, std::vector<Node>& nodeList);
     // 写出单元数据
     virtual void Write(std::ostream& output) const = 0;
     virtual void WriteElementStress(std::ostream& output) const = 0;
@@ -59,9 +59,9 @@ public:
     // 单元节点数目
     unsigned int GetNEN() const {return NEN_;}
     // 单元节点指针数组
-    const std::vector<CNode*>& GetNodes() const {return nodes_;};
+    const std::vector<Node*>& GetNodes() const {return nodes_;};
     // 单元材料指针
-    CMaterial* GetElementMaterial() const {return ElementMaterial_;};
+    Material* GetElementMaterial() const {return ElementMaterial_;};
     // 单元定位数组
     const std::vector<unsigned int>& GetLocationMatrix() const {return LocationMatrix_;};
     // 单元自由度总数
@@ -87,7 +87,7 @@ public:
     // 计算单元总应变能
     double CalculateElementEnergy() const;
     // 测试使用
-    void SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_);
+    void SetupForTesting(std::vector<Node*> NodeList, Material* Material_);
     // 连续介质单元积分点信息完成初始化
     virtual void OnSetupComplete() {};
     // 声明单元所需的材料类型，用于兼容性检查

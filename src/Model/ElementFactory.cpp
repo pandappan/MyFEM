@@ -9,36 +9,32 @@
 #include "Element/Q4_AX.h"
 #include "Material/Material.h"
 #include "Material/BarMaterial.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 #include "Material/PlaneStrainMaterial.h"
 #include "Material/Solid3DMaterial.h"
-#include "Material/CAxisymMaterial.h"
-template <class T>
-static std::unique_ptr<T> make_unique_() {
-    return std::unique_ptr<T>(new T());
-}
+#include "Material/AxisymMaterial.h"
 
-std::unique_ptr<CElement> CreateElementByString(const std::string& type) {
+std::unique_ptr<Element> CreateElementByString(const std::string& type) {
     if (type == "Bar3D") {
-        return make_unique_<CBar3D>();
+        return std::make_unique<Bar3D>();
     }
     if (type == "Q4_PS" || type == "Q4_PE") {
-        return make_unique_<CQ4>();
+        return std::make_unique<Q4>();
     }
     if (type == "H8") {
-        return make_unique_<CH8>();
+        return std::make_unique<H8>();
     }
     if (type == "Q4_AX") {
-        return make_unique_<CQ4_AX>();
+        return std::make_unique<Q4_AX>();
     }
     return nullptr;
 }
 
-std::unique_ptr<CMaterial> CreateMaterialByString(const std::string &type) {
-    if (type == "bar") return make_unique_<CBarMaterial>();
-    if (type == "plane_stress") return make_unique_<CPlaneStressMaterial>();
-    if (type == "plane_strain") return make_unique_<CPlaneStrainMaterial>();
-    if (type == "solid3d") return make_unique_<CSolid3DMaterial>();
-    if (type == "axisym") return make_unique_<CAxisymMaterial>();
+std::unique_ptr<Material> CreateMaterialByString(const std::string &type) {
+    if (type == "bar") return std::make_unique<BarMaterial>();
+    if (type == "plane_stress") return std::make_unique<PlaneStressMaterial>();
+    if (type == "plane_strain") return std::make_unique<PlaneStrainMaterial>();
+    if (type == "solid3d") return std::make_unique<Solid3DMaterial>();
+    if (type == "axisym") return std::make_unique<AxisymMaterial>();
     return nullptr;
 }

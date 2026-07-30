@@ -2,14 +2,14 @@
 #include "DenseMatrix.h"
 #include "Node.h"
 #include "Element/Q4.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 // 使用一个梯形单元（畸变的 Q4）
 // 施加沿 x 方向的纯应变场 u = ε·x, v = 0
 // 期望：ε_xx = ε 常数，ε_yy = 0，γ_xy = 0
 //
 // 这个测试如果 Jacobian 转置错了会挂
 TEST(Q4Distorted, PureStrainOnTrapezoid) {
-    std::vector<CNode> nodes;
+    std::vector<Node> nodes;
     // 梯形：底边 [0,2]，顶边 [0.3, 1.7]
     nodes.emplace_back(0.0, 0.0, 0.0);
     nodes.emplace_back(2.0, 0.0, 0.0);
@@ -17,11 +17,11 @@ TEST(Q4Distorted, PureStrainOnTrapezoid) {
     nodes.emplace_back(0.3, 1.0, 0.0);
     for (unsigned int i = 0; i < 4; ++i) nodes[i].Index = i + 1;
     
-    auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
+    auto mat = std::unique_ptr<PlaneStressMaterial>(new PlaneStressMaterial());
     mat->E = 1.0; mat->nu = 0.0; mat->thk = 1.0;
     
-    auto elem = std::unique_ptr<CQ4>(new CQ4());
-    std::vector<CNode*> nps = {&nodes[0], &nodes[1], &nodes[2], &nodes[3]};
+    auto elem = std::unique_ptr<Q4>(new Q4());
+    std::vector<Node*> nps = {&nodes[0], &nodes[1], &nodes[2], &nodes[3]};
     elem->SetupForTesting(nps, mat.get());
     elem->InitializeIntegrationPoints();
     

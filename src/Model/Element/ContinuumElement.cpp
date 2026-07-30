@@ -5,12 +5,12 @@
 #include <cmath>
 #include <stdexcept>
 #include "../Node.h"
-#include "CContinuumElement.h"
+#include "ContinuumElement.h"
 #include "../Material/Material.h"
 
 // 计算雅可比矩阵
 // Jac_ij = (ax/axi) = x_iI o (aN_I/axi)_jI
-void CContinuumElement::ComputeJacobian(const DenseMatrix<double>& dN_dxi,
+void ContinuumElement::ComputeJacobian(const DenseMatrix<double>& dN_dxi,
     const DenseMatrix<double> &nodeCoords, DenseMatrix<double> &jacobian) const {
     jacobian.Resize(NDim_, NDim_);
     jacobian.SetZero();
@@ -22,7 +22,7 @@ void CContinuumElement::ComputeJacobian(const DenseMatrix<double>& dN_dxi,
 
 // 计算雅可比矩阵的逆以及行列式
 // (Jac^-1)_ij detJac
-double CContinuumElement::ComputeInverseJacobian(const DenseMatrix<double> &jacobian,
+double ContinuumElement::ComputeInverseJacobian(const DenseMatrix<double> &jacobian,
     DenseMatrix<double> &invJacobian) const {
     double detJ = jacobian.Determinant();
     if (std::abs(detJ) < 1e-12) {
@@ -34,7 +34,7 @@ double CContinuumElement::ComputeInverseJacobian(const DenseMatrix<double> &jaco
 
 // 计算形函数的全局导数
 // dN_I/dx_i = dN_I/dxi_j * (Jac^-1)_ji
-void CContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_dxi,
+void ContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_dxi,
                               const DenseMatrix<double>& invJacobian,
                               DenseMatrix<double>& dN_dx) const {
     dN_dx.SetZero();
@@ -48,7 +48,7 @@ void CContinuumElement::ComputeGlobalDerivatives(const DenseMatrix<double>& dN_d
 }
 
 // 预先计算一个积分点处所有信息，在所有积分点处循环调用，进而形成积分点处的所有信息
-void CContinuumElement::ComputeIntegrationPointData(
+void ContinuumElement::ComputeIntegrationPointData(
     const std::vector<double>& xi,
     double weight,
     const DenseMatrix<double>& nodeCoords,
@@ -71,7 +71,7 @@ void CContinuumElement::ComputeIntegrationPointData(
 }
 
 // 计算B矩阵
-void CContinuumElement::ComputeBMatrix(unsigned int ip,
+void ContinuumElement::ComputeBMatrix(unsigned int ip,
     DenseMatrix<double>& B) const {
     // 引用语法
     const auto& dN_dx = integrationPoints_[ip].dN_dx;
@@ -102,7 +102,7 @@ void CContinuumElement::ComputeBMatrix(unsigned int ip,
 // 循环调用ComputeIntegrationPointData形成单元所有积分点处的信息，
 // 包括形函数，全局导数，雅可比行列*权重，体积
 // 初始一次性形成，后续计算刚度矩阵，体力，约束力时直接使用
-void CContinuumElement::InitializeIntegrationPoints() {
+void ContinuumElement::InitializeIntegrationPoints() {
     if (integrationPointsCached_) {
         return;
     }
@@ -132,7 +132,7 @@ void CContinuumElement::InitializeIntegrationPoints() {
                                     nodeCoords, integrationPoints_[i]);
     }
     volume_ = 0.0;
-    CMaterial* mat = GetElementMaterial();
+    Material* mat = GetElementMaterial();
     double thk = 1.0;
     if (mat) { // 单元正常作为体元的分支
         for (unsigned int ip = 0; ip < nGp; ip++) {
@@ -148,9 +148,9 @@ void CContinuumElement::InitializeIntegrationPoints() {
 }
 
 // Ke = B^T o D o B * detJac * W_I
-void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
+void ContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
     Ke.SetZero();
-    CMaterial* mat = GetElementMaterial();
+    Material* mat = GetElementMaterial();
     unsigned int numStrain = GetNumStrainComponents();
     DenseMatrix<double> D(numStrain, numStrain);
     mat->ComputeElasticMatrix(D);
@@ -169,9 +169,9 @@ void CContinuumElement::ElementStiffness(DenseMatrix<double> &Ke) const {
 
 // 体载转化为点载荷并写入节点中
 // Fext_I = N_I o b * rho * detJac * W_J
-void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
+void ContinuumElement::CalculateBodyForce(const double *bodyForce) {
     // 单元的基本材料参数
-    CMaterial* mat = GetElementMaterial();
+    Material* mat = GetElementMaterial();
     double rho = mat->rho;
     if (std::abs(rho) < 1.0e-12) return;
     // 积分点缓存变量
@@ -193,7 +193,7 @@ void CContinuumElement::CalculateBodyForce(const double *bodyForce) {
 }
 
 // epsilon = B o u
-std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned int ip) const {
+std::vector<double> ContinuumElement::ComputeStrainAtIntegrationPoint(unsigned int ip) const {
     unsigned int numStrain = GetNumStrainComponents();
     DenseMatrix<double> B(numStrain, ND_);
     ComputeBMatrix(ip, B);
@@ -211,7 +211,7 @@ std::vector<double> CContinuumElement::ComputeStrainAtIntegrationPoint(unsigned 
     return strain;
 }
 
-std::vector<double> CContinuumElement::ComputeStressAtIntegrationPoint(unsigned int ip) const {
+std::vector<double> ContinuumElement::ComputeStressAtIntegrationPoint(unsigned int ip) const {
     unsigned int numStrain = GetNumStrainComponents();
     std::vector<double> strain(numStrain, 0.0);
     strain = ComputeStrainAtIntegrationPoint(ip);
@@ -221,7 +221,7 @@ std::vector<double> CContinuumElement::ComputeStressAtIntegrationPoint(unsigned 
 }
 
 // (NEN_ x nGp)，默认简单平均
-DenseMatrix<double> CContinuumElement::GetExprapolationMatrix() const {
+DenseMatrix<double> ContinuumElement::GetExtrapolationMatrix() const {
     const unsigned int nGp = GetNumIntegrationPoints();
     DenseMatrix<double> E(NEN_, nGp);
     for (unsigned int i = 0; i < NEN_; i++) {
@@ -232,7 +232,7 @@ DenseMatrix<double> CContinuumElement::GetExprapolationMatrix() const {
     return E;
 }
 
-void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> > &nodalStress) const {
+void ContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> > &nodalStress) const {
     // 积分点个数，应力分量数目
     const unsigned int nGp = GetNumIntegrationPoints();
     const unsigned int numStrain = GetNumStrainComponents();
@@ -242,7 +242,7 @@ void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> 
         gpStress[i] = ComputeStressAtIntegrationPoint(i);
     }
     // 外推矩阵
-    DenseMatrix<double> E = GetExprapolationMatrix();
+    DenseMatrix<double> E = GetExtrapolationMatrix();
     // 初始化输出
     nodalStress.assign(NEN_, std::vector<double>(numStrain, 0.0));
     // 逐节点，逐分量外推应力
@@ -258,7 +258,7 @@ void CContinuumElement::ExtrapolatStressToNodes(std::vector<std::vector<double> 
 }
 
 // 返回单元所有积分点处的位置
-DenseMatrix<double> CContinuumElement::GetIntegrationPointPositions() const {
+DenseMatrix<double> ContinuumElement::GetIntegrationPointPositions() const {
     const unsigned int nGp = GetNumIntegrationPoints();
     DenseMatrix<double> pos(NDim_, nGp);
     pos.SetZero();
@@ -274,7 +274,7 @@ DenseMatrix<double> CContinuumElement::GetIntegrationPointPositions() const {
 }
 
 // 返回所有积分点处的应力(nGp,nComp)
-std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses() const {
+std::vector<std::vector<double> > ContinuumElement::GetIntegrationPointStresses() const {
     const unsigned int nGp = GetNumIntegrationPoints();
     const unsigned int numStrain = GetNumStrainComponents();
     std::vector<std::vector<double>> stress(nGp, std::vector<double>(numStrain, 0.0));
@@ -284,7 +284,7 @@ std::vector<std::vector<double> > CContinuumElement::GetIntegrationPointStresses
     return stress;
 }
 
-double CContinuumElement::GetRepresentativeStress() const {
+double ContinuumElement::GetRepresentativeStress() const {
     // 将所有积分点的miss应力平均
     unsigned int nGp = GetNumIntegrationPoints();
     unsigned int numStrain = GetNumStrainComponents();
@@ -311,7 +311,7 @@ double CContinuumElement::GetRepresentativeStress() const {
 }
 
 // r = sum N_I xi_I
-double CContinuumElement::GetRadiusAtIntegrationPoint(unsigned int ip) const {
+double ContinuumElement::GetRadiusAtIntegrationPoint(unsigned int ip) const {
     const std::vector<double> N = integrationPoints_[ip].N;
     double radius = 0.0;
     for (unsigned int I = 0; I < NEN_; I++) {

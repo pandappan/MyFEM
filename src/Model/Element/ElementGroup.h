@@ -16,9 +16,9 @@
 #include "json.hpp"
 #include "../../Core/Types.h"
 
-class CNode;
-class CElement;
-class CMaterial;
+class Node;
+class Element;
+class Material;
 class Model;
 using json = nlohmann::json;
 
@@ -27,7 +27,7 @@ using json = nlohmann::json;
 class CElementGroup {
 private:
     ElementTypes type_ = ElementTypes::UNDEFINED;
-    std::vector<std::unique_ptr<CElement>> elements_;
+    std::vector<std::unique_ptr<Element>> elements_;
 public:
     CElementGroup();
     ~CElementGroup();
@@ -40,12 +40,12 @@ public:
     // 初始化group信息
     void SetGroupsInfo(ElementTypes elemType, unsigned int num);
     // 加入group的单元
-    void AddElement(std::unique_ptr<CElement> elem);
-    CElement& GetElement(unsigned int i) { return *elements_[i]; }
-    const CElement& GetElement(unsigned int i) const { return *elements_[i]; }
+    void AddElement(std::unique_ptr<Element> elem);
+    Element& GetElement(unsigned int i) { return *elements_[i]; }
+    const Element& GetElement(unsigned int i) const { return *elements_[i]; }
     ElementTypes GetElementType() const { return type_; }
     unsigned int GetNUME() const {return elements_.size();}
     // 测试入口
     void SetTypeForTesting(ElementTypes t) { type_ = t; }
-    void AddElementForTesting(std::unique_ptr<CElement> elem);
+    void AddElementForTesting(std::unique_ptr<Element> elem);
 };

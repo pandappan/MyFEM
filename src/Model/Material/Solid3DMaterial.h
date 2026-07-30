@@ -5,13 +5,13 @@
 #include <iostream>
 #include "Material.h"
 
-class CSolid3DMaterial : public CMaterial {
+class Solid3DMaterial : public Material {
 public:
-    CSolid3DMaterial();
+    Solid3DMaterial();
     void Write(std::ostream& Output) const override;
 
     unsigned int GetNumStressComponents() const override {return 6;};
 
     void ComputeElasticMatrix(DenseMatrix<double>& D) const override;
-    MaterialCategory GetCateogory() const override;
+    MaterialCategory GetCategory() const override;
 };

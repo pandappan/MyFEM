@@ -4,7 +4,7 @@
 #include "Material.h"
 #include "../../Core/DenseMatrix.h"
 
-void CMaterial::ComputeStress(const std::vector<double>& strain, std::vector<double>& stress) const {
+void Material::ComputeStress(const std::vector<double>& strain, std::vector<double>& stress) const {
     unsigned int nComp = GetNumStressComponents();
     DenseMatrix<double> D(nComp, nComp);
     ComputeElasticMatrix(D);

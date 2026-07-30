@@ -8,7 +8,7 @@
 #include "../Model/Node.h"
 #include "../Model/Element/Element.h"
 #include "../Model/Element/ElementGroup.h"
-#include "../Model/Element/CContinuumElement.h"
+#include "../Model/Element/ContinuumElement.h"
 #include "../Core/Types.h"
 
 namespace {
@@ -255,7 +255,7 @@ bool VtuExporter::ExportGaussPoints(const std::string& fileName,
     for (const auto& g : model.groups) {
         for (unsigned int e = 0; e < g.GetNUME(); ++e) {
             const auto& elem = g.GetElement(e);
-            const auto* c    = dynamic_cast<const CContinuumElement*>(&elem);
+            const auto* c    = dynamic_cast<const ContinuumElement*>(&elem);
             if (!c) continue;
 
             auto positions = c->GetIntegrationPointPositions();

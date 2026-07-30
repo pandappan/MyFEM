@@ -7,26 +7,26 @@
 #include "Q4.h"
 #include "../Node.h"
 #include "../Material/Material.h"
-#include "CContinuumElement.h"
+#include "ContinuumElement.h"
 #include "ElementGroup.h"
 
-const DOFIndex CQ4::ActiveDOFs[2] = {UX, UY};
-const unsigned int CQ4::NumActiveDOFsPerNode = 2;
+const DOFIndex Q4::ActiveDOFs[2] = {UX, UY};
+const unsigned int Q4::NumActiveDOFsPerNode = 2;
 // 构造函数
-CQ4::CQ4() {
+Q4::Q4() {
     AllocateStorage(2,4,8);
 }
 
 // Q4作为面元时，只需要节点数据便可进行初始化
 // 只传入节点指针数组，材料数组保持为空，无需生成方程号，初始化积分点处数据，供等效面力使用
-void CQ4::AsFaceElem(const std::vector<CNode*> &nodelist) {
+void Q4::AsFaceElem(const std::vector<Node*> &nodelist) {
     for (int i = 0; i < 4; i++) {
         nodes_[i] = nodelist[i];
     }
     InitializeIntegrationPoints();
 }
 
-void CQ4::Write(std::ostream& Output) const {
+void Q4::Write(std::ostream& Output) const {
     Output << std::setw(6) << ElementNumber_;
     for (unsigned int i = 0; i < 4; i++) {
         Output << std::setw(6) << nodes_[i]->Index;
@@ -34,7 +34,7 @@ void CQ4::Write(std::ostream& Output) const {
     Output << std::setw(6) << ElementMaterial_->nset << std::endl;
 }
 
-void CQ4::WriteElementStress(std::ostream& out) const {
+void Q4::WriteElementStress(std::ostream& out) const {
     for (unsigned int ip = 0; ip < GetNumIntegrationPoints(); ++ip) {
         auto stress = ComputeStressAtIntegrationPoint(ip);
         out << std::setw(6) << ElementNumber_
@@ -44,7 +44,7 @@ void CQ4::WriteElementStress(std::ostream& out) const {
     }
 }
 
-GaussData CQ4::GetIntegrationPoint() const {
+GaussData Q4::GetIntegrationPoint() const {
     GaussData g;
     g.GaussWeights.assign(4,1.0);
     g.GaussPoints.Resize(4,2);
@@ -56,7 +56,7 @@ GaussData CQ4::GetIntegrationPoint() const {
     return g;
 }
 
-void CQ4::ComputeShapeFunctions(const std::vector<double>& xi,
+void Q4::ComputeShapeFunctions(const std::vector<double>& xi,
     std::vector<double>& N) const {
     N[0] = 0.25 * (1.0 - xi[0]) * (1.0 - xi[1]);
     N[1] = 0.25 * (1.0 + xi[0]) * (1.0 - xi[1]);
@@ -64,7 +64,7 @@ void CQ4::ComputeShapeFunctions(const std::vector<double>& xi,
     N[3] = 0.25 * (1.0 - xi[0]) * (1.0 + xi[1]);
 }
 
-void CQ4::ComputeShapeDerivatives(const std::vector<double>& xi,
+void Q4::ComputeShapeDerivatives(const std::vector<double>& xi,
     DenseMatrix<double>& dN_dxi) const {
     // dN_I/dxi_i
     dN_dxi(0,0) = - 0.25 * (1.0 - xi[1]);
@@ -79,7 +79,7 @@ void CQ4::ComputeShapeDerivatives(const std::vector<double>& xi,
 }
 
 // faceID: 0基
-bool CQ4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
+bool Q4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
     // 面局部节点
     std::vector<int> nodesLocalID = GetFaceNodesLocalID(faceID);
     double x1 = nodes_[nodesLocalID[0]]->XYZ[0];
@@ -107,7 +107,7 @@ bool CQ4::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double val
 }
 
 // FaceID: 0基
-std::vector<int> CQ4::GetFaceNodesLocalID(unsigned int faceID) const {
+std::vector<int> Q4::GetFaceNodesLocalID(unsigned int faceID) const {
     // Q4 face convention (0-based, CCW):
     //   face 0: N1(0) -> N2(1)  (bottom)
     //   face 1: N2(1) -> N3(2)  (right)
@@ -125,7 +125,7 @@ std::vector<int> CQ4::GetFaceNodesLocalID(unsigned int faceID) const {
     return nodesLocalID;
 }
 
-void CQ4::GetVisualizationNodes(DenseMatrix<double>& coords) const {
+void Q4::GetVisualizationNodes(DenseMatrix<double>& coords) const {
     coords.Resize(2,NEN_);
     for (unsigned int i = 0; i < NEN_; i++) {
         coords(0,i) = nodes_[i]->XYZ[0];
@@ -134,7 +134,7 @@ void CQ4::GetVisualizationNodes(DenseMatrix<double>& coords) const {
 }
 
 //! 返回节点变形坐标
-void CQ4::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const {
+void Q4::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const {
     deformeCoords.Resize(2, NEN_);
     for (unsigned int i = 0; i < NEN_; i++) {
         deformeCoords(0,i) = nodes_[i]->XYZ[0] + nodes_[i]->displacement[0];
@@ -143,7 +143,7 @@ void CQ4::GetVisualizationDeformeNodes(DenseMatrix<double>& deformeCoords) const
 }
 
 //! 单元外推矩阵
-DenseMatrix<double> CQ4::GetExprapolationMatrix() const {
+DenseMatrix<double> Q4::GetExtrapolationMatrix() const {
     DenseMatrix<double> E(4,4);
     const double sqrt3 = 1.7320508075688772;
     const double a = 1.0 + sqrt3 / 2.0;      // ≈ 1.866
@@ -156,7 +156,7 @@ DenseMatrix<double> CQ4::GetExprapolationMatrix() const {
     return E;
 }
 
-MaterialCategory CQ4::GetRequiredMaterial() const {
+MaterialCategory Q4::GetRequiredMaterial() const {
     if (elementType_ == ElementTypes::Q4_PE) return MaterialCategory::MechanicalPlaneStrain;
     if (elementType_ == ElementTypes::Q4_PS) return MaterialCategory::MechanicalPlaneStress;
     return MaterialCategory::UNDEFINED;

@@ -6,28 +6,28 @@
 #include "JsonReader.h"
 #include "Material/Material.h"
 #include "Material/BarMaterial.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 #include "Material/PlaneStrainMaterial.h"
 #include "ElementFactory.h"
 #include "Element/Element.h"
 #include "Model.h"
 
 namespace {
-    void FillMaterialParms(CMaterial* mat, const json& matJson) {
+    void FillMaterialParms(Material* mat, const json& matJson) {
         // ! 通用数据
         mat->rho = matJson.value("rho",0.0);
         mat->E = matJson.at("E").get<double>();
         // 杆独有
         if (mat->matType == MaterialCategory::Mechanical1D) {
             mat->nu = 0.0;
-            dynamic_cast<CBarMaterial*>(mat)->Area = matJson.value("area",1.0);
+            dynamic_cast<BarMaterial*>(mat)->Area = matJson.value("area",1.0);
         } else {
             // 连续介质单元
             mat->nu = matJson.at("nu").get<double>();
             if (mat->matType == MaterialCategory::MechanicalPlaneStress) {
-                dynamic_cast<CPlaneStressMaterial*>(mat)->thk = matJson.value("thk",1.0);
+                dynamic_cast<PlaneStressMaterial*>(mat)->thk = matJson.value("thk",1.0);
             } else if (mat->matType == MaterialCategory::MechanicalPlaneStrain) {
-                dynamic_cast<CPlaneStrainMaterial*>(mat)->thk = matJson.value("thk",1.0);
+                dynamic_cast<PlaneStrainMaterial*>(mat)->thk = matJson.value("thk",1.0);
             }
         }
     }
@@ -175,7 +175,7 @@ bool JsonReader::ParseNodes(const json &j, Model &model) {
         XYZ[0] = nodeJson.at("x").get<double>();
         XYZ[1] = nodeJson.at("y").get<double>();
         XYZ[2] = nodeJson.value("z", 0.0);
-        CNode node;
+        Node node;
         // 设置节点基本信息
         node.SetGeom(nodeId_0, XYZ);
         model.nodes.push_back(node);
@@ -232,7 +232,7 @@ bool JsonReader::ParseElementGroups(const json &j, Model &model) {
         if (matId_0 >= model.materials.size()) {
             throw std::runtime_error("ParseElementGroups: Invalid material reference " + std::to_string(matId_0));
         }
-        CMaterial* matPtr = model.materials[matId_0].get();
+        Material* matPtr = model.materials[matId_0].get();
         CElementGroup& group = model.groups[idxGroup];
         group.SetGroupsInfo(elemType,g.at("elements").size());
         // 初始化组内单元信息
@@ -245,7 +245,7 @@ bool JsonReader::ParseElementGroups(const json &j, Model &model) {
                 throw std::runtime_error("Error: Could not create element \"" + elemString + "\"");
             }
             // 检查材料的兼容性
-            if (elem->GetRequiredMaterial() != matPtr->GetCateogory()) {
+            if (elem->GetRequiredMaterial() != matPtr->GetCategory()) {
                 throw std::runtime_error("Material incompatible with element type");
             }
             // 单元基础信息，单元积分点信息

@@ -9,9 +9,9 @@
 
 class Bar3DAxialFixture : public ::testing::Test {
 protected:
-    std::vector<CNode> nodes_;
-    std::unique_ptr<CBarMaterial> mat_;
-    std::unique_ptr<CBar3D> elem_;
+    std::vector<Node> nodes_;
+    std::unique_ptr<BarMaterial> mat_;
+    std::unique_ptr<Bar3D> elem_;
 
     static constexpr double E_    = 1000.0;
     static constexpr double A_    = 2.0;
@@ -25,14 +25,14 @@ protected:
         nodes_[1].Index = 1;
 
         // 材料
-        mat_.reset(new CBarMaterial());
+        mat_.reset(new BarMaterial());
         mat_->nset = 1;
         mat_->E    = E_;
         mat_->Area = A_;
 
         // 单元
-        elem_.reset(new CBar3D());
-        std::vector<CNode*> nodePtrs = {&nodes_[0], &nodes_[1]};
+        elem_.reset(new Bar3D());
+        std::vector<Node*> nodePtrs = {&nodes_[0], &nodes_[1]};
         elem_->SetupForTesting(nodePtrs, mat_.get());
     }
 };

@@ -6,9 +6,9 @@
 #include "Material/Solid3DMaterial.h"
 class H8UnitCubeFixture : public ::testing::Test {
 protected:
-    std::vector<CNode> nodes_;
-    std::unique_ptr<CSolid3DMaterial> mat_;
-    std::unique_ptr<CH8> elem_;
+    std::vector<Node> nodes_;
+    std::unique_ptr<Solid3DMaterial> mat_;
+    std::unique_ptr<H8> elem_;
     
     void SetUp() override {
         // 单位立方体：8 个节点
@@ -23,14 +23,14 @@ protected:
         for (unsigned int i = 0; i < 8; ++i)
             nodes_[i].Index = i;
         
-        mat_.reset(new CSolid3DMaterial());
+        mat_.reset(new Solid3DMaterial());
         mat_->nset = 1;
         mat_->E    = 1000.0;
         mat_->nu   = 0.3;
         mat_->rho  = 0.0;
         
-        elem_.reset(new CH8());
-        std::vector<CNode*> nps;
+        elem_.reset(new H8());
+        std::vector<Node*> nps;
         for (auto& n : nodes_) nps.push_back(&n);
         elem_->SetupForTesting(nps, mat_.get());
         elem_->InitializeIntegrationPoints();
@@ -74,7 +74,7 @@ TEST_F(H8UnitCubeFixture, RigidBodyTranslation) {
 
 // 外推矩阵行和为1
 TEST_F(H8UnitCubeFixture, ExtrapolationMatrixRowSumIsOne) {
-    const DenseMatrix<double>& E = elem_->GetExprapolationMatrix();
+    const DenseMatrix<double>& E = elem_->GetExtrapolationMatrix();
     for (unsigned int i = 0; i < 8; ++i) {
         double rowTotal = 0.0;
         for (unsigned int j = 0; j < 8; ++j) {
@@ -86,7 +86,7 @@ TEST_F(H8UnitCubeFixture, ExtrapolationMatrixRowSumIsOne) {
 
 // -------- 均匀 GP 应力外推后节点应力也均匀 --------
 TEST_F(H8UnitCubeFixture, UniformStressExtrapolatesToSameValue) {
-    auto E = elem_->GetExprapolationMatrix();
+    auto E = elem_->GetExtrapolationMatrix();
     // 给 8 个 GP 都赋 σ = 100
     // 每个节点值 = Σ_gp E[node, gp] · 100 = 100 · (行和=1) = 100
     for (unsigned int i = 0; i < 8; ++i) {

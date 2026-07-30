@@ -4,7 +4,7 @@
 
 TEST(Q4FaceMapping, AllFourFacesMapCorrectly) {
     // Directly call the mapping function (make it public or friend)
-    CQ4 q4;
+    Q4 q4;
     // 设置4个哑节点
 
     auto face0 = q4.GetFaceNodesLocalID(0);
@@ -25,7 +25,7 @@ TEST(Q4FaceMapping, AllFourFacesMapCorrectly) {
 }
 
 TEST(Q4FaceMapping, InvalidFaceThrows) {
-    CQ4 q4;
+    Q4 q4;
     EXPECT_THROW(q4.GetFaceNodesLocalID(4), std::out_of_range);
     EXPECT_THROW(q4.GetFaceNodesLocalID(99), std::out_of_range);
 }

@@ -8,12 +8,12 @@
 #include "../../Core/DenseMatrix.h"
 
 
-CBarMaterial::CBarMaterial() {
+BarMaterial::BarMaterial() {
     matType = MaterialCategory::Mechanical1D;
 }
 
 //!	Write material data to Stream
-void CBarMaterial::Write(std::ostream& output) const {
+void BarMaterial::Write(std::ostream& output) const {
     output << std::setw(6) << rho
     << std::setw(6) << E
     << std::setw(6) << Area
@@ -21,14 +21,14 @@ void CBarMaterial::Write(std::ostream& output) const {
 }
 
 //  应力分量个数
-unsigned int CBarMaterial::GetNumStressComponents() const {return 1;}
+unsigned int BarMaterial::GetNumStressComponents() const {return 1;}
 
 //  弹性矩阵
-void CBarMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const {
+void BarMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const {
     D.SetZero();
     D(0,0) = E;
 }
 
-MaterialCategory CBarMaterial::GetCateogory() const {
+MaterialCategory BarMaterial::GetCategory() const {
     return MaterialCategory::Mechanical1D;
 }

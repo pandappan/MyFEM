@@ -1,13 +1,3 @@
-/*****************************************************************************/
-/*  STAP++ : A C++ FEM code sharing the same input data file with STAP90     */
-/*     Computational Dynamics Laboratory                                     */
-/*     School of Aerospace Engineering, Tsinghua University                  */
-/*                                                                           */
-/*     Release 1.11, November 22, 2017                                       */
-/*                                                                           */
-/*     http://www.comdyn.cn/                                                 */
-/*****************************************************************************/
-
 #pragma once
 #include <array>
 #include <cassert>
@@ -19,7 +9,7 @@
 
 class Writer;
 //!	Node class
-class CNode
+class Node
 {
 public:
 
@@ -52,7 +42,7 @@ public:
 	double stressWieghts = 0.0;
 
 //!	Constructor
-	CNode(double X = 0.0, double Y = 0.0, double Z = 0.0);
+	Node(double X = 0.0, double Y = 0.0, double Z = 0.0);
 
 //! 网格几何基础信息设置
 // 设置几何信息
@@ -107,7 +97,7 @@ public:
 
 //	Output nodal point data to stream
 template <class Stream>
-void CNode::Write(Stream& output, unsigned int dimension) const
+void Node::Write(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	if (dimension == 2) {
@@ -123,7 +113,7 @@ void CNode::Write(Stream& output, unsigned int dimension) const
 
 //	Output equation numbers of nodal point to stream
 template <class Stream>
-void CNode::WriteEquationNo(Stream& output, unsigned int dimension) const
+void Node::WriteEquationNo(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	output << std::setw(9) << Index << "       ";
@@ -137,7 +127,7 @@ void CNode::WriteEquationNo(Stream& output, unsigned int dimension) const
 
 //	Write nodal displacement
 template <class Stream>
-void CNode::WriteNodalDisplacement(Stream& output, unsigned int dimension) const
+void Node::WriteNodalDisplacement(Stream& output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	output << std::setw(6) << Index << "        ";
@@ -169,7 +159,7 @@ void CNode::WriteNodalDisplacement(Stream& output, unsigned int dimension) const
 }
 
 template <class Stream>
-void CNode::WriteNodeForces(Stream &output, unsigned int dimension) const
+void Node::WriteNodeForces(Stream &output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	output << std::setw(6) << Index << "        ";
@@ -184,7 +174,7 @@ void CNode::WriteNodeForces(Stream &output, unsigned int dimension) const
 }
 
 template <class Stream>
-void CNode::WriteNodeBCForces(Stream &output, unsigned int dimension) const
+void Node::WriteNodeBCForces(Stream &output, unsigned int dimension) const
 {
 	assert(dimension == 2 || dimension == 3);
 	output << std::setw(6) << Index << "        ";

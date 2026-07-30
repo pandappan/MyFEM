@@ -6,18 +6,18 @@
 #include "Solid3DMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-CSolid3DMaterial::CSolid3DMaterial() {
+Solid3DMaterial::Solid3DMaterial() {
     matType = MaterialCategory::MechanicalSolid;
 }
 
-void CSolid3DMaterial::Write(std::ostream& Output) const {
+void Solid3DMaterial::Write(std::ostream& Output) const {
     Output << std::setw(6)  << rho
     << std::setw(6) << E
     << std::setw(6) << nu
     << std::endl;
 }
 
-void CSolid3DMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
+void Solid3DMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
     D.SetZero();
     double factor = E / ((1.0 + nu) * (1.0 - 2.0 * nu));
     double c1 = factor * (1.0 - nu);
@@ -30,6 +30,6 @@ void CSolid3DMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
     D(3,3)=c3; D(4,4)=c3; D(5,5)=c3;
 }
 
-MaterialCategory CSolid3DMaterial::GetCateogory() const {
+MaterialCategory Solid3DMaterial::GetCategory() const {
     return MaterialCategory::MechanicalSolid;
 }

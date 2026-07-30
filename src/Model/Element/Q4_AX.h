@@ -4,7 +4,7 @@
 #pragma once
 #include "Q4.h"
 
-class CQ4_AX : public CQ4{
+class Q4_AX : public Q4{
 protected:
     void ComputeBMatrix(unsigned int ip, DenseMatrix<double> &B) const override;
     double GetIntegrationVolumeFactor(unsigned int ip) const override;

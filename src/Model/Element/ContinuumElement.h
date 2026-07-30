@@ -18,7 +18,7 @@ struct GaussData {
     DenseMatrix<double> GaussPoints;
 };
 // 连续介质单元基类
-class CContinuumElement : public CElement {
+class ContinuumElement : public Element {
 protected:
     struct IntegrationPointData {
         // 形函数
@@ -31,7 +31,7 @@ protected:
     std::vector<IntegrationPointData> integrationPoints_;
     bool integrationPointsCached_ = false;
     // 单元的外推矩阵，如果没有特殊外推矩阵，则取各节点取积分平均值
-    virtual DenseMatrix<double> GetExprapolationMatrix() const;
+    virtual DenseMatrix<double> GetExtrapolationMatrix() const;
     // 单元积分体积因子 dv = factor * detJ_times_weights
     // 3D = 1, 2D = thickness, axisym = 2 pi * r(ip)
     virtual double GetIntegrationVolumeFactor(unsigned int ip) const {

@@ -4,7 +4,7 @@
 
 #pragma once
 #include <vector>
-class CElement;
+class Element;
 class Model;
 struct LocalDofExpansion {
     unsigned int globalEqn; // 1基全局方程号
@@ -32,9 +32,9 @@ public:
     // 从约束方程中计算从自由度的约束位移
     static void RecoverSlaveDisplacement(Model& model);
     // 单元展开后实际涉及的所有全局方程号（用于 skyline 列高）
-    static std::vector<unsigned int> GetEffectiveEquations(const CElement& element,
+    static std::vector<unsigned int> GetEffectiveEquations(const Element& element,
                                                            const Model& model);
-    static DofExpansion GetLocalDofExpansion(const CElement& element,
+    static DofExpansion GetLocalDofExpansion(const Element& element,
         unsigned int localDof, const Model& model);
 };
 

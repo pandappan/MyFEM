@@ -1,13 +1,3 @@
-/*****************************************************************************/
-/*  STAP++ : A C++ FEM code sharing the same input data file with STAP90     */
-/*     Computational Dynamics Laboratory                                     */
-/*     School of Aerospace Engineering, Tsinghua University                  */
-/*                                                                           */
-/*     Release 1.11, November 22, 2017                                       */
-/*                                                                           */
-/*     http://www.comdyn.cn/                                                 */
-/*****************************************************************************/
-
 #pragma once
 #include <fstream>
 #include <vector>
@@ -19,7 +9,7 @@ class DenseMatrix;
 
 //!	Material base class which only define one data member
 /*!	All type of material classes should be derived from this base class */
-class CMaterial
+class Material
 {
 public:
 
@@ -30,9 +20,9 @@ public:
 	double rho;
 
 public:
-	CMaterial() : nset(0), matType(MaterialCategory::UNDEFINED), E(0.0), nu(0.0), rho(0.0){}
+	Material() : nset(0), matType(MaterialCategory::UNDEFINED), E(0.0), nu(0.0), rho(0.0){}
 //! Virtual deconstructor
-    virtual ~CMaterial() = default;
+    virtual ~Material() = default;
 
 //!	Write material data to Stream
     virtual void Write(std::ostream& output) const = 0;
@@ -45,6 +35,6 @@ public:
 	// 获取单元厚度
 	inline virtual double GetThickness() const { return 1.0; } // 默认厚度1
 	// 材料类型
-	virtual MaterialCategory GetCateogory() const = 0;
+	virtual MaterialCategory GetCategory() const = 0;
 };
 

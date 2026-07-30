@@ -28,10 +28,10 @@ void CElementGroup::SetGroupsInfo(ElementTypes elemType,unsigned int num) {
     elements_.reserve(num);
 }
 
-void CElementGroup::AddElement(std::unique_ptr<CElement> elem) {
+void CElementGroup::AddElement(std::unique_ptr<Element> elem) {
     elements_.push_back(std::move(elem));
 }
 
-void CElementGroup::AddElementForTesting(std::unique_ptr<CElement> elem) {
+void CElementGroup::AddElementForTesting(std::unique_ptr<Element> elem) {
     elements_.push_back(std::move(elem));
 }

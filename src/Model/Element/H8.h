@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include "CContinuumElement.h"
+#include "ContinuumElement.h"
 
-class CH8 : public CContinuumElement {
+class H8 : public ContinuumElement {
 private:
     // 静态成员变量，属于类本身的特性，不单独属于某个类，静态常量可以在类内定义，静态常量数组需要在类外定义
     static const DOFIndex ActiveDOFs[3];
@@ -10,7 +10,7 @@ private:
     static const int nodeSign_[8][3];
 public:
     // 构造函数
-    CH8();
+    H8();
 
     //!	Write element data to stream
     void Write(std::ostream& output) const override;
@@ -45,7 +45,7 @@ public:
     //! 获取局部节点编号
     std::vector<int> GetFaceNodesLocalID(unsigned int faceID) const;
     //! 单元外推矩阵
-    DenseMatrix<double> GetExprapolationMatrix() const override;
+    DenseMatrix<double> GetExtrapolationMatrix() const override;
     // 单元的材料类型
     MaterialCategory GetRequiredMaterial() const override;
 };

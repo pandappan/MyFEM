@@ -31,15 +31,15 @@ TEST(IntegrationTest, BarWithPrescribedDisplacement) {
     group.SetTypeForTesting(ElementTypes::Bar3D);
 
     // 材料
-    auto mat = std::unique_ptr<CBarMaterial>(new CBarMaterial());
+    auto mat = std::unique_ptr<BarMaterial>(new BarMaterial());
     mat->nset = 1;
     mat->E    = E;
     mat->Area = A;
     model.materials.push_back(std::move(mat));
 
     // 单元
-    auto elem = std::unique_ptr<CBar3D>(new CBar3D());
-    std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1]};
+    auto elem = std::unique_ptr<Bar3D>(new Bar3D());
+    std::vector<Node*> nodes = {&model.nodes[0], &model.nodes[1]};
     std::vector<unsigned int> connectivity = {0, 1};
     elem->SetElementInfo(0, model.materials[0].get(), connectivity, model.nodes);
     group.AddElement(std::move(elem));

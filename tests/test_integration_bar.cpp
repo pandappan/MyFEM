@@ -51,15 +51,15 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     group.SetTypeForTesting(ElementTypes::Bar3D);
 
     // 材料
-    auto mat = std::unique_ptr<CBarMaterial>(new CBarMaterial());
+    auto mat = std::unique_ptr<BarMaterial>(new BarMaterial());
     mat->nset = 1;
     mat->E    = E;
     mat->Area = A;
     model.materials.push_back(std::move(mat));
 
     // 单元
-    auto elem = std::unique_ptr<CBar3D>(new CBar3D());
-    std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1]};
+    auto elem = std::unique_ptr<Bar3D>(new Bar3D());
+    std::vector<Node*> nodes = {&model.nodes[0], &model.nodes[1]};
     std::vector<unsigned int> connectivity = {0,1,2,3};
     elem->SetElementInfo(0, model.materials[0].get(),connectivity,model.nodes);
     group.AddElement(std::move(elem));
@@ -95,7 +95,7 @@ TEST(IntegrationTest, BarAxialTension_UsingFullPipeline) {
     EXPECT_DOUBLE_EQ(model.nodes[0].displacement[UZ], 0.0);
 
     // 单元应力 = F/A
-    auto* bar = dynamic_cast<CBar3D*>(&model.groups[0].GetElement(0));
+    auto* bar = dynamic_cast<Bar3D*>(&model.groups[0].GetElement(0));
     ASSERT_NE(bar, nullptr);
     EXPECT_NEAR(bar->ElementStress(), expected_stress, 1e-4);
 

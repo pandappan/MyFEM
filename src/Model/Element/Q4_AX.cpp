@@ -6,7 +6,7 @@
 
 #include "Node.h"
 
-void CQ4_AX::ComputeBMatrix(unsigned int ip, DenseMatrix<double> &B) const {
+void Q4_AX::ComputeBMatrix(unsigned int ip, DenseMatrix<double> &B) const {
     B.SetZero();
     double radius = GetRadiusAtIntegrationPoint(ip);
     const auto& N = integrationPoints_[ip].N;
@@ -23,13 +23,13 @@ void CQ4_AX::ComputeBMatrix(unsigned int ip, DenseMatrix<double> &B) const {
     }
 }
 
-double CQ4_AX::GetIntegrationVolumeFactor(unsigned int ip) const {
+double Q4_AX::GetIntegrationVolumeFactor(unsigned int ip) const {
     return 2.0 * 3.14159265358979323846 * GetRadiusAtIntegrationPoint(ip);
 }
 
 // faceID: 0基
 // 面载荷：约定 value 是单位面积 traction（不含 2π·r）
-bool CQ4_AX::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
+bool Q4_AX::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
     // 面局部节点
     std::vector<int> nodesLocalID = GetFaceNodesLocalID(faceID);
     double x1 = nodes_[nodesLocalID[0]]->XYZ[0];
@@ -59,6 +59,6 @@ bool CQ4_AX::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double 
     return true;
 }
 
-MaterialCategory CQ4_AX::GetRequiredMaterial() const {
+MaterialCategory Q4_AX::GetRequiredMaterial() const {
     return MaterialCategory::MechanicalAxisym;
 }

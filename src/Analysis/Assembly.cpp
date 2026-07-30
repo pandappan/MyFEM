@@ -7,7 +7,7 @@
 #include "../Model/Element/Element.h"
 #include "../Model/Model.h"
 #include "../Core/DenseMatrix.h"
-#include "Element/CContinuumElement.h"
+#include "Element/ContinuumElement.h"
 #include "Material/Material.h"
 
 void Assembler::CalculateEquationNumber(Model& model) {
@@ -20,7 +20,7 @@ void Assembler::CalculateLocationMatrix(Model &model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
-            CElement& element = group.GetElement(e);
+            Element& element = group.GetElement(e);
             element.GenerateLocationMatrix();
         }
     }
@@ -31,18 +31,18 @@ void Assembler::AllocateLinearSystem(Model &model) {
     model.force.assign(model.neq, 0.0);
 
     // Create the banded stiffness matrix
-    model.K.reset(new CSkylineMatrix<double>(model.neq));
+    model.K.reset(new SkylineMatrix<double>(model.neq));
     // 计算列高
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
-            CElement& element = group.GetElement(e);
+            Element& element = group.GetElement(e);
             std::vector<unsigned int> eqs = GetEffectiveEquations(element, model);
             model.K->CalculateColumnHeight(eqs);
         }
     }
     model.K->CalculateMaximumHalfBandwidth();
-    model.K->CalculateDiagnoalAddress();
+    model.K->Diagonal();
     model.K->Allocate();
 }
 
@@ -58,7 +58,7 @@ void Assembler::InitializeElementMap(Model &model) {
     // 填充映射表值
     for (auto& group : model.groups) {
         for (unsigned int e = 0; e < group.GetNUME(); e++) {
-            CElement* elem = &(group.GetElement(e));
+            Element* elem = &(group.GetElement(e));
             unsigned int elemId_0 = elem->GetElementNumber();
             auto it = model.globalElementMap.find(elemId_0);
             if (it != model.globalElementMap.end()) {
@@ -73,7 +73,7 @@ void Assembler::InitializeElementMap(Model &model) {
 void Assembler::ConvertSLoadsToCLoads(Model &model) {
     // 循环所有面载荷，逐步转化为等效节点载荷，并存入节点中
     for (auto& sload: model.sloads) {
-        CElement* elem = model.globalElementMap[sload.elemId_0];
+        Element* elem = model.globalElementMap[sload.elemId_0];
         elem->CalculateSurfaceLoad(sload.faceId_0, sload.dof_0, sload.value);
     }
 }
@@ -89,7 +89,7 @@ void Assembler::ConvertBLoadsToCLoads(Model &model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
-            CElement& element = group.GetElement(e);
+            Element& element = group.GetElement(e);
             element.CalculateBodyForce(b);
         }
     }
@@ -113,7 +113,7 @@ void Assembler::AssembleForce(Model &model) {
                     int m = model.FindMPCBySlave(node.Index, d);
                     if (m < 0) break;
                     for (const auto& t : model.mpcs[m].masters) {
-                        const CNode& mn = model.nodes[t.node_0];
+                        const Node& mn = model.nodes[t.node_0];
                         if (mn.bcode[t.dof_0] == 0)   // 只有自由 master 进方程
                             model.force[mn.eqn[t.dof_0] - 1] += t.coeff * f;
                         // master 固定/指定位移：力落到约束上，算作反力，不进右端
@@ -134,7 +134,7 @@ void Assembler::AssembleStiffnessAndConstraintCorrection(Model &model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
-            CElement& element = group.GetElement(e);
+            Element& element = group.GetElement(e);
             unsigned int nd = element.GetND();
 
             // 单元刚度
@@ -181,7 +181,7 @@ void Assembler::CalculateNodalBCForce(Model &model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
-            CElement& element = group.GetElement(e);
+            Element& element = group.GetElement(e);
             element.CalculateBCForce();
         }
     }
@@ -194,7 +194,7 @@ void Assembler::CalculateNodalStress(Model& model) {
     for (auto& g : model.groups) {
         for (unsigned int e = 0; e < g.GetNUME(); e++) {
             if (g.GetNUME() > 0) {
-                const auto* c = dynamic_cast<const CContinuumElement*>(&g.GetElement(e));
+                const auto* c = dynamic_cast<const ContinuumElement*>(&g.GetElement(e));
                 if (c) {
                     nComp = c->GetElementMaterial()->GetNumStressComponents();
                     break;
@@ -214,9 +214,9 @@ void Assembler::CalculateNodalStress(Model& model) {
     for (auto& group : model.groups) {
         unsigned int nume = group.GetNUME();
         for (unsigned int e = 0; e < nume; e++) {
-            CElement& element = group.GetElement(e);
+            Element& element = group.GetElement(e);
             // 只有连续介质单元才需要外推
-            auto* continuum = dynamic_cast<CContinuumElement*>(&element);
+            auto* continuum = dynamic_cast<ContinuumElement*>(&element);
             if (!continuum) continue;
             // 面积权重
             double weight = continuum->GetVolume();
@@ -227,7 +227,7 @@ void Assembler::CalculateNodalStress(Model& model) {
             // 累加到全局节点
             const auto& elemNodes = continuum->GetNodes();
             for (unsigned int n = 0; n < elemNodes.size(); n++) {
-                CNode* node = elemNodes[n];
+                Node* node = elemNodes[n];
                 // 应力*权重
                 for (unsigned int c = 0; c < nComp; c++) {
                     node->stress[c] += weight * nodalStress[n][c];
@@ -258,7 +258,7 @@ void Assembler::RecoverSlaveDisplacement(Model &model) {
 
 // 局部自由度展开为全局自由度的线性组合+常数
 // 四种 bcode 对应变换矩阵 L 的一行 + g 的一个分量
-DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
+DofExpansion Assembler::GetLocalDofExpansion(const Element &element,
     unsigned int localDof, const Model &model) {
     DofExpansion result;
     // 局部自由度转化为(全局节点,全局分量)
@@ -266,7 +266,7 @@ DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
     const DOFIndex* dofs = element.GetActiveDOFs();
     unsigned int nodeIdx = localDof / ndof;
     unsigned int dof_0 = dofs[localDof % ndof];
-    const CNode* node = element.GetNodes()[nodeIdx];
+    const Node* node = element.GetNodes()[nodeIdx];
     switch (node->bcode[dof_0]) {
         case 0: // 自由：展开为自身，系数为1
             result.terms.push_back({node->eqn[dof_0],1.0});
@@ -285,7 +285,7 @@ DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
             const MPC& mpc = model.mpcs[mpcId];
             result.constant = mpc.beta;
             for (const auto& t: mpc.masters) {
-                const CNode& m = model.nodes[t.node_0];
+                const Node& m = model.nodes[t.node_0];
                 switch (m.bcode[t.dof_0]) {
                     case 0: // 主自由度为自由，正常进入系数中
                         result.terms.push_back({m.eqn[t.dof_0],t.coeff});
@@ -310,7 +310,7 @@ DofExpansion Assembler::GetLocalDofExpansion(const CElement &element,
 
 // 收集单元展开后会被写入 K 的全部全局方程号
 // 无 MPC 时等价于 LocationMatrix 的非零项
-std::vector<unsigned int> Assembler::GetEffectiveEquations(const CElement& element,
+std::vector<unsigned int> Assembler::GetEffectiveEquations(const Element& element,
     const Model& model) {
     std::vector<unsigned int> eqs;
     unsigned int nd = element.GetND();

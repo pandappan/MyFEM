@@ -7,11 +7,11 @@
 class ExpansionTest : public::testing::Test {
 protected:
     Model model;
-    CBar3D elem;
+    Bar3D elem;
     void SetUp() override {
         model.nodes.resize(3);
         // Node A 全部自由
-        CNode& nodeA = model.nodes[0];
+        Node& nodeA = model.nodes[0];
         nodeA.Index = 0;
         nodeA.bcode[UX] = 0;
         nodeA.bcode[UY] = 0;
@@ -20,7 +20,7 @@ protected:
         nodeA.eqn[UY] = 2;
         nodeA.eqn[UZ] = 3;
 
-        CNode& nodeB = model.nodes[1];
+        Node& nodeB = model.nodes[1];
         nodeB.Index = 1;
         nodeB.bcode[UX] = 3;
         nodeB.bcode[UY] = 0;
@@ -29,7 +29,7 @@ protected:
         nodeB.eqn[UY] = 4;
         nodeB.eqn[UZ] = 5;
 
-        CNode& nodeC = model.nodes[2];
+        Node& nodeC = model.nodes[2];
         nodeC.Index = 2;
         nodeC.bcode[UX] = 1; // 固定
         nodeC.bcode[UY] = 2; // 指定位移

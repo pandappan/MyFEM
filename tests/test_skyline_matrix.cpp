@@ -4,13 +4,13 @@
 #include "SkylineMatrix.h"
 #include "../build/_deps/googletest-src/googletest/include/gtest/gtest.h"
 
-static std::unique_ptr<CSkylineMatrix<double>> Build3x3FullSkyline() {
-    auto K = std::unique_ptr<CSkylineMatrix<double>>(new CSkylineMatrix<double>(3));
+static std::unique_ptr<SkylineMatrix<double>> Build3x3FullSkyline() {
+    auto K = std::unique_ptr<SkylineMatrix<double>>(new SkylineMatrix<double>(3));
 
     std::vector<unsigned int> lm = {1, 2, 3};
     K->CalculateColumnHeight(lm);
     K->CalculateMaximumHalfBandwidth();
-    K->CalculateDiagnoalAddress();
+    K->Diagonal();
     K->Allocate();
     return K;
 }

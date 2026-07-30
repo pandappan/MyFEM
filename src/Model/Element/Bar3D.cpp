@@ -18,25 +18,25 @@
 #include "../Material/BarMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-const DOFIndex CBar3D::ActiveDOFs[3] = {UX, UY, UZ};
-const unsigned int CBar3D::NumActiveDOFsPerNode = 3;
+const DOFIndex Bar3D::ActiveDOFs[3] = {UX, UY, UZ};
+const unsigned int Bar3D::NumActiveDOFsPerNode = 3;
 
 //	Constructor
-CBar3D::CBar3D()
+Bar3D::Bar3D()
 {
 	AllocateStorage(3,2,6);
 }
 
 //	Write element data to stream
-void CBar3D::Write(std::ostream& output) const
+void Bar3D::Write(std::ostream& output) const
 {
 	output << std::setw(6) << nodes_[0]->Index
 	<< std::setw(6) << nodes_[1]->Index
 	<< std::setw(6) << ElementMaterial_->nset << std::endl;
 }
 
-void CBar3D::WriteElementStress(std::ostream& out) const {
-	auto* mat = static_cast<CBarMaterial*>(ElementMaterial_);
+void Bar3D::WriteElementStress(std::ostream& out) const {
+	auto* mat = static_cast<BarMaterial*>(ElementMaterial_);
 	double DX[3];
 	double L2 = 0.0;
 	for (unsigned int i = 0; i < 3; ++i) {
@@ -60,7 +60,7 @@ void CBar3D::WriteElementStress(std::ostream& out) const {
 }
 
 //	Calculate element stiffness matrix
-void CBar3D::ElementStiffness(DenseMatrix<double>& K) const
+void Bar3D::ElementStiffness(DenseMatrix<double>& K) const
 {
 	K.SetZero();
 	// 双指针的nodes什么意思？
@@ -69,7 +69,7 @@ void CBar3D::ElementStiffness(DenseMatrix<double>& K) const
 	double dz = nodes_[1]->XYZ[2] - nodes_[0]->XYZ[2];
 	double l2 = dx * dx + dy * dy + dz * dz;
 	double l = sqrt(l2);
-	CBarMaterial* mat = static_cast<CBarMaterial*>(ElementMaterial_);
+	BarMaterial* mat = static_cast<BarMaterial*>(ElementMaterial_);
 	double k = mat->E * mat->Area / (l * l2);
 	// 刚度系数
 	double cxx = k * dx * dx;
@@ -101,9 +101,9 @@ void CBar3D::ElementStiffness(DenseMatrix<double>& K) const
 }
 
 //	Calculate element stress 
-double CBar3D::ElementStress() const
+double Bar3D::ElementStress() const
 {
-	CBarMaterial* mat = static_cast<CBarMaterial*>(ElementMaterial_);	// Pointer to material of the element
+	BarMaterial* mat = static_cast<BarMaterial*>(ElementMaterial_);	// Pointer to material of the element
 	double DX[3];
 	double L2 = 0.0;
 	for (unsigned int i = 0; i < 3; ++i) {
@@ -123,7 +123,7 @@ double CBar3D::ElementStress() const
 	return stress;
 }
 
-void CBar3D::CalculateBodyForce(const double *bodyForce) {
+void Bar3D::CalculateBodyForce(const double *bodyForce) {
 	// 单元长度
 	double dx = nodes_[1]->XYZ[0] - nodes_[0]->XYZ[0];
 	double dy = nodes_[1]->XYZ[1] - nodes_[0]->XYZ[1];
@@ -131,7 +131,7 @@ void CBar3D::CalculateBodyForce(const double *bodyForce) {
 	double l2 = dx * dx + dy * dy + dz * dz;
 	double len = sqrt(l2);
 	// 单元截面参数
-	CBarMaterial* mat = static_cast<CBarMaterial*>(ElementMaterial_);
+	BarMaterial* mat = static_cast<BarMaterial*>(ElementMaterial_);
 	// 将体积转化为等效节点力，依次写入节点力中
 	double factor = 0.5 * len * mat->Area * mat->rho;
 	for (unsigned int d = 0; d < NDim_; d++) {
@@ -141,24 +141,24 @@ void CBar3D::CalculateBodyForce(const double *bodyForce) {
 	}
 }
 
-void CBar3D::GetVisualizationNodes(DenseMatrix<double>& coords) const {
+void Bar3D::GetVisualizationNodes(DenseMatrix<double>& coords) const {
 	coords.Resize(3, NEN_);
 	for (unsigned int i = 0; i < NEN_; i++)
 		for (unsigned int d = 0; d < 3; d++)
 			coords(d, i) = nodes_[i]->XYZ[d];
 }
 
-void CBar3D::GetVisualizationDeformeNodes(DenseMatrix<double>& coords) const {
+void Bar3D::GetVisualizationDeformeNodes(DenseMatrix<double>& coords) const {
 	coords.Resize(3, NEN_);
 	for (unsigned int i = 0; i < NEN_; i++)
 		for (unsigned int d = 0; d < 3; d++)
 			coords(d, i) = nodes_[i]->XYZ[d] + nodes_[i]->displacement[d];
 }
 
-double CBar3D::GetRepresentativeStress() const {
+double Bar3D::GetRepresentativeStress() const {
 	return ElementStress();
 }
 
-MaterialCategory CBar3D::GetRequiredMaterial() const {
+MaterialCategory Bar3D::GetRequiredMaterial() const {
 	return MaterialCategory::Mechanical1D;
 }

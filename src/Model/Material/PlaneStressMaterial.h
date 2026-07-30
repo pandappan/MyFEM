@@ -7,13 +7,13 @@
 #include "Material.h"
 
 
-class CPlaneStressMaterial : public CMaterial{
+class PlaneStressMaterial : public Material{
 public:
     double thk;
-    CPlaneStressMaterial();
+    PlaneStressMaterial();
     void Write(std::ostream &Output) const override;
     unsigned int GetNumStressComponents() const override {return 3;};
     void ComputeElasticMatrix(DenseMatrix<double>& D) const override;
     double GetThickness() const override {return thk;};
-    MaterialCategory GetCateogory() const override;
+    MaterialCategory GetCategory() const override;
 };

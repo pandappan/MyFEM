@@ -1,7 +1,3 @@
-//
-// Created by Administrator on 2026/7/6.
-//
-
 #include <iostream>
 #include "Analysis/Assembly.h"
 #include "Analysis/Solver.h"
@@ -9,7 +5,6 @@
 #include "IO/VtuExporter.h"
 #include "IO/Writer.h"
 #include "Model/Model.h"
-#include "Element/CContinuumElement.h"
 
 int main(int argc, char* argv[]) {
     // 输入和输出文件名，不加尾缀

@@ -6,11 +6,11 @@
 #include "PlaneStrainMaterial.h"
 #include "../../Core/DenseMatrix.h"
 
-CPlaneStrainMaterial::CPlaneStrainMaterial() :thk(1.0) {
+PlaneStrainMaterial::PlaneStrainMaterial() :thk(1.0) {
     matType = MaterialCategory::MechanicalPlaneStrain;
 }
 
-void CPlaneStrainMaterial::Write(std::ostream& output) const {
+void PlaneStrainMaterial::Write(std::ostream& output) const {
     output << std::setw(6) << rho
     << std::setw(6) << E
     << std::setw(6) << nu
@@ -18,7 +18,7 @@ void CPlaneStrainMaterial::Write(std::ostream& output) const {
     << std::endl;
 }
 
-void CPlaneStrainMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
+void PlaneStrainMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
     D.SetZero();
     double factor = E / ((1.0 + nu) * (1.0 - 2.0 * nu));
     D(0,0) = factor * (1.0 - nu);   D(0,1) = factor * nu;
@@ -26,6 +26,6 @@ void CPlaneStrainMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const  {
     D(2,2) = factor * (1.0 - 2.0 * nu) / 2.0;
 }
 
-MaterialCategory CPlaneStrainMaterial::GetCateogory() const {
+MaterialCategory PlaneStrainMaterial::GetCategory() const {
     return MaterialCategory::MechanicalPlaneStrain;
 }

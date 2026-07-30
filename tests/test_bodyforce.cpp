@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "Node.h"
 #include "Material/BarMaterial.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 #include "Element/Bar3D.h"
 #include "Element/Q4.h"
 
@@ -9,19 +9,19 @@ TEST(BodyForc, Bar3DGravityHalvedBetweenNodes) {
     // 基本参数
     const double L = 2.0, Area = 1.0, rho = 100.0;
     // 节点参数
-    std::vector<CNode> nodes;
+    std::vector<Node> nodes;
     nodes.emplace_back(0.0,0.0,0.0);
     nodes.emplace_back(L,0.0,0.0);
     for (unsigned int i = 0; i < nodes.size(); i++) {
         nodes[i].Index = i;
     }
     // 材料参数
-    auto mat = std::unique_ptr<CBarMaterial>(new CBarMaterial());
+    auto mat = std::unique_ptr<BarMaterial>(new BarMaterial());
     mat->rho = rho;
     mat->Area = Area;
     // 单元参数
-    auto elem = std::unique_ptr<CBar3D>(new CBar3D());
-    std::vector<CNode*> nds = {&nodes[0],&nodes[1]};
+    auto elem = std::unique_ptr<Bar3D>(new Bar3D());
+    std::vector<Node*> nds = {&nodes[0],&nodes[1]};
     elem->SetupForTesting(nds,mat.get());
     // 体力加速度
     const double g[3] = {0.0, -10.0, 0.0};
@@ -41,18 +41,18 @@ TEST(BodyForce, Q4UniformGravity) {
     // 单元总重 = ρ·V·|g| = 100·1·10 = 1000
     // 应均匀分给 4 个节点（因为几何对称），每节点 -250 in Y
 
-    std::vector<CNode> nodes;
+    std::vector<Node> nodes;
     nodes.emplace_back(0.0, 0.0, 0.0);
     nodes.emplace_back(1.0, 0.0, 0.0);
     nodes.emplace_back(1.0, 1.0, 0.0);
     nodes.emplace_back(0.0, 1.0, 0.0);
     for (unsigned int i = 0; i < 4; ++i) nodes[i].Index = i;
 
-    auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
+    auto mat = std::unique_ptr<PlaneStressMaterial>(new PlaneStressMaterial());
     mat->E = 1e6; mat->nu = 0.3; mat->thk = 1.0; mat->rho = 100.0;
 
-    auto elem = std::unique_ptr<CQ4>(new CQ4());
-    std::vector<CNode*> nps = {&nodes[0], &nodes[1], &nodes[2], &nodes[3]};
+    auto elem = std::unique_ptr<Q4>(new Q4());
+    std::vector<Node*> nps = {&nodes[0], &nodes[1], &nodes[2], &nodes[3]};
     elem->SetupForTesting(nps, mat.get());
     elem->InitializeIntegrationPoints();
 

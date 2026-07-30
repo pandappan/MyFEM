@@ -5,8 +5,8 @@
 #pragma once
 #include <memory>
 #include "../Core/Types.h"
-class CElement;
-class CMaterial;
-std::unique_ptr<CMaterial> CreateMaterialByString(const std::string& type);
-std::unique_ptr<CElement> CreateElementByString(const std::string& type);
+class Element;
+class Material;
+std::unique_ptr<Material> CreateMaterialByString(const std::string& type);
+std::unique_ptr<Element> CreateElementByString(const std::string& type);
 ElementTypes StringToElementType(const std::string& type);

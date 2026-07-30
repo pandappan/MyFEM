@@ -52,11 +52,11 @@ TEST(IntegrationTest, H8_UniaxialTension) {
     CElementGroup group;
     group.SetTypeForTesting(ElementTypes::H8);
 
-    auto mat = std::unique_ptr<CSolid3DMaterial>(new CSolid3DMaterial());
+    auto mat = std::unique_ptr<Solid3DMaterial>(new Solid3DMaterial());
     mat->nset = 1; mat->E = E; mat->nu = 0.0;
     model.materials.push_back(std::move(mat));
 
-    auto elem = std::unique_ptr<CH8>(new CH8());
+    auto elem = std::unique_ptr<H8>(new H8());
     std::vector<unsigned int> connectivity = {0,1,2,3,4,5,6,7};
     elem->SetElementInfo(0, model.GetMaterialPtr(0), connectivity, model.nodes);
     elem->InitializeIntegrationPoints();

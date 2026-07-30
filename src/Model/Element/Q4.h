@@ -2,20 +2,20 @@
 // Created by Administrator on 2026/6/10.
 //
 #pragma once
-#include "CContinuumElement.h"
+#include "ContinuumElement.h"
 #include <vector>
 
-class CQ4 : public CContinuumElement{
+class Q4 : public ContinuumElement{
 private:
     // 静态成员变量，属于类本身的特性，不单独属于某个类，静态常量可以在类内定义，静态常量数组需要在类外定义
     static const DOFIndex ActiveDOFs[2];
     static const unsigned int NumActiveDOFsPerNode;
 public:
     // 构造函数
-    CQ4();
+    Q4();
 
     //! Q4单元作为H8单元的面元时接受节点数组初始化
-    void AsFaceElem(const std::vector<CNode*>& nodelist);
+    void AsFaceElem(const std::vector<Node*>& nodelist);
 
     //!	Write element data to stream
     void Write(std::ostream& output) const override;
@@ -52,7 +52,7 @@ public:
     //! 获取局部节点编号
     std::vector<int> GetFaceNodesLocalID(unsigned int faceID) const;
     //! 单元外推矩阵
-    DenseMatrix<double> GetExprapolationMatrix() const override;
+    DenseMatrix<double> GetExtrapolationMatrix() const override;
     // 单元的材料类型，根据单元类型兼容两种材料
     MaterialCategory GetRequiredMaterial() const override;
 };

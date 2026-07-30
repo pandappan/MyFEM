@@ -7,13 +7,13 @@
 #include "DenseMatrix.h"
 #include "Node.h"
 #include "Element/Q4.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 
 class Q4UnitSqareFixture : public::testing::Test {
 protected:
-    std::vector<CNode> nodes_;
-    std::unique_ptr<CPlaneStressMaterial> material_;
-    std::unique_ptr<CQ4> elem_;
+    std::vector<Node> nodes_;
+    std::unique_ptr<PlaneStressMaterial> material_;
+    std::unique_ptr<Q4> elem_;
 
     void SetUp() override {
         nodes_.reserve(4);
@@ -22,15 +22,15 @@ protected:
         nodes_.emplace_back(1.0,1.0,0.0);
         nodes_.emplace_back(0.0,1.0,0.0);
 
-        material_.reset(new CPlaneStressMaterial());
+        material_.reset(new PlaneStressMaterial());
         material_->nset = 1;
         material_->E = 1000.0;
         material_->nu = 0.3;
         material_->thk = 1.0;
         material_->rho = 0.0;
 
-        elem_.reset(new CQ4);
-        std::vector<CNode*> nodesPtrs = {&nodes_[0], &nodes_[1], &nodes_[2], &nodes_[3]};
+        elem_.reset(new Q4);
+        std::vector<Node*> nodesPtrs = {&nodes_[0], &nodes_[1], &nodes_[2], &nodes_[3]};
         elem_->SetupForTesting(nodesPtrs, material_.get());
         elem_->InitializeIntegrationPoints();
     }

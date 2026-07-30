@@ -5,7 +5,7 @@
 #include "Node.h"
 #include "Element/Q4.h"
 #include "Element/ElementGroup.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 #include "Assembly.h"
 #include "Solver.h"
 
@@ -38,13 +38,13 @@ TEST(IntegrationTest, Q4SurfaceLoadTopEdge) {
     CElementGroup group;
     group.SetTypeForTesting(ElementTypes::Q4_PS);
     
-    auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
+    auto mat = std::unique_ptr<PlaneStressMaterial>(new PlaneStressMaterial());
     mat->nset = 1;  mat->E = E;  mat->nu = 0.0;  mat->thk = 1.0;
     model.materials.push_back(std::move(mat));
     
-    auto elem = std::unique_ptr<CQ4>(new CQ4());
+    auto elem = std::unique_ptr<Q4>(new Q4());
     elem->SetElementNumber(1);   // ★ 面力查找需要
-    std::vector<CNode*> nps = {&model.nodes[0], &model.nodes[1],
+    std::vector<Node*> nps = {&model.nodes[0], &model.nodes[1],
                                &model.nodes[2], &model.nodes[3]};
     std::vector<unsigned int> connectivity = {0,1,2,3};
     elem->SetElementInfo(0,model.GetMaterialPtr(0),connectivity,model.nodes);

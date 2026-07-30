@@ -1,20 +1,20 @@
 #include <iomanip>
-#include "CAxisymMaterial.h"
+#include "AxisymMaterial.h"
 #include "Types.h"
 #include "DenseMatrix.h"
 
-CAxisymMaterial::CAxisymMaterial() {
+AxisymMaterial::AxisymMaterial() {
     matType = MaterialCategory::MechanicalAxisym;
 }
 
-void CAxisymMaterial::Write(std::ostream &output) const {
+void AxisymMaterial::Write(std::ostream &output) const {
     output << std::setw(6) << rho
     << std::setw(6) << E
     << std::setw(6) << nu << std::endl;
 }
 
 // 应变 {εrr, εzz, εθθ, γrz}, 应力 {σrr, σzz, σθθ, τrz}
-void CAxisymMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const {
+void AxisymMaterial::ComputeElasticMatrix(DenseMatrix<double>& D) const {
     D.SetZero();
     double a = E * (1.0 - nu) / ((1.0 + nu) * (1.0 - 2.0 * nu));
     double b = E * nu         / ((1.0 + nu) * (1.0 - 2.0 * nu));

@@ -8,8 +8,8 @@
 #include "../../Core/DenseMatrix.h"
 
 // 初始化单元基础信息
-void CElement::SetElementInfo(unsigned int elemId_0, CMaterial* matPtr,
-    const std::vector<unsigned int>& connectivity_0, std::vector<CNode>& nodeList) {
+void Element::SetElementInfo(unsigned int elemId_0, Material* matPtr,
+    const std::vector<unsigned int>& connectivity_0, std::vector<Node>& nodeList) {
     ElementNumber_   = elemId_0;
     ElementMaterial_ = matPtr;
     for (unsigned int i = 0; i < NEN_; ++i)
@@ -21,10 +21,10 @@ void CElement::SetElementInfo(unsigned int elemId_0, CMaterial* matPtr,
 
 // 获取单元所有节点的坐标
 // x_iI
-CElement::CElement():elementType_(ElementTypes::UNDEFINED),ElementNumber_(0),
+Element::Element():elementType_(ElementTypes::UNDEFINED),ElementNumber_(0),
 NDim_(0), NEN_(0), ND_(0), ElementMaterial_(nullptr), volume_((0.0)){}
 
-DenseMatrix<double> CElement::GetNodeCoordinates() const {
+DenseMatrix<double> Element::GetNodeCoordinates() const {
     DenseMatrix<double> nodeCoords(NDim_, NEN_);
     for (unsigned int k = 0; k < NEN_; k++) {
         for (unsigned int d = 0; d < NDim_; d++) {
@@ -36,7 +36,7 @@ DenseMatrix<double> CElement::GetNodeCoordinates() const {
 
 
 // 根据单元-节点连接关系，形成单元的定位数组，用于形成总体刚度矩阵
-void CElement::GenerateLocationMatrix()
+void Element::GenerateLocationMatrix()
 {
     const DOFIndex* activeDOFs  = GetActiveDOFs();
     unsigned int ndofs = GetNumActiveDOFsPerNode();
@@ -46,7 +46,7 @@ void CElement::GenerateLocationMatrix()
             LocationMatrix_[i++] = nodes_[N]->eqn[activeDOFs[D]];
 }
 
-void CElement::AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int nd) {
+void Element::AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int nd) {
     NEN_ = nen;
     NDim_ = nDim;
     ND_ = nd;
@@ -54,7 +54,7 @@ void CElement::AllocateStorage(unsigned int nDim, unsigned int nen, unsigned int
     LocationMatrix_.assign(ND_, 0);
 }
 
-void CElement::GetElementNodesDisp(std::vector<double>& nodesDisp,
+void Element::GetElementNodesDisp(std::vector<double>& nodesDisp,
                                    std::vector<int>& nodesBcode) const {
     const DOFIndex* dofs = GetActiveDOFs();
     unsigned int    ndof = GetNumActiveDOFsPerNode();
@@ -68,7 +68,7 @@ void CElement::GetElementNodesDisp(std::vector<double>& nodesDisp,
     }
 }
 
-void CElement::GetElementNodesForce(std::vector<double>& nodesForce) {
+void Element::GetElementNodesForce(std::vector<double>& nodesForce) {
     const DOFIndex* dofs = GetActiveDOFs();
     unsigned int    ndof = GetNumActiveDOFsPerNode();
     unsigned int index = 0;
@@ -82,7 +82,7 @@ void CElement::GetElementNodesForce(std::vector<double>& nodesForce) {
 
 // 反力：R_i = Σ_j K(i,j)·u_j - f_i
 // 只写回固定、指定位移约束的反力，自由，从属位移则不处理
-void CElement::CalculateBCForce() {
+void Element::CalculateBCForce() {
     DenseMatrix<double> Ke(ND_, ND_);
     Ke.SetZero();
     ElementStiffness(Ke);
@@ -113,7 +113,7 @@ void CElement::CalculateBCForce() {
     }
 }
 
-bool CElement::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
+bool Element::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, double value) {
     if (elementType_ == ElementTypes::Bar3D) {
         std::cerr << "Bar3D do not have surface load" << std::endl;
         return false;
@@ -122,16 +122,16 @@ bool CElement::CalculateSurfaceLoad(unsigned int faceID, unsigned int dof, doubl
 }
 
 // 空实现
-void CElement::CalculateBodyForce(const double* bodyForce) {
+void Element::CalculateBodyForce(const double* bodyForce) {
     return;
 }
 
-void CElement::SetElementType(ElementTypes elementType) {
+void Element::SetElementType(ElementTypes elementType) {
     elementType_ = elementType;
 }
 
 // 计算单元内的应变能 0.5 u^t K u
-double CElement::CalculateElementEnergy() const {
+double Element::CalculateElementEnergy() const {
     // 单元所有节点的位移
     std::vector<double> nodesDisp(ND_);
     std::vector<int> nodesBcode(ND_);
@@ -149,15 +149,15 @@ double CElement::CalculateElementEnergy() const {
     return energy;
 }
 
-void CElement::SetupForTesting(std::vector<CNode*> NodeList, CMaterial* Material_) {
+void Element::SetupForTesting(std::vector<Node*> NodeList, Material* Material_) {
     nodes_ = std::move(NodeList);
     ElementMaterial_ = Material_;
 }
 
-void CElement::RegisterDofsOnNodes() {
+void Element::RegisterDofsOnNodes() {
     const DOFIndex* dofs = GetActiveDOFs();
     const unsigned int ndof = GetNumActiveDOFsPerNode();
-    for (CNode* node: nodes_) {
+    for (Node* node: nodes_) {
         for (unsigned int d = 0; d < ndof; ++d) {
             node->ActivateDof(static_cast<unsigned int>(dofs[d]));
         }

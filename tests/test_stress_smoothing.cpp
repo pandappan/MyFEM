@@ -8,7 +8,7 @@
 #include "Node.h"
 #include "Element/Q4.h"
 #include "Element/ElementGroup.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 #include "Assembly.h"
 #include "Solver.h"
 TEST(StressSmoothing, Q4UniformStressField) {
@@ -51,15 +51,15 @@ TEST(StressSmoothing, Q4UniformStressField) {
     CElementGroup group;
     group.SetTypeForTesting(ElementTypes::Q4_PS);
 
-    auto mat = std::unique_ptr<CPlaneStressMaterial>(new CPlaneStressMaterial());
+    auto mat = std::unique_ptr<PlaneStressMaterial>(new PlaneStressMaterial());
     mat->nset = 1;
     mat->E   = E;
     mat->nu  = nu;
     mat->thk = 1.0;
     model.materials.push_back(std::move(mat));
 
-    auto elem = std::unique_ptr<CQ4>(new CQ4());
-    std::vector<CNode*> nodes = {&model.nodes[0], &model.nodes[1], &model.nodes[2], &model.nodes[3]};
+    auto elem = std::unique_ptr<Q4>(new Q4());
+    std::vector<Node*> nodes = {&model.nodes[0], &model.nodes[1], &model.nodes[2], &model.nodes[3]};
     std::vector<unsigned int> connectivity = {0,1,2,3};
     elem->SetElementInfo(0, model.materials[0].get(), connectivity, model.nodes);
     elem->InitializeIntegrationPoints();

@@ -2,16 +2,16 @@
 #include <memory>
 #include "Node.h"
 #include "Element/Q4.h"
-#include "Material/CPlaneStressMaterial.h"
+#include "Material/PlaneStressMaterial.h"
 
 TEST(NodeDofTest, DefaultMaskIsZero) {
-    CNode node;
+    Node node;
     EXPECT_EQ(node.activeMask, 0);
     EXPECT_FALSE(node.HasAnyActiveDof());
 }
 
 TEST(NodeDofTest, ActiveDof) {
-    CNode node;
+    Node node;
     node.ActivateDof(UX);
     node.ActivateDof(ROTZ);
     EXPECT_TRUE(node.IsDofActive(UX));
@@ -21,7 +21,7 @@ TEST(NodeDofTest, ActiveDof) {
 }
 
 TEST(NodeDofTest, GenerationEquation) {
-    CNode node;
+    Node node;
     node.ActivateDof(UX);
     node.ActivateDof(ROTZ);
     unsigned int neq = 0;
@@ -37,9 +37,9 @@ TEST(NodeDofTest, GenerationEquation) {
 }
 
 TEST(NodeDofTest, ElementRegisterNodeDof) {
-    std::vector<CNode> nodes(4);
-    std::unique_ptr<CElement> elem = std::make_unique<CQ4>();
-    std::unique_ptr<CMaterial> mat = std::make_unique<CPlaneStressMaterial>();
+    std::vector<Node> nodes(4);
+    std::unique_ptr<Element> elem = std::make_unique<Q4>();
+    std::unique_ptr<Material> mat = std::make_unique<PlaneStressMaterial>();
 
     std::vector<unsigned int> connectivity = {0,1,2,3};
     elem->SetElementInfo(0,mat.get(),connectivity,nodes);

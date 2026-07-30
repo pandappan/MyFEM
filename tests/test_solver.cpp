@@ -17,7 +17,7 @@ TEST(LDLTSolver, SolvesTridiagonalSystem) {
     // 建 3x3 SkylineMatrix，让 col 1 相连到 col 3
     // 但 K(1,3)=0，所以列高只到 col 2
     // 实际上我们可以只让 col 1-2 相连、col 2-3 相连
-    auto K = std::unique_ptr<CSkylineMatrix<double>>(new CSkylineMatrix<double>(3));
+    auto K = std::unique_ptr<SkylineMatrix<double>>(new SkylineMatrix<double>(3));
 
     // 两个"单元"分别连接 [1,2] 和 [2,3]
     std::vector<unsigned int> lm1 = {1, 2};
@@ -25,7 +25,7 @@ TEST(LDLTSolver, SolvesTridiagonalSystem) {
     K->CalculateColumnHeight(lm1);
     K->CalculateColumnHeight(lm2);
     K->CalculateMaximumHalfBandwidth();
-    K->CalculateDiagnoalAddress();
+    K->Diagonal();
     K->Allocate();
 
     // 填入 K（1-based）
